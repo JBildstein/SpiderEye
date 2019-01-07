@@ -1,0 +1,26 @@
+<Project>
+  <PropertyGroup>
+    <LangVersion>7.3</LangVersion>
+    <AssemblyVersion>1.0.0</AssemblyVersion>
+    <AutoIncrementPackageRevision>True</AutoIncrementPackageRevision>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <Authors>Johannes Bildstein</Authors>
+    <Company />
+    <Copyright>Copyright © Johannes Bildstein 2018</Copyright>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://gitlab.com/JBildstein/SpiderEye.git</RepositoryUrl>
+    <CodeAnalysisRuleSet>..\Shared\SpiderEye.ruleset</CodeAnalysisRuleSet>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <AdditionalFiles Include="..\Shared\stylecop.json" Link="Properties\stylecop.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.1-beta.61">
+      <PrivateAssets>all</PrivateAssets>
+      <DevelopmentDependency>true</DevelopmentDependency>
+    </PackageReference>
+  </ItemGroup>
+</Project>

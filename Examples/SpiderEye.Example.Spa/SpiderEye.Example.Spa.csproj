@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <GenerateEmbeddedFilesManifest>True</GenerateEmbeddedFilesManifest>
+    <TypeScriptToolsVersion>3.1</TypeScriptToolsVersion>
+    <TypeScriptCompileBlocked>True</TypeScriptCompileBlocked>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net462;netcoreapp2.2</TargetFrameworks>
+    <RuntimeIdentifiers>win;linux;osx</RuntimeIdentifiers>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net462'">
+    <OutputType>WinExe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
+    <ProjectReference Include="..\..\SpiderEye.Windows\SpiderEye.Windows.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="2.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\SpiderEye\SpiderEye.csproj" />
+    <ProjectReference Include="..\..\SpiderEye.AspNetCore\SpiderEye.AspNetCore.csproj" />
+    <ProjectReference Include="..\..\SpiderEye.Linux\SpiderEye.Linux.csproj" />
+    <ProjectReference Include="..\..\SpiderEye.Mac\SpiderEye.Mac.csproj" />
+  </ItemGroup>
+</Project>
