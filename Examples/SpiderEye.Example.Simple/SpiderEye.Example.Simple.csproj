@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <GenerateEmbeddedFilesManifest>True</GenerateEmbeddedFilesManifest>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net462;netcoreapp2.2</TargetFrameworks>
+    <RuntimeIdentifiers>win;linux;osx</RuntimeIdentifiers>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net462'">
+    <OutputType>WinExe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="2.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\SpiderEye\SpiderEye.csproj" />
+    <ProjectReference Include="..\..\SpiderEye.AspNetCore\SpiderEye.AspNetCore.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="App\**" />
+  </ItemGroup>
+</Project>
