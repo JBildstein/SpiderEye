@@ -27,13 +27,20 @@ namespace SpiderEye.Linux
 
         public void Run()
         {
-            window.Webview.LoadUrl(config.Url);
+            window.Webview.LoadUrl(config.StartPageUrl);
             window.Show();
 
             while (keepRunning)
             {
                 Gtk.MainIteration();
             }
+
+            window.Destroy();
+        }
+
+        public void Exit()
+        {
+            keepRunning = false;
         }
 
         private static void Init()
@@ -48,7 +55,7 @@ namespace SpiderEye.Linux
 
         private void Window_Closed(object sender, EventArgs e)
         {
-            keepRunning = false;
+            Exit();
         }
     }
 }

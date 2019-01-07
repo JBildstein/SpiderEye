@@ -16,6 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="**\*.js" />
+    <EmbeddedResource Include="**\Scripts\*.js" />
   </ItemGroup>
 </Project>

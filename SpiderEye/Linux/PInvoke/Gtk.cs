@@ -12,6 +12,9 @@ namespace SpiderEye.Linux
             [DllImport(GtkNativeDll, EntryPoint = "gtk_window_new", CallingConvention = CallingConvention.Cdecl)]
             public static extern IntPtr Create(GtkWindowType type);
 
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_widget_destroy", CallingConvention = CallingConvention.Cdecl)]
+            public static extern void Destroy(IntPtr window);
+
             [DllImport(GtkNativeDll, EntryPoint = "gtk_scrolled_window_new", CallingConvention = CallingConvention.Cdecl)]
             public static extern IntPtr CreateScrolled(IntPtr hadjustment, IntPtr vadjustment);
 

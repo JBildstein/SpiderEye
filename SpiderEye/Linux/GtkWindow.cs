@@ -35,7 +35,6 @@ namespace SpiderEye.Linux
             Title = config.Title;
             Gtk.Window.SetDefaultSize(window, config.Width, config.Height);
             Gtk.Window.SetResizable(window, config.CanResize);
-            Gtk.Window.SetPosition(window, GtkWindowPosition.Center);
 
             IntPtr scroller = Gtk.Window.CreateScrolled(IntPtr.Zero, IntPtr.Zero);
             Gtk.Window.ContainerAdd(window, scroller);
@@ -54,6 +53,16 @@ namespace SpiderEye.Linux
         {
             Gtk.Window.ShowAll(window);
             Gtk.Window.Present(window);
+        }
+
+        public void Close()
+        {
+            Gtk.Window.Close(window);
+        }
+
+        public void Destroy()
+        {
+            Gtk.Window.Destroy(window);
         }
 
         private void DestroyCallback(IntPtr widget, IntPtr arg)

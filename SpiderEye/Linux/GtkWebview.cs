@@ -1,7 +1,5 @@
 ﻿using System;
-using System.IO;
 using System.Text;
-using SpiderEye.Tools;
 
 namespace SpiderEye.Linux
 {
@@ -15,11 +13,13 @@ namespace SpiderEye.Linux
 
         private readonly IntPtr manager;
         private readonly AppConfiguration config;
+        private readonly string initScript;
 
         public GtkWebview(AppConfiguration config)
         {
             this.config = config ?? throw new ArgumentNullException(nameof(config));
 
+            initScript = Scripts.GetScript("Linux", "InitScript.js");
             manager = WebKit.Manager.Create();
             using (GLibString name = "script-message-received::external")
             {
@@ -37,6 +37,11 @@ namespace SpiderEye.Linux
                 GLib.ConnectSignal(Handle, name, (PageLoadDelegate)LoadCallback, IntPtr.Zero);
             }
 
+            using (GLibString name = "context-menu")
+            {
+                GLib.ConnectSignal(Handle, name, (ContextMenuRequestDelegate)ContextMenuCallback, IntPtr.Zero);
+            }
+
             using (GLibString name = "notify::title")
             {
                 GLib.ConnectSignal(Handle, name, (WebviewDelegate)TitleChangeCallback, IntPtr.Zero);
@@ -45,22 +50,6 @@ namespace SpiderEye.Linux
             using (GLibString name = "close")
             {
                 GLib.ConnectSignal(Handle, name, (WebviewDelegate)CloseCallback, IntPtr.Zero);
-            }
-
-            if (config.ShowDevTools)
-            {
-                IntPtr settings = WebKit.Settings.Get(Handle);
-                WebKit.Settings.SetEnableWriteConsoleMessagesToStdout(settings, true);
-                WebKit.Settings.SetEnableDeveloperExtras(settings, true);
-
-                IntPtr inspector = WebKit.Inspector.Get(Handle);
-                WebKit.Inspector.Show(inspector);
-            }
-
-            IntPtr context = WebKit.Context.GetDefault();
-            using (GLibString name = "spider")
-            {
-                WebKit.Context.RegisterUriScheme(context, name, FileRequestCallback, IntPtr.Zero, IntPtr.Zero);
             }
         }
 
@@ -72,19 +61,12 @@ namespace SpiderEye.Linux
             }
         }
 
-        public void RunJs(string script)
+        public void ExecuteScript(string script)
         {
             using (GLibString gscript = script)
             {
                 WebKit.RunJavaScript(Handle, gscript, IntPtr.Zero, null, IntPtr.Zero);
             }
-        }
-
-        private void InsertExternHandler()
-        {
-            const string script = "window.external={invoke:function(x){" +
-                "window.webkit.messageHandlers.external.postMessage(x);}}";
-            RunJs(script);
         }
 
         private unsafe void ScriptCallback(IntPtr manager, IntPtr jsResult, IntPtr userdata)
@@ -106,12 +88,13 @@ namespace SpiderEye.Linux
         {
             if (type == WebKitLoadEvent.Finished)
             {
-                InsertExternHandler();
+                ExecuteScript(initScript);
             }
         }
 
         private bool ContextMenuCallback(IntPtr webview, IntPtr default_menu, IntPtr hit_test_result, bool triggered_with_keyboard, IntPtr arg)
         {
+            // this simply prevents the default context menu from showing up
             return true;
         }
 
@@ -124,36 +107,6 @@ namespace SpiderEye.Linux
         {
             string title = GLibString.FromPointer(WebKit.GetTitle(webview));
             TitleChanged?.Invoke(this, title);
-        }
-
-        private unsafe void FileRequestCallback(IntPtr request, IntPtr userdata)
-        {
-            string uri = GLibString.FromPointer(WebKit.UriScheme.GetRequestUri(request));
-            using (var resourceStream = ResourceUriResolver.Instance.GetResource(uri))
-            {
-                if (resourceStream != null)
-                {
-                    using (var reader = new StreamReader(resourceStream))
-                    {
-                        string dataString = reader.ReadToEnd();
-                        byte[] data = Encoding.UTF8.GetBytes(dataString);
-                        fixed (byte* ptr = data)
-                        {
-                            IntPtr stream = GLib.CreateStreamFromData((IntPtr)ptr, data.Length, IntPtr.Zero);
-                            WebKit.UriScheme.FinishSchemeRequest(request, stream, data.Length, IntPtr.Zero);
-                            GLib.UnrefObject(stream);
-                        }
-                    }
-                }
-                else
-                {
-                    var error = new GError(
-                        domain: GLib.GetFileErrorQuark(),
-                        code: (int)GFileError.NOENT,
-                        message: IntPtr.Zero);
-                    WebKit.UriScheme.FinishSchemeRequestWithError(request, ref error);
-                }
-            }
         }
     }
 }

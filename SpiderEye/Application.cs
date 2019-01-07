@@ -5,10 +5,21 @@ using System.Runtime.InteropServices;
 
 namespace SpiderEye
 {
+    /// <summary>
+    /// Provides methods to create or run an application.
+    /// </summary>
     public static class Application
     {
+        /// <summary>
+        /// Creates a new application for the current operating system.
+        /// </summary>
+        /// <param name="config">The app configuration.</param>
+        /// <returns>The created application.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="config"/> is null.</exception>
         public static IApplication Create(AppConfiguration config)
         {
+            if (config == null) { throw new ArgumentNullException(nameof(config)); }
+
             if (IsWindows())
             {
 #if NET462
@@ -28,8 +39,16 @@ namespace SpiderEye
                 return new Mac.CocoaApplication(config);
             }
             else { throw new PlatformNotSupportedException(); }
+        }
 
-            throw new NotImplementedException();
+        /// <summary>
+        /// Creates a new application for the current operating system and runs it.
+        /// </summary>
+        /// <param name="config">The app configuration.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="config"/> is null.</exception>
+        public static void Run(AppConfiguration config)
+        {
+            Create(config).Run();
         }
 
         private static bool IsWindows()

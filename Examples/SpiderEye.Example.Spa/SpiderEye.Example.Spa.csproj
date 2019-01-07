@@ -4,6 +4,7 @@
     <TypeScriptCompileBlocked>True</TypeScriptCompileBlocked>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>net462;netcoreapp2.2</TargetFrameworks>
+    <RuntimeIdentifiers>win;linux;osx</RuntimeIdentifiers>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net462'">

@@ -1,4 +1,6 @@
-﻿if (typeof MutationObserver !== 'undefined') {
+﻿window.external.ChangeTitle(document.title);
+
+if (typeof MutationObserver !== 'undefined') {
     new MutationObserver(function (mutations) {
         window.external.ChangeTitle(mutations[0].target.nodeValue);
     }).observe(document.querySelector('title'),

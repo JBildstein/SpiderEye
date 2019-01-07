@@ -25,10 +25,10 @@ namespace SpiderEye.Windows
 
             webview = new WebBrowser();
             scriptInterface = new ScriptInterface();
-            initScript = Scripts.GetScript("InitScriptLegacy.js");
+            initScript = Scripts.GetScript("Windows", "InitScriptLegacy.js");
+            scriptInterface.TitleChanged += (s, e) => TitleChanged?.Invoke(this, e);
             webview.ObjectForScripting = scriptInterface;
             webview.LoadCompleted += Webview_LoadCompleted;
-            scriptInterface.TitleChanged += (s, e) => TitleChanged?.Invoke(this, e);
         }
 
         public void LoadUrl(string url)
@@ -37,14 +37,14 @@ namespace SpiderEye.Windows
             webview.Navigate(new Uri(host, url));
         }
 
-        public void RunJs(string script)
+        public void ExecuteScript(string script)
         {
             webview.InvokeScript("eval", new string[] { script });
         }
 
         private void Webview_LoadCompleted(object sender, NavigationEventArgs e)
         {
-            RunJs(initScript);
+            ExecuteScript(initScript);
         }
     }
 }

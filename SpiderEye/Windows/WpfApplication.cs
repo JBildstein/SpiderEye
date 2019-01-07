@@ -3,7 +3,7 @@ using Microsoft.Toolkit.Wpf.UI.Controls;
 
 namespace SpiderEye.Windows
 {
-    public class WpfApplication : IApplication
+    internal class WpfApplication : IApplication
     {
         public IWindow MainWindow
         {
@@ -32,10 +32,15 @@ namespace SpiderEye.Windows
 
         public void Run()
         {
-            window.Webview.LoadUrl(config.Url);
+            window.Webview.LoadUrl(config.StartPageUrl);
             window.Show();
 
             application.Run();
+        }
+
+        public void Exit()
+        {
+            application.Shutdown();
         }
     }
 }

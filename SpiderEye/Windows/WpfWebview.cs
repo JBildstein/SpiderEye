@@ -23,7 +23,7 @@ namespace SpiderEye.Windows
             webview = new WebView();
             webview.IsScriptNotifyAllowed = true;
             webview.ScriptNotify += Webview_ScriptNotify;
-            webview.AddInitializeScript(Scripts.GetScript("InitScript.js"));
+            webview.AddInitializeScript(Scripts.GetScript("Windows", "InitScript.js"));
         }
 
         public void LoadUrl(string url)
@@ -32,7 +32,7 @@ namespace SpiderEye.Windows
             webview.Navigate(new Uri(host, url));
         }
 
-        public void RunJs(string script)
+        public void ExecuteScript(string script)
         {
             webview.InvokeScript("eval", new string[] { script });
         }

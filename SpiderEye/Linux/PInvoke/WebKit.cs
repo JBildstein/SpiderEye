@@ -77,9 +77,11 @@ namespace SpiderEye.Linux
             public static extern IntPtr GetContext(IntPtr jsResult);
 
             [DllImport(WebkitNativeDll, EntryPoint = "webkit_javascript_result_get_js_value", CallingConvention = CallingConvention.Cdecl)]
-            public static extern IntPtr GetValue(IntPtr jsResult);
+            public static extern IntPtr GetValue(IntPtr jsResult);
+
             [DllImport(JavaScriptCoreNativeDll, EntryPoint = "jsc_value_is_string", CallingConvention = CallingConvention.Cdecl)]
-            public static extern bool IsValueString(IntPtr value);
+            public static extern bool IsValueString(IntPtr value);
+
             [DllImport(JavaScriptCoreNativeDll, EntryPoint = "jsc_value_to_string_as_bytes", CallingConvention = CallingConvention.Cdecl)]
             public static extern IntPtr GetStringBytes(IntPtr value);
         }

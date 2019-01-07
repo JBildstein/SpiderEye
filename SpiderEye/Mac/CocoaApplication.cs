@@ -20,5 +20,10 @@ namespace SpiderEye.Mac
         {
             throw new NotImplementedException();
         }
+
+        public void Exit()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
