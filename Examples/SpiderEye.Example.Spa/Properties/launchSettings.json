@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "SpiderEye.Example.Spa": {
-      "commandName": "Project",
-      "launchBrowser": false
-    }
-  }
-}

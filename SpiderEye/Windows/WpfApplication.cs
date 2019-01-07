@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Windows;
 using Microsoft.Toolkit.Wpf.UI.Controls;
 
 namespace SpiderEye.Windows

@@ -6,7 +6,7 @@
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <Authors>Johannes Bildstein</Authors>
     <Company />
-    <Copyright>Copyright © Johannes Bildstein 2018</Copyright>
+    <Copyright>Copyright © Johannes Bildstein 2019</Copyright>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://gitlab.com/JBildstein/SpiderEye.git</RepositoryUrl>
     <CodeAnalysisRuleSet>..\Shared\SpiderEye.ruleset</CodeAnalysisRuleSet>

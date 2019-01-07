@@ -8,7 +8,7 @@ namespace SpiderEye.Windows
         public static string GetScript(string name)
         {
             var assembly = Assembly.GetExecutingAssembly();
-            name = $"{assembly.GetName().Name}.{name}";
+            name = $"{assembly.GetName().Name}.Windows.{name}";
             using (var stream = assembly.GetManifestResourceStream(name))
             using (var reader = new StreamReader(stream))
             {

@@ -2,7 +2,7 @@
 
 namespace SpiderEye.Linux
 {
-    public class GtkApplication : IApplication
+    internal class GtkApplication : IApplication
     {
         public IWindow MainWindow
         {

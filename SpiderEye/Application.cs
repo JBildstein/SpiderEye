@@ -1,8 +1,7 @@
 using System;
-using System.IO;
-using System.Linq;
-using System.Reflection;
+#if NETSTANDARD2_0
 using System.Runtime.InteropServices;
+#endif
 
 namespace SpiderEye
 {
@@ -10,39 +9,60 @@ namespace SpiderEye
     {
         public static IApplication Create(AppConfiguration config)
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (IsWindows())
             {
-                return CreateApp("SpiderEye.Windows", config);
+#if NET462
+                return new Windows.WpfApplication(config);
+#elif NETSTANDARD2_0
+                throw new PlatformNotSupportedException("Windows is only supported on .Net 4.6.2 or newer");
+#else
+#error Unknown target runtime
+#endif
             }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            else if (IsLinux())
             {
-                return CreateApp("SpiderEye.Linux", config);
+                return new Linux.GtkApplication(config);
             }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            else if (IsMac())
             {
-                return CreateApp("SpiderEye.Mac", config);
+                return new Mac.CocoaApplication(config);
             }
             else { throw new PlatformNotSupportedException(); }
+
+            throw new NotImplementedException();
         }
 
-        private static IApplication CreateApp(string name, AppConfiguration config)
+        private static bool IsWindows()
         {
-            var appType = typeof(IApplication);
-            var entryAssembly = Assembly.GetEntryAssembly();
+#if NET462
+            return Environment.OSVersion.Platform == PlatformID.Win32NT;
+#elif NETSTANDARD2_0
+            return RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+#else
+#error Unknown target runtime
+#endif
+        }
 
-            string path = Path.Combine(Path.GetDirectoryName(entryAssembly.Location), name + ".dll");
-            var assembly = Assembly.LoadFile(path);
+        private static bool IsLinux()
+        {
+#if NET462
+            return Environment.OSVersion.Platform == PlatformID.Unix;
+#elif NETSTANDARD2_0
+            return RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+#else
+#error Unknown target runtime
+#endif
+        }
 
-            if (assembly != null)
-            {
-                var type = assembly.GetTypes()
-                    .FirstOrDefault(t => t.GetInterfaces()
-                        .Contains(appType));
-
-                if (type != null) { return Activator.CreateInstance(type, config) as IApplication; }
-            }
-
-            throw new TypeLoadException("Could not find assembly with SpiderEye application");
+        private static bool IsMac()
+        {
+#if NET462
+            return Environment.OSVersion.Platform == PlatformID.MacOSX;
+#elif NETSTANDARD2_0
+            return RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+#else
+#error Unknown target runtime
+#endif
         }
     }
 }

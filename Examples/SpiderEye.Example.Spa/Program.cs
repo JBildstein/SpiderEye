@@ -16,7 +16,7 @@ namespace SpiderEye
                 Height = 600,
                 CanResize = true,
                 Url = "index.html",
-                ContentFolder = "bin\\ng",
+                ContentFolder = "Angular\\dist",
                 ShowDevTools = true,
             };
 
