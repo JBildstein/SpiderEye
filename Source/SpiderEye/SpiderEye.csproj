@@ -1,9 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\Shared\SpiderEye.Shared.proj" />
+  <Import Project="..\..\Shared\SpiderEye.Shared.proj" />
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <PackageId>Bildstein.SpiderEye</PackageId>
+    <Description>Write .Net (Core) applications with a webview UI</Description>
+    <PackageTags>UI;Webview</PackageTags>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net462'">

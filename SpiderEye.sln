@@ -10,13 +10,20 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{3A446D
 		Shared\stylecop.json = Shared\stylecop.json
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpiderEye", "SpiderEye\SpiderEye.csproj", "{E35D2DF8-6640-4CB4-9D4C-D3CDCDF2F005}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpiderEye", "Source\SpiderEye\SpiderEye.csproj", "{E35D2DF8-6640-4CB4-9D4C-D3CDCDF2F005}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{396EF2BD-0F44-46DC-AA11-168E60FF3DBB}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpiderEye.Example.Spa", "Examples\SpiderEye.Example.Spa\SpiderEye.Example.Spa.csproj", "{7773DBF8-7B14-4863-BED5-C7EA11263C5B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpiderEye.Example.Simple", "Examples\SpiderEye.Example.Simple\SpiderEye.Example.Simple.csproj", "{FFAA508B-880C-4379-954B-DE72EA878E6D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3C24AA46-3134-4DE4-89C5-E9A5DC144FCE}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Source", "Source", "{E31A3241-D926-405D-B557-79C9EBFF0134}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -69,6 +76,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{E35D2DF8-6640-4CB4-9D4C-D3CDCDF2F005} = {E31A3241-D926-405D-B557-79C9EBFF0134}
 		{7773DBF8-7B14-4863-BED5-C7EA11263C5B} = {396EF2BD-0F44-46DC-AA11-168E60FF3DBB}
 		{FFAA508B-880C-4379-954B-DE72EA878E6D} = {396EF2BD-0F44-46DC-AA11-168E60FF3DBB}
 	EndGlobalSection

@@ -1,20 +1,22 @@
-<Project>
+﻿<Project>
   <PropertyGroup>
     <LangVersion>7.3</LangVersion>
     <AssemblyVersion>1.0.0</AssemblyVersion>
+    <VersionSuffix>$(VersionSuffix)</VersionSuffix>
     <AutoIncrementPackageRevision>True</AutoIncrementPackageRevision>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <Authors>Johannes Bildstein</Authors>
     <Company />
     <Copyright>Copyright © Johannes Bildstein 2019</Copyright>
     <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://gitlab.com/JBildstein/SpiderEye.git</RepositoryUrl>
-    <CodeAnalysisRuleSet>..\Shared\SpiderEye.ruleset</CodeAnalysisRuleSet>
-    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <RepositoryUrl>https://github.com/JBildstein/SpiderEye.git</RepositoryUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <CodeAnalysisRuleSet>..\..\Shared\SpiderEye.ruleset</CodeAnalysisRuleSet>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
   
   <ItemGroup>
-    <AdditionalFiles Include="..\Shared\stylecop.json" Link="Properties\stylecop.json" />
+    <AdditionalFiles Include="..\..\Shared\stylecop.json" Link="Properties\stylecop.json" />
   </ItemGroup>
 
   <ItemGroup>
