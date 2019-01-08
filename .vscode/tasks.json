@@ -1,0 +1,27 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build-example-spa",
+            "command": "dotnet build Examples/SpiderEye.Example.Spa/SpiderEye.Example.Spa.csproj -f netcoreapp2.2 -c Debug",
+            "type": "shell",
+            "group": "build",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "build-example-simple",
+            "command": "dotnet build Examples/SpiderEye.Example.Simple/SpiderEye.Example.Simple.csproj -f netcoreapp2.2 -c Debug",
+            "type": "shell",
+            "group": "build",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
+        }
+    ]
+}
