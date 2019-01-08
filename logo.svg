@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg version="1.1" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <circle cx="32" cy="32" r="31.553" style="fill:#2076ff;stroke-width:3.797"/>
+  <path id="a" d="m14.002 14.04s3.797 1.3289 10.024-1.253c6.227-2.544 7.9737-6.1891 7.9737-6.1891" style="fill:none;stroke-width:1.5568;stroke:#1c1c1c"/>
+  <use id="b" transform="rotate(-45 32 32)" width="100%" height="100%" xlink:href="#a"/>
+  <use id="c" transform="rotate(-90 32 32)" width="100%" height="100%" xlink:href="#a"/>
+  <use id="d" transform="rotate(225 32 32)" width="100%" height="100%" xlink:href="#a"/>
+  <use id="e" transform="rotate(180 32 32)" width="100%" height="100%" xlink:href="#a"/>
+  <use id="f" transform="rotate(135 32 32)" width="100%" height="100%" xlink:href="#a"/>
+  <use id="g" transform="rotate(90 32 32)" width="100%" height="100%" xlink:href="#a"/>
+  <use id="h" transform="rotate(45 32 32)" width="100%" height="100%" xlink:href="#a"/>
+  <use id="i" transform="matrix(.73749 0 0 .73749 8.3884 8.3921)" width="100%" height="100%" xlink:href="#b"/>
+  <use id="j" transform="matrix(.73749 0 0 .73749 8.3884 8.3921)" width="100%" height="100%" xlink:href="#a"/>
+  <use id="k" transform="matrix(.73749 0 0 .73749 8.3884 8.3921)" width="100%" height="100%" xlink:href="#c"/>
+  <use id="l" transform="matrix(.73749 0 0 .73749 8.3884 8.3921)" width="100%" height="100%" xlink:href="#d"/>
+  <use id="m" transform="matrix(.73749 0 0 .73749 8.3884 8.3921)" width="100%" height="100%" xlink:href="#e"/>
+  <use id="n" transform="matrix(.73749 0 0 .73749 8.3884 8.3921)" width="100%" height="100%" xlink:href="#f"/>
+  <use id="o" transform="matrix(.73749 0 0 .73749 8.3884 8.3921)" width="100%" height="100%" xlink:href="#g"/>
+  <use id="p" transform="matrix(.73749 0 0 .73749 8.3884 8.3921)" width="100%" height="100%" xlink:href="#h"/>
+  <use transform="matrix(.69115 0 0 .69115 9.8588 9.874)" width="100%" height="100%" xlink:href="#i"/>
+  <use transform="matrix(.69115 0 0 .69115 9.8588 9.874)" width="100%" height="100%" xlink:href="#j"/>
+  <use transform="matrix(.69115 0 0 .69115 9.8588 9.874)" width="100%" height="100%" xlink:href="#k"/>
+  <use transform="matrix(.69115 0 0 .69115 9.8588 9.874)" width="100%" height="100%" xlink:href="#l"/>
+  <use transform="matrix(.69115 0 0 .69115 9.8588 9.874)" width="100%" height="100%" xlink:href="#m"/>
+  <use transform="matrix(.69115 0 0 .69115 9.8588 9.874)" width="100%" height="100%" xlink:href="#n"/>
+  <use transform="matrix(.69115 0 0 .69115 9.8588 9.874)" width="100%" height="100%" xlink:href="#o"/>
+  <use transform="matrix(.69115 0 0 .69115 9.8588 9.874)" width="100%" height="100%" xlink:href="#p"/>
+  <use transform="rotate(45 32 32)" width="100%" height="100%" xlink:href="#q"/>
+  <use transform="rotate(90 32 32)" width="100%" height="100%" xlink:href="#q"/>
+  <use transform="rotate(-45 32 32)" width="100%" height="100%" xlink:href="#q"/>
+  <path id="q" d="m32 3.9783v56.043" style="fill:none;stroke-linecap:round;stroke-width:1.5568;stroke:#1c1c1c"/>
+  <circle cx="32" cy="32" r="6.6447" style="fill:#38df5a;stroke-width:1.1771;stroke:#1c1c1c"/>
+  <circle cx="33.025" cy="30.899" r="2.0504" style="fill:#1c1c1c;stroke-width:3.797"/>
+</svg>
