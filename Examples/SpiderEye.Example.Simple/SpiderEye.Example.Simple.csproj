@@ -1,6 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <GenerateEmbeddedFilesManifest>True</GenerateEmbeddedFilesManifest>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>net462;netcoreapp2.2</TargetFrameworks>
     <RuntimeIdentifiers>win;linux;osx</RuntimeIdentifiers>
