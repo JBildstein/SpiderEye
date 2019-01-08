@@ -1,5 +1,4 @@
 ﻿using System;
-using SpiderEye.AspNetCore;
 
 namespace SpiderEye
 {
@@ -18,7 +17,7 @@ namespace SpiderEye
                 ContentFolder = "App", // this relates to the path defined in the .csproj file
             };
 
-            SpiderEyeWebHost.Run(config, args);
+            Application.Run(config);
         }
     }
 }

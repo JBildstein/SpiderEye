@@ -1,23 +1,20 @@
-﻿using System;
-using Microsoft.Toolkit.Wpf.UI.Controls;
+﻿using Microsoft.Toolkit.Wpf.UI.Controls;
 
 namespace SpiderEye.Windows
 {
-    internal class WpfApplication : IApplication
+    internal class WpfApplication : ApplicationBase
     {
-        public IWindow MainWindow
+        public override IWindow MainWindow
         {
             get { return window; }
         }
 
-        private readonly AppConfiguration config;
         private readonly System.Windows.Application application;
         private readonly WpfWindow window;
 
         public WpfApplication(AppConfiguration config)
+            : base(config)
         {
-            this.config = config ?? throw new ArgumentNullException(nameof(config));
-
             // WebViewCompatible does not expose InvokeScript(string, string[])
             // as a workaround, do the same as WebViewCompatible with only the methods that are needed
             IWpfWebview webview;
@@ -30,15 +27,13 @@ namespace SpiderEye.Windows
             application.MainWindow = window;
         }
 
-        public void Run()
+        public override void Run()
         {
-            window.Webview.LoadUrl(config.StartPageUrl);
-            window.Show();
-
+            base.Run();
             application.Run();
         }
 
-        public void Exit()
+        public override void Exit()
         {
             application.Shutdown();
         }

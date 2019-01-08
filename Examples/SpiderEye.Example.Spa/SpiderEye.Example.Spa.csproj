@@ -12,13 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="2.2.0" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\SpiderEye\SpiderEye.csproj" />
-    <ProjectReference Include="..\..\SpiderEye.AspNetCore\SpiderEye.AspNetCore.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,6 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Angular\dist\**" />
+    <EmbeddedResource Include="Angular\dist\**">
+      <LogicalName>%(RelativeDir)%(RecursiveDir)%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using SpiderEye.AspNetCore;
 
 namespace SpiderEye
 {
@@ -22,14 +21,14 @@ namespace SpiderEye
             // this is only called in Debug mode:
             SetDevServer(config);
 
-            SpiderEyeWebHost.Run(config, args);
+            Application.Run(config);
         }
 
         [Conditional("DEBUG")]
         private static void SetDevServer(AppConfiguration config)
         {
             // the port number is defined in the angular.json file (under "architect"->"serve"->"options"->"port")
-            // note that you have to run the angular dev server first
+            // note that you have to run the angular dev server first (npm run watch)
             config.Host = "http://localhost:55000";
         }
     }

@@ -2,21 +2,19 @@
 
 namespace SpiderEye.Linux
 {
-    internal class GtkApplication : IApplication
+    internal class GtkApplication : ApplicationBase
     {
-        public IWindow MainWindow
+        public override IWindow MainWindow
         {
             get { return window; }
         }
 
-        private readonly AppConfiguration config;
         private readonly GtkWindow window;
         private volatile bool keepRunning = true;
 
         public GtkApplication(AppConfiguration config)
+            : base(config)
         {
-            this.config = config ?? throw new ArgumentNullException(nameof(config));
-
             Init();
 
             var webview = new GtkWebview(config);
@@ -25,10 +23,9 @@ namespace SpiderEye.Linux
             window.Closed += Window_Closed;
         }
 
-        public void Run()
+        public override void Run()
         {
-            window.Webview.LoadUrl(config.StartPageUrl);
-            window.Show();
+            base.Run();
 
             while (keepRunning)
             {
@@ -38,7 +35,7 @@ namespace SpiderEye.Linux
             window.Destroy();
         }
 
-        public void Exit()
+        public override void Exit()
         {
             keepRunning = false;
         }

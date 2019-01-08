@@ -1,4 +1,6 @@
-﻿namespace SpiderEye
+﻿using System.Reflection;
+
+namespace SpiderEye
 {
     /// <summary>
     /// Application configuration.
@@ -46,6 +48,11 @@
         public string ContentFolder { get; set; }
 
         /// <summary>
+        /// Gets or sets the assembly where the content files are embedded. Default is the entry assembly.
+        /// </summary>
+        public Assembly ContentAssembly { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="AppConfiguration"/> class.
         /// </summary>
         public AppConfiguration()
@@ -57,6 +64,7 @@
             StartPageUrl = "index.html";
             ContentFolder = "App";
             Host = null;
+            ContentAssembly = Assembly.GetEntryAssembly();
         }
     }
 }
