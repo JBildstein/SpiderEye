@@ -10,7 +10,11 @@
     <Copyright>Copyright © Johannes Bildstein 2019</Copyright>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/JBildstein/SpiderEye.git</RepositoryUrl>
+    <PackageIconUrl>https://github.com/JBildstein/SpiderEye/raw/master/logo.png</PackageIconUrl>
+    <PackageProjectUrl>https://github.com/JBildstein/SpiderEye</PackageProjectUrl>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageTags>UI;Webview</PackageTags>
+    <Description>Write .Net (Core) applications with a webview UI</Description>
     <CodeAnalysisRuleSet>..\..\Shared\SpiderEye.ruleset</CodeAnalysisRuleSet>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
