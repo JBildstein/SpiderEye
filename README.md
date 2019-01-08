@@ -8,7 +8,7 @@ What's the name supposed to mean? Simple: what kind of view does a spiders eye h
 ## Supported OS
 
 | OS | Version | Webview | Browser Engine |
-| - | - | - |
+| ----- | ----- | ----- | ----- |
 | Windows | 7, 8.x, 10 | WPF WebBrowser control | IE 9-11 (depending on OS and installed version) |
 | Windows |  10 Build 1803 | Microsoft.Toolkit.Wpf.UI.Controls.WebView | Edge |
 | Linux | - | WebKit2GTK | WebKit |
