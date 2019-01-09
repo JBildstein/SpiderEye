@@ -9,7 +9,7 @@ namespace SpiderEye.Windows
     {
         public event EventHandler<string> TitleChanged;
 
-        public object Control
+        public IDisposable Control
         {
             get { return webview; }
         }

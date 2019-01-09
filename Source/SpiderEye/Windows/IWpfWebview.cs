@@ -15,6 +15,6 @@ namespace SpiderEye.Windows
         /// <summary>
         /// Gets the webview control.
         /// </summary>
-        object Control { get; }
+        IDisposable Control { get; }
     }
 }
