@@ -50,7 +50,6 @@ namespace SpiderEye.Tools.Json
                         return ParseArray(json, map);
 
                     default:
-                        CheckIsValue(map.JsonType);
                         return ParseValue(json, map);
                 }
 
@@ -76,6 +75,7 @@ namespace SpiderEye.Tools.Json
                     case '"':
                         string key = ParseString(json, true);
                         if (key.Length == 0) { throw new FormatException($"Invalid empty key at index {json.Index}"); }
+                        json.Increment();
                         SkipKeyEndWhitespace(json);
 
                         JsonValueMap valueMap = typeMap.GetValueMap(key);
@@ -86,7 +86,8 @@ namespace SpiderEye.Tools.Json
                             {
                                 char* start = json.Pointer;
                                 SkipValue(json);
-                                int length = (int)(json.Pointer - start);
+                                int length = (int)(json.Pointer - start) + 1;
+                                json.CheckCanMovePosition(1);
                                 value = new string(start, 0, length);
                             }
                             else { value = Parse(json, valueMap.ValueType); }
@@ -98,12 +99,13 @@ namespace SpiderEye.Tools.Json
                             }
 
                             valueMap.Setter(result, value);
+
+                            SkipValueEndWhitespace(json);
                         }
                         else { SkipValue(json); }
                         break;
 
                     case '}':
-                        json.Increment();
                         return result;
 
                     default:
@@ -141,11 +143,9 @@ namespace SpiderEye.Tools.Json
                         break;
 
                     case ']':
-                        json.Increment();
                         return JsonTools.JsonArrayToType(data, typeMap.Type, valueType);
 
                     default:
-                        CheckIsValue(valueTypeMap.JsonType);
                         data.Add(ParseValue(json, valueTypeMap));
                         break;
                 }
@@ -160,8 +160,6 @@ namespace SpiderEye.Tools.Json
                 case '"':
                     CheckIsString(typeMap.JsonType);
                     string resultString = ParseString(json, false);
-                    SkipValueEndWhitespace(json);
-
                     if (typeMap.JsonType.HasFlag(JsonValueType.DateTime))
                     {
                         result = DateTime.ParseExact(resultString, "o", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
@@ -213,9 +211,18 @@ namespace SpiderEye.Tools.Json
         {
             char* start = json.Pointer + 1;
             int length = GetStringLength(json, out bool hasEscapedValues);
+
             if (length == 0) { return string.Empty; }
-            else if (length == 1) { return (*start).ToString(); }
-            else if (!hasEscapedValues) { return new string(start, 0, length); }
+            else if (length == 1)
+            {
+                return (normalize ? char.ToUpper(*start) : *start).ToString();
+            }
+            else if (!hasEscapedValues)
+            {
+                string value = new string(start, 0, length);
+                if (normalize) { return JsTools.NormalizeToDotnetName(value); }
+                else { return value; }
+            }
 
             char* result = stackalloc char[length];
             bool escaped = false;
@@ -317,11 +324,7 @@ namespace SpiderEye.Tools.Json
                 switch (json.Value)
                 {
                     case '"':
-                        if (!escaped)
-                        {
-                            json.Increment();
-                            return length;
-                        }
+                        if (!escaped) { return length; }
                         else { escaped = false; }
                         break;
 
@@ -395,11 +398,7 @@ namespace SpiderEye.Tools.Json
                     case '\t':
                     case '\r':
                     case '\n':
-                        SkipValueEndWhitespace(json);
-                        return new string(start, 0, length);
-
                     case ',':
-                        json.Increment();
                         return new string(start, 0, length);
 
                     case '0':
@@ -441,8 +440,6 @@ namespace SpiderEye.Tools.Json
                     throw new FormatException($"Invalid character in \"{expected}\" value \"{json.GetDisplayValue()}\" at index {json.Index}");
                 }
             }
-
-            SkipValueEndWhitespace(json);
         }
 
         private static void VerifyEscapedUnicode(JsonData json)
@@ -463,6 +460,8 @@ namespace SpiderEye.Tools.Json
 
         private static void SkipValueEndWhitespace(JsonData json)
         {
+            json.Increment();
+
             while (true)
             {
                 switch (json.Value)
@@ -476,10 +475,10 @@ namespace SpiderEye.Tools.Json
 
                     case '}':
                     case ']':
+                        json.Decrement();
                         return;
 
                     case ',':
-                        json.Increment();
                         return;
 
                     default:
@@ -511,7 +510,6 @@ namespace SpiderEye.Tools.Json
 
         private static void SkipValue(JsonData json)
         {
-            bool hasReachedEnd = false;
             int objectDepth = 0;
             int arrayDepth = 0;
             while (true)
@@ -528,6 +526,13 @@ namespace SpiderEye.Tools.Json
 
                     case '}':
                         objectDepth--;
+                        if (objectDepth < 0)
+                        {
+                            if (arrayDepth != 0) { throw new FormatException($"Invalid closing object character \"}}\" at index {json.Index}"); }
+                            json.Decrement();
+                            return;
+                        }
+
                         break;
 
                     case '[':
@@ -536,16 +541,21 @@ namespace SpiderEye.Tools.Json
 
                     case ']':
                         arrayDepth--;
+                        if (arrayDepth < 0)
+                        {
+                            if (objectDepth != 0) { throw new FormatException($"Invalid closing array character \"]\" at index {json.Index}"); }
+                            json.Decrement();
+                            return;
+                        }
+
                         break;
 
                     case ',':
-                        hasReachedEnd = arrayDepth == 0 && objectDepth == 0;
+                        if (arrayDepth == 0 && objectDepth == 0) { return; }
                         break;
                 }
 
                 json.Increment();
-
-                if (hasReachedEnd || (arrayDepth < 0 && objectDepth < 0)) { return; }
             }
         }
 

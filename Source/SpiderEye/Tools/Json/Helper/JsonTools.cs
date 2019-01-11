@@ -26,6 +26,9 @@ namespace SpiderEye.Tools.Json
 
         public static JsonValueType GetJsonType(Type type)
         {
+            var nullabelType = Nullable.GetUnderlyingType(type);
+            if (nullabelType != null) { type = nullabelType; }
+
             if (TypeToJsonMap.TryGetValue(type, out JsonValueType result)) { return result; }
 
             if (type.IsArray) { return JsonValueType.Array; }

@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace SpiderEye.Tools.Json
 {
     internal static partial class JsonConverter
     {
+        [DebuggerStepThrough]
         private unsafe sealed class JsonData
         {
             public int Index
@@ -35,21 +37,38 @@ namespace SpiderEye.Tools.Json
             {
                 this.data = data;
                 this.length = length;
+                value = *data;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void Increment()
             {
-                Increment(1);
+                MovePosition(1);
             }
 
-            public void Increment(int count)
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public void Decrement()
             {
-                if (index + count < length)
+                MovePosition(-1);
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public void CheckCanMovePosition(int count)
+            {
+                int newIndex = index + count;
+                if (newIndex >= length || newIndex < 0)
                 {
-                    index += count;
-                    value = data[index];
+                    throw new FormatException("JSON ended unexpectedly");
                 }
-                else { throw new FormatException("JSON ended unexpectedly"); }
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public void MovePosition(int count)
+            {
+                CheckCanMovePosition(count);
+
+                index += count;
+                value = data[index];
             }
 
             public string GetDisplayValue()
