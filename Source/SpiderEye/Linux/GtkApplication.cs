@@ -9,7 +9,13 @@ namespace SpiderEye.Linux
             get { return window; }
         }
 
+        public override IWebview Webview
+        {
+            get { return webview; }
+        }
+
         private readonly GtkWindow window;
+        private readonly GtkWebview webview;
         private volatile bool keepRunning = true;
 
         public GtkApplication(AppConfiguration config)
@@ -17,7 +23,7 @@ namespace SpiderEye.Linux
         {
             Init();
 
-            var webview = new GtkWebview(config);
+            webview = new GtkWebview(config);
             window = new GtkWindow(config, webview);
 
             window.Closed += Window_Closed;

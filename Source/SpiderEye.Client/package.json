@@ -1,0 +1,33 @@
+{
+  "name": "spidereye",
+  "version": "1.0.0-alpha.1",
+  "description": "Client library for .Net SpiderEye apps",
+  "repository": "github:JBildstein/SpiderEye",
+  "author": "Johannes Bildstein",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/JBildstein/SpiderEye#readme",
+  "bugs": "https://github.com/JBildstein/SpiderEye/issues",
+  "browser": "./dist/spidereye.js",
+  "types": "./dist/spidereye.d.ts",
+  "scripts": {
+    "lint": "tslint --project .",
+    "watch": "webpack --watch",
+    "build:dev": "npm run lint && webpack --mode development",
+    "build:prod": "npm run lint && webpack --mode production",
+    "prepublishOnly": "npm run build:prod"
+  },
+  "files": [
+    "dist/spidereye.js",
+    "dist/spidereye.d.ts"
+  ],
+  "devDependencies": {
+    "@types/node": "^10.12.18",
+    "@types/webpack": "^4.4.21",
+    "ts-loader": "^5.2.2",
+    "ts-node": "^7.0.1",
+    "tslint": "^5.10.0",
+    "typescript": "^3.2.2",
+    "webpack": "^4.12.0",
+    "webpack-cli": "^3.0.8"
+  }
+}

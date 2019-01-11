@@ -1,11 +1,13 @@
 ﻿using System;
 using SpiderEye.Server;
+using SpiderEye.Tools.Scripting.Api;
 
 namespace SpiderEye
 {
     internal abstract class ApplicationBase : IApplication
     {
         public abstract IWindow MainWindow { get; }
+        public abstract IWebview Webview { get; }
 
         protected readonly AppConfiguration config;
         protected readonly ContentServer server;
@@ -18,6 +20,8 @@ namespace SpiderEye
 
         public virtual void Run()
         {
+            ApiResolver.InitApi();
+
             server.Start();
 
             if (string.IsNullOrWhiteSpace(config.Host))
@@ -25,7 +29,7 @@ namespace SpiderEye
                 config.Host = server.HostAddress;
             }
 
-            MainWindow.Webview.LoadUrl(config.StartPageUrl);
+            Webview.LoadUrl(config.StartPageUrl);
             MainWindow.Show();
         }
 

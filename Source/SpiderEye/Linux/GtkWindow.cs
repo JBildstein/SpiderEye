@@ -47,6 +47,7 @@ namespace SpiderEye.Linux
 
             webview.CloseRequested += Webview_CloseRequested;
             webview.TitleChanged += Webview_TitleChanged;
+            webview.ScriptHandler.TitleChanged += Webview_TitleChanged;
         }
 
         public void Show()

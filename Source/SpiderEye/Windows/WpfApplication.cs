@@ -9,6 +9,11 @@ namespace SpiderEye.Windows
             get { return window; }
         }
 
+        public override IWebview Webview
+        {
+            get { return webview; }
+        }
+
         private readonly System.Windows.Application application;
         private readonly WpfWindow window;
         private readonly IWpfWebview webview;

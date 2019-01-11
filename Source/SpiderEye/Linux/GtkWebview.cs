@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
+using SpiderEye.Tools.Scripting;
 
 namespace SpiderEye.Linux
 {
@@ -7,7 +10,8 @@ namespace SpiderEye.Linux
     {
         public event EventHandler CloseRequested;
         public event EventHandler<string> TitleChanged;
-        public event EventHandler<string> ScriptInvoked;
+
+        public ScriptHandler ScriptHandler { get; }
 
         public readonly IntPtr Handle;
 
@@ -19,7 +23,7 @@ namespace SpiderEye.Linux
         {
             this.config = config ?? throw new ArgumentNullException(nameof(config));
 
-            initScript = Scripts.GetScript("Linux", "InitScript.js");
+            initScript = Resources.GetInitScript("Linux");
             manager = WebKit.Manager.Create();
             using (GLibString name = "script-message-received::external")
             {
@@ -66,8 +70,63 @@ namespace SpiderEye.Linux
         {
             using (GLibString gscript = script)
             {
-                WebKit.RunJavaScript(Handle, gscript, IntPtr.Zero, null, IntPtr.Zero);
+                WebKit.JavaScript.BeginExecute(Handle, gscript, IntPtr.Zero, null, IntPtr.Zero);
             }
+        }
+
+        public async Task<string> CallFunction(string function)
+        {
+            return await Task.Run(() =>
+            {
+                var taskResult = new TaskCompletionSource<string>();
+
+                unsafe void Callback(IntPtr webview, IntPtr asyncResult, IntPtr userdata)
+                {
+                    IntPtr jsResult = IntPtr.Zero;
+                    try
+                    {
+                        jsResult = WebKit.JavaScript.EndExecute(webview, asyncResult, out IntPtr errorPtr);
+                        if (jsResult != IntPtr.Zero)
+                        {
+                            IntPtr value = WebKit.JavaScript.GetValue(jsResult);
+                            if (WebKit.JavaScript.IsValueString(value))
+                            {
+                                IntPtr bytes = WebKit.JavaScript.GetStringBytes(value);
+                                IntPtr bytesPtr = GLib.GetBytesDataPointer(bytes, out UIntPtr length);
+
+                                string result = Encoding.UTF8.GetString((byte*)bytesPtr, (int)length);
+                                taskResult.TrySetResult(result);
+
+                                GLib.UnrefBytes(bytes);
+                            }
+                        }
+                        else
+                        {
+                            try
+                            {
+                                var error = Marshal.PtrToStructure<GError>(errorPtr);
+                                string errorMessage = GLibString.FromPointer(error.Message);
+                                taskResult.TrySetException(new Exception($"Script execution failed with {errorMessage}"));
+                            }
+                            finally { GLib.FreeError(errorPtr); }
+                        }
+                    }
+                    finally
+                    {
+                        if (jsResult != IntPtr.Zero)
+                        {
+                            WebKit.JavaScript.ReleaseJsResult(jsResult);
+                        }
+                    }
+                }
+
+                using (GLibString gfunction = function)
+                {
+                    WebKit.JavaScript.BeginExecute(Handle, gfunction, IntPtr.Zero, Callback, IntPtr.Zero);
+                }
+
+                return taskResult.Task;
+            });
         }
 
         private unsafe void ScriptCallback(IntPtr manager, IntPtr jsResult, IntPtr userdata)
@@ -75,13 +134,16 @@ namespace SpiderEye.Linux
             IntPtr value = WebKit.JavaScript.GetValue(jsResult);
             if (WebKit.JavaScript.IsValueString(value))
             {
-                IntPtr bytes = WebKit.JavaScript.GetStringBytes(value);
-                IntPtr bytesPtr = GLib.GetBytesDataPointer(bytes, out UIntPtr length);
+                IntPtr bytes = IntPtr.Zero;
+                try
+                {
+                    bytes = WebKit.JavaScript.GetStringBytes(value);
+                    IntPtr bytesPtr = GLib.GetBytesDataPointer(bytes, out UIntPtr length);
 
-                string result = Encoding.UTF8.GetString((byte*)bytesPtr, (int)length);
-                ScriptInvoked?.Invoke(this, result);
-
-                GLib.UnrefBytes(bytes);
+                    string result = Encoding.UTF8.GetString((byte*)bytesPtr, (int)length);
+                    ScriptHandler.HandleScriptCall(result);
+                }
+                finally { if (bytes != IntPtr.Zero) { GLib.UnrefBytes(bytes); } }
             }
         }
 

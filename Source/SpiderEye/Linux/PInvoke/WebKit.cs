@@ -73,8 +73,11 @@ namespace SpiderEye.Linux
 
         public static class JavaScript
         {
-            [DllImport(WebkitNativeDll, EntryPoint = "webkit_javascript_result_get_global_context", CallingConvention = CallingConvention.Cdecl)]
-            public static extern IntPtr GetContext(IntPtr jsResult);
+            [DllImport(WebkitNativeDll, EntryPoint = "webkit_web_view_run_javascript", CallingConvention = CallingConvention.Cdecl)]
+            public static extern void BeginExecute(IntPtr webview, IntPtr js, IntPtr cancellable, GAsyncReadyDelegate callback, IntPtr user_data);
+
+            [DllImport(WebkitNativeDll, EntryPoint = "webkit_web_view_run_javascript_finish", CallingConvention = CallingConvention.Cdecl)]
+            public static extern IntPtr EndExecute(IntPtr webview, IntPtr asyncResult, out IntPtr error);
 
             [DllImport(WebkitNativeDll, EntryPoint = "webkit_javascript_result_get_js_value", CallingConvention = CallingConvention.Cdecl)]
             public static extern IntPtr GetValue(IntPtr jsResult);
@@ -84,6 +87,9 @@ namespace SpiderEye.Linux
 
             [DllImport(JavaScriptCoreNativeDll, EntryPoint = "jsc_value_to_string_as_bytes", CallingConvention = CallingConvention.Cdecl)]
             public static extern IntPtr GetStringBytes(IntPtr value);
+
+            [DllImport(JavaScriptCoreNativeDll, EntryPoint = "webkit_javascript_result_unref", CallingConvention = CallingConvention.Cdecl)]
+            public static extern void ReleaseJsResult(IntPtr jsResult);
         }
 
         [DllImport(WebkitNativeDll, EntryPoint = "webkit_web_view_new_with_user_content_manager", CallingConvention = CallingConvention.Cdecl)]
@@ -94,9 +100,6 @@ namespace SpiderEye.Linux
 
         [DllImport(WebkitNativeDll, EntryPoint = "webkit_web_view_set_background_color", CallingConvention = CallingConvention.Cdecl)]
         public static extern void SetBackgroundColor(IntPtr webview, ref GdkColor color);
-
-        [DllImport(WebkitNativeDll, EntryPoint = "webkit_web_view_run_javascript", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void RunJavaScript(IntPtr webview, IntPtr js, IntPtr cancellable, GAsyncReadyDelegate callback, IntPtr user_data);
 
         [DllImport(WebkitNativeDll, EntryPoint = "webkit_web_view_get_title", CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr GetTitle(IntPtr webview);

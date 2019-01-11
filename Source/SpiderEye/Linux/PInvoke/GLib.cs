@@ -15,6 +15,9 @@ namespace SpiderEye.Linux
         [DllImport(GLibNativeDll, EntryPoint = "g_free", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Free(IntPtr mem);
 
+        [DllImport(GLibNativeDll, EntryPoint = "g_error_free", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void FreeError(IntPtr error);
+
         [DllImport(GObjectNativeDll, EntryPoint = "g_signal_connect_data", CallingConvention = CallingConvention.Cdecl)]
         public static extern void ConnectSignalData(IntPtr instance, IntPtr signal_name, Delegate handler, IntPtr data, IntPtr destroy_data, int connect_flags);
 
@@ -26,6 +29,7 @@ namespace SpiderEye.Linux
 
         [DllImport(GObjectNativeDll, EntryPoint = "g_file_error_quark", CallingConvention = CallingConvention.Cdecl)]
         public static extern uint GetFileErrorQuark();
+
 
         [DllImport(GLibNativeDll, EntryPoint = "g_bytes_get_size", CallingConvention = CallingConvention.Cdecl)]
         public static extern UIntPtr GetBytesSize(IntPtr bytes);

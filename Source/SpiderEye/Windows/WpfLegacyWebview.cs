@@ -1,13 +1,15 @@
 ﻿using System;
+using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Navigation;
+using SpiderEye.Tools.Scripting;
 using SpiderEye.Windows.Internal;
 
 namespace SpiderEye.Windows
 {
     internal class WpfLegacyWebview : IWebview, IWpfWebview
     {
-        public event EventHandler<string> TitleChanged;
+        public ScriptHandler ScriptHandler { get; }
 
         public IDisposable Control
         {
@@ -24,9 +26,9 @@ namespace SpiderEye.Windows
             this.config = config ?? throw new ArgumentNullException(nameof(config));
 
             webview = new WebBrowser();
-            scriptInterface = new ScriptInterface();
-            initScript = Scripts.GetScript("Windows", "InitScriptLegacy.js");
-            scriptInterface.TitleChanged += (s, e) => TitleChanged?.Invoke(this, e);
+            ScriptHandler = new ScriptHandler(this);
+            scriptInterface = new ScriptInterface(ScriptHandler);
+            initScript = Resources.GetInitScript("Windows");
             webview.ObjectForScripting = scriptInterface;
             webview.LoadCompleted += Webview_LoadCompleted;
         }
@@ -40,6 +42,12 @@ namespace SpiderEye.Windows
         public void ExecuteScript(string script)
         {
             webview.InvokeScript("eval", new string[] { script });
+        }
+
+        public Task<string> CallFunction(string function)
+        {
+            string result = webview.InvokeScript("eval", new string[] { function }) as string;
+            return Task.FromResult(result);
         }
 
         private void Webview_LoadCompleted(object sender, NavigationEventArgs e)
