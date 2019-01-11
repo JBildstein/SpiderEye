@@ -25,7 +25,7 @@ namespace SpiderEye.Windows
             Height = config.Height;
             ResizeMode = config.CanResize ? ResizeMode.CanResize : ResizeMode.NoResize;
 
-            webview.ScriptHandler.TitleChanged += (s, e) => Title = e ?? string.Empty;
+            webview.ScriptHandler.TitleChanged += (s, e) => Title = e ?? config.Title;
         }
     }
 }

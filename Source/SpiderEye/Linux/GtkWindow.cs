@@ -24,10 +24,12 @@ namespace SpiderEye.Linux
         }
 
         private readonly IntPtr window;
+        private readonly AppConfiguration config;
         private readonly GtkWebview webview;
 
         public GtkWindow(AppConfiguration config, GtkWebview webview)
         {
+            this.config = config ?? throw new ArgumentNullException(nameof(config));
             this.webview = webview ?? throw new ArgumentNullException(nameof(webview));
 
             window = Gtk.Window.Create(GtkWindowType.Toplevel);
@@ -73,7 +75,7 @@ namespace SpiderEye.Linux
 
         private void Webview_TitleChanged(object sender, string title)
         {
-            Title = title;
+            Title = title ?? config.Title;
         }
 
         private void Webview_CloseRequested(object sender, EventArgs e)
