@@ -42,15 +42,7 @@ namespace SpiderEye.Tools.Json
 
             if (valueType == typeof(string))
             {
-                var rawJsonAttribute = typeof(RawJsonAttribute);
-                foreach (var attribute in info.CustomAttributes)
-                {
-                    if (attribute.AttributeType == rawJsonAttribute)
-                    {
-                        AsRawJson = true;
-                        break;
-                    }
-                }
+                AsRawJson = info.GetCustomAttribute<RawJsonAttribute>(false) != null;
             }
         }
 

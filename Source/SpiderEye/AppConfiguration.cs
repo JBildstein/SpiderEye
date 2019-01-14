@@ -43,6 +43,11 @@ namespace SpiderEye
         public string Host { get; set; }
 
         /// <summary>
+        /// Gets or sets the internal servers localhost port.
+        /// </summary>
+        public int? Port { get; set; }
+
+        /// <summary>
         /// Gets or sets the folder path where the embedded files are. Default is "App".
         /// </summary>
         public string ContentFolder { get; set; }

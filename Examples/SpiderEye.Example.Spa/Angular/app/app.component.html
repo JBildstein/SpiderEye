@@ -2,3 +2,21 @@
 <h1>Hello World</h1>
 
 <p>Angular within SpiderEye works!!!</p>
+
+<h2>Server Request Example</h2>
+
+<input [(ngModel)]="exampleName" />
+<button (click)="loadExamples()"
+        [disabled]="loading || loadingSlow">
+    Make request
+</button>
+
+<div class="container">
+    <label>Normal Request:</label>
+    <span>{{loading ? 'loading...' : loadingResult}}</span>
+</div>
+
+<div class="container">
+    <label>Delayed Request:</label>
+    <span>{{loadingSlow ? 'loading...' : loadingSlowResult}}</span>
+</div>

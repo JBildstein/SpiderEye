@@ -15,7 +15,8 @@ namespace SpiderEye
         public ApplicationBase(AppConfiguration config)
         {
             this.config = config ?? throw new ArgumentNullException(nameof(config));
-            server = new ContentServer(config.ContentAssembly, config.ContentFolder);
+
+            server = new ContentServer(config.ContentAssembly, config.ContentFolder, config.Port);
         }
 
         public virtual void Run()

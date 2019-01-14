@@ -10,6 +10,21 @@ namespace SpiderEye.Server
     public static class MimeTypes
     {
         /// <summary>
+        /// The JSON mime type string.
+        /// </summary>
+        public const string Json = "application/json";
+
+        /// <summary>
+        /// The HTML mime type string.
+        /// </summary>
+        public const string Html = "text/html";
+
+        /// <summary>
+        /// The JavaScript mime type string.
+        /// </summary>
+        public const string JavaScript = "application/javascript";
+
+        /// <summary>
         /// The file extension to mime type map. Add or remove values depending on your need.
         /// Note that the extension must start with a period "." and be in lower case.
         /// </summary>
@@ -27,13 +42,13 @@ namespace SpiderEye.Server
             { ".gif", "image/gif" },
             { ".gz", "application/x-gzip" },
             { ".htm", "text/html" },
-            { ".html", "text/html" },
+            { ".html", Html },
             { ".ico", "image/x-icon" },
             { ".jpe", "image/jpeg" },
             { ".jpeg", "image/jpeg" },
             { ".jpg", "image/jpeg" },
-            { ".js", "application/javascript" },
-            { ".json", "application/json" },
+            { ".js", JavaScript },
+            { ".json", Json },
             { ".m4a", "audio/m4a" },
             { ".midi", "audio/mid" },
             { ".mp3", "audio/mpeg" },

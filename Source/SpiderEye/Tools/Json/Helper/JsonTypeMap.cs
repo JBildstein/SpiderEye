@@ -124,16 +124,7 @@ namespace SpiderEye.Tools.Json
 
         private static bool IsIgnored(MemberInfo info)
         {
-            var ignoreAttribute = typeof(JsonIgnoreAttribute);
-            foreach (var attribute in info.CustomAttributes)
-            {
-                if (attribute.AttributeType == ignoreAttribute)
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return info.GetCustomAttribute<JsonIgnoreAttribute>(false) != null;
         }
     }
 }

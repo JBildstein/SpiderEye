@@ -40,19 +40,15 @@ namespace SpiderEye.Tools.Scripting.Api
             var assembly = Assembly.GetExecutingAssembly();
             foreach (var type in assembly.GetTypes())
             {
-                foreach (var attribute in type.CustomAttributes)
+                var attribute = type.GetCustomAttribute<ApiAttribute>(true);
+                if (attribute != null)
                 {
-                    if (attribute.AttributeType == typeof(ApiAttribute))
+                    string objectName = GetApiNamespace(type);
+                    foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Static))
                     {
-                        string objectName = GetApiNamespace(type);
-                        foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Static))
-                        {
-                            var info = new ApiMethodInfo(method);
-                            string fullName = $"{objectName}.{info.Name}";
-                            ApiMethods.Add(fullName, info);
-                        }
-
-                        break;
+                        var info = new ApiMethodInfo(method);
+                        string fullName = $"{objectName}.{info.Name}";
+                        ApiMethods.Add(fullName, info);
                     }
                 }
             }
