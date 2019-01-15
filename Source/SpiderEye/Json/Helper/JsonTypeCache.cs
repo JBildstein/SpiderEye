@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using SpiderEye.Json.Collections;
 
 namespace SpiderEye.Json
 {
@@ -58,7 +59,7 @@ namespace SpiderEye.Json
                 else if (jsonType == JsonValueType.Array)
                 {
                     var valueType = JsonTools.GetArrayValueType(type);
-                    var genericType = typeof(LinkedList<>).MakeGenericType(valueType);
+                    var genericType = typeof(SingleLinkedList<>).MakeGenericType(valueType);
 
                     Func<object> ctor = () => Activator.CreateInstance(genericType);
                     maps.Add(type, new JsonTypeMap(type, jsonType, ctor));

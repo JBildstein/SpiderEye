@@ -4,10 +4,10 @@ using System.Diagnostics;
 
 namespace SpiderEye.Json.Collections
 {
-    internal sealed partial class LinkedList<T>
+    internal sealed partial class SingleLinkedList<T>
     {
         [DebuggerStepThrough]
-        private struct LinkedListEnumerator : IEnumerator<T>
+        private struct SingleLinkedListEnumerator : IEnumerator<T>
         {
             public T Current
             {
@@ -27,7 +27,7 @@ namespace SpiderEye.Json.Collections
             private Node currentNode;
             private bool hasFinished;
 
-            public LinkedListEnumerator(Node first)
+            public SingleLinkedListEnumerator(Node first)
             {
                 this.first = first;
                 currentNode = null;

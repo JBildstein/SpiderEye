@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace SpiderEye.Json.Collections
 {
-    internal sealed partial class LinkedList<T> : IEnumerable<T>, IJsonArray
+    internal sealed partial class SingleLinkedList<T> : IEnumerable<T>, IJsonArray
     {
         public int Count
         {
@@ -31,7 +31,7 @@ namespace SpiderEye.Json.Collections
         [DebuggerStepThrough]
         public IEnumerator<T> GetEnumerator()
         {
-            return new LinkedListEnumerator(first);
+            return new SingleLinkedListEnumerator(first);
         }
 
         [DebuggerStepThrough]

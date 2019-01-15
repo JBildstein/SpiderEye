@@ -1,6 +1,6 @@
 ﻿namespace SpiderEye.Json.Collections
 {
-    internal sealed partial class LinkedList<T>
+    internal sealed partial class SingleLinkedList<T>
     {
         private sealed class Node
         {
