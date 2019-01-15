@@ -30,7 +30,8 @@ namespace SpiderEye
                 config.Host = server.HostAddress;
             }
 
-            Webview.LoadUrl(config.StartPageUrl);
+            string url = new Uri(new Uri(config.Host), config.StartPageUrl).ToString();
+            Webview.LoadUrl(url);
             MainWindow.Show();
         }
 

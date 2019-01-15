@@ -59,7 +59,6 @@ namespace SpiderEye.Linux
 
         public void LoadUrl(string url)
         {
-            url = new Uri(new Uri(config.Host), url).ToString();
             using (GLibString gurl = url)
             {
                 WebKit.LoadUri(Handle, gurl);

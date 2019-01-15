@@ -35,8 +35,7 @@ namespace SpiderEye.Windows
 
         public void LoadUrl(string url)
         {
-            var host = new Uri(config.Host);
-            webview.Navigate(new Uri(host, url));
+            webview.Navigate(url);
         }
 
         public void ExecuteScript(string script)

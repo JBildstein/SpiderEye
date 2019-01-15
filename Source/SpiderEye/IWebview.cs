@@ -14,7 +14,7 @@ namespace SpiderEye
         ScriptHandler ScriptHandler { get; }
 
         /// <summary>
-        /// Loads the given URL relative to <see cref="AppConfiguration.Host"/>.
+        /// Loads the given URL.
         /// </summary>
         /// <param name="url">The URL to load.</param>
         void LoadUrl(string url);
