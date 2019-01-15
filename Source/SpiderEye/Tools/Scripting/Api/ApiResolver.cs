@@ -20,14 +20,14 @@ namespace SpiderEye.Tools.Scripting.Api
                     object parametersObject = null;
                     if (info.HasParameter && !string.IsNullOrWhiteSpace(parameters))
                     {
-                        parametersObject = JsonConverter.Deserialize(parameters, info.ParameterType);
+                        parametersObject = JsonConvert.Deserialize(parameters, info.ParameterType);
                     }
 
                     object result = info.Invoke(parametersObject);
                     return new ApiResultModel
                     {
                         Success = true,
-                        Value = info.HasReturnValue ? JsonConverter.Serialize(result) : null,
+                        Value = info.HasReturnValue ? JsonConvert.Serialize(result) : null,
                     };
                 }
                 catch (Exception ex) { return ApiResultModel.FromError(ex.Message); }

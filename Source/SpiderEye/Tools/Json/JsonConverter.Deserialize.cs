@@ -3,9 +3,9 @@ using System.Globalization;
 
 namespace SpiderEye.Tools.Json
 {
-    internal static partial class JsonConverter
+    internal partial class JsonConverter
     {
-        public static unsafe T Deserialize<T>(string json)
+        public unsafe T Deserialize<T>(string json)
         {
             if (json == null) { throw new ArgumentNullException(nameof(json)); }
             if (string.IsNullOrWhiteSpace(json)) { return default; }
@@ -13,14 +13,14 @@ namespace SpiderEye.Tools.Json
             return (T)Deserialize(json, typeof(T));
         }
 
-        public static unsafe object Deserialize(string json, Type type)
+        public unsafe object Deserialize(string json, Type type)
         {
             if (json == null) { throw new ArgumentNullException(nameof(json)); }
             if (type == null) { throw new ArgumentNullException(nameof(type)); }
 
             if (string.IsNullOrWhiteSpace(json)) { return null; }
 
-            JsonTypeMap.BuildMapFor(type);
+            cache.BuildMapFor(type);
 
             fixed (char* jsonPtr = json)
             {
@@ -28,9 +28,9 @@ namespace SpiderEye.Tools.Json
             }
         }
 
-        private static object Parse(JsonData json, Type type)
+        private object Parse(JsonData json, Type type)
         {
-            var map = JsonTypeMap.GetMap(type);
+            var map = cache.GetMap(type);
             while (true)
             {
                 switch (json.Value)
@@ -57,7 +57,7 @@ namespace SpiderEye.Tools.Json
             }
         }
 
-        private static unsafe object ParseObject(JsonData json, JsonTypeMap typeMap)
+        private unsafe object ParseObject(JsonData json, JsonTypeMap typeMap)
         {
             object result = typeMap.CreateInstance();
             while (true)
@@ -114,10 +114,10 @@ namespace SpiderEye.Tools.Json
             }
         }
 
-        private static object ParseArray(JsonData json, JsonTypeMap typeMap)
+        private object ParseArray(JsonData json, JsonTypeMap typeMap)
         {
             var valueType = JsonTools.GetArrayValueType(typeMap.Type);
-            var valueTypeMap = JsonTypeMap.GetMap(valueType);
+            var valueTypeMap = cache.GetMap(valueType);
             var data = typeMap.CreateInstance() as IJsonArray;
 
             while (true)
@@ -152,7 +152,7 @@ namespace SpiderEye.Tools.Json
             }
         }
 
-        private static object ParseValue(JsonData json, JsonTypeMap typeMap)
+        private object ParseValue(JsonData json, JsonTypeMap typeMap)
         {
             object result;
             switch (json.Value)
@@ -207,7 +207,7 @@ namespace SpiderEye.Tools.Json
             return result;
         }
 
-        private static unsafe string ParseString(JsonData json, bool normalize)
+        private unsafe string ParseString(JsonData json, bool normalize)
         {
             char* start = json.Pointer + 1;
             int length = GetStringLength(json, out bool hasEscapedValues);
@@ -312,7 +312,7 @@ namespace SpiderEye.Tools.Json
             return new string(result, 0, length);
         }
 
-        private static int GetStringLength(JsonData json, out bool hasEscapedValues)
+        private int GetStringLength(JsonData json, out bool hasEscapedValues)
         {
             int length = 0;
             bool escaped = false;
@@ -358,7 +358,7 @@ namespace SpiderEye.Tools.Json
             }
         }
 
-        private static object ParseNumber(JsonData json, JsonTypeMap typeMap)
+        private object ParseNumber(JsonData json, JsonTypeMap typeMap)
         {
             string stringValue = GetNumberString(json, out bool isFloat);
             if (isFloat)
@@ -383,7 +383,7 @@ namespace SpiderEye.Tools.Json
             }
         }
 
-        private static unsafe string GetNumberString(JsonData json, out bool isFloat)
+        private unsafe string GetNumberString(JsonData json, out bool isFloat)
         {
             char* start = json.Pointer;
             int length = 1;
@@ -429,7 +429,7 @@ namespace SpiderEye.Tools.Json
             }
         }
 
-        private static void ParseConstantValueString(JsonData json, string expected)
+        private void ParseConstantValueString(JsonData json, string expected)
         {
             for (int i = 1; i < expected.Length; i++)
             {
@@ -442,7 +442,7 @@ namespace SpiderEye.Tools.Json
             }
         }
 
-        private static void VerifyEscapedUnicode(JsonData json)
+        private void VerifyEscapedUnicode(JsonData json)
         {
             for (int i = 0; i < 4; i++)
             {
@@ -458,7 +458,7 @@ namespace SpiderEye.Tools.Json
             }
         }
 
-        private static void SkipValueEndWhitespace(JsonData json)
+        private void SkipValueEndWhitespace(JsonData json)
         {
             json.Increment();
 
@@ -487,7 +487,7 @@ namespace SpiderEye.Tools.Json
             }
         }
 
-        private static void SkipKeyEndWhitespace(JsonData json)
+        private void SkipKeyEndWhitespace(JsonData json)
         {
             while (true)
             {
@@ -508,7 +508,7 @@ namespace SpiderEye.Tools.Json
             }
         }
 
-        private static void SkipValue(JsonData json)
+        private void SkipValue(JsonData json)
         {
             int objectDepth = 0;
             int arrayDepth = 0;
@@ -559,22 +559,22 @@ namespace SpiderEye.Tools.Json
             }
         }
 
-        private static void CheckIsObject(JsonValueType type)
+        private void CheckIsObject(JsonValueType type)
         {
             if (!type.HasFlag(JsonValueType.Object)) { ThrowWrongJsonTypeError("object", type); }
         }
 
-        private static void CheckIsArray(JsonValueType type)
+        private void CheckIsArray(JsonValueType type)
         {
             if (!type.HasFlag(JsonValueType.Array)) { ThrowWrongJsonTypeError("array", type); }
         }
 
-        private static void CheckIsBool(JsonValueType type)
+        private void CheckIsBool(JsonValueType type)
         {
             if (!type.HasFlag(JsonValueType.Bool)) { ThrowWrongJsonTypeError("boolean", type); }
         }
 
-        private static void CheckIsString(JsonValueType type)
+        private void CheckIsString(JsonValueType type)
         {
             if (!type.HasFlag(JsonValueType.String) && !type.HasFlag(JsonValueType.DateTime))
             {
@@ -582,7 +582,7 @@ namespace SpiderEye.Tools.Json
             }
         }
 
-        private static void CheckIsNumber(JsonValueType type)
+        private void CheckIsNumber(JsonValueType type)
         {
             if (!JsonTools.IsJsonNumber(type) && !type.HasFlag(JsonValueType.DateTime))
             {
@@ -590,12 +590,12 @@ namespace SpiderEye.Tools.Json
             }
         }
 
-        private static void CheckIsValue(JsonValueType type)
+        private void CheckIsValue(JsonValueType type)
         {
             if (!JsonTools.IsJsonValue(type)) { ThrowWrongJsonTypeError("value", type); }
         }
 
-        private static void ThrowWrongJsonTypeError(string actual, JsonValueType expected)
+        private void ThrowWrongJsonTypeError(string actual, JsonValueType expected)
         {
             throw new Exception($"JSON defines {actual} but expected a JSON type of {expected}");
         }

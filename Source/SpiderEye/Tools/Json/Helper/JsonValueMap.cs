@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace SpiderEye.Tools.Json
 {
-    internal class JsonValueMap
+    internal sealed class JsonValueMap
     {
         public string Name { get; }
         public Type ValueType { get; }

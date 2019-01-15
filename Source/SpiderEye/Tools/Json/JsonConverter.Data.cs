@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace SpiderEye.Tools.Json
 {
-    internal static partial class JsonConverter
+    internal partial class JsonConverter
     {
         [DebuggerStepThrough]
         private unsafe sealed class JsonData

@@ -5,14 +5,14 @@ using System.Text;
 
 namespace SpiderEye.Tools.Json
 {
-    internal static partial class JsonConverter
+    internal partial class JsonConverter
     {
-        public static string Serialize(object value)
+        public string Serialize(object value)
         {
             if (value == null) { return "null"; }
 
             var type = value.GetType();
-            JsonTypeMap.BuildMapFor(type);
+            cache.BuildMapFor(type);
 
             var builder = new StringBuilder();
             WriteValue(value, builder, type);
@@ -20,7 +20,7 @@ namespace SpiderEye.Tools.Json
             return builder.ToString();
         }
 
-        private static void WriteValue(object value, StringBuilder builder, Type type)
+        private void WriteValue(object value, StringBuilder builder, Type type)
         {
             if (value == null)
             {
@@ -28,7 +28,7 @@ namespace SpiderEye.Tools.Json
                 return;
             }
 
-            var typeMap = JsonTypeMap.GetMap(type);
+            var typeMap = cache.GetMap(type);
 
             if (typeMap.JsonType.HasFlag(JsonValueType.Object))
             {
@@ -107,7 +107,7 @@ namespace SpiderEye.Tools.Json
             }
         }
 
-        private static unsafe void WriteStringValue(string value, StringBuilder builder)
+        private unsafe void WriteStringValue(string value, StringBuilder builder)
         {
             builder.Append("\"");
 

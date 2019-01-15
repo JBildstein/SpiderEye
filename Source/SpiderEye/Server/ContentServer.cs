@@ -185,7 +185,7 @@ namespace SpiderEye.Server
                 using (var reader = new StreamReader(bodyStream, request.ContentEncoding))
                 {
                     string json = await reader.ReadToEndAsync();
-                    body = JsonConverter.Deserialize(json, bodyParameter.Type);
+                    body = JsonConvert.Deserialize(json, bodyParameter.Type);
                 }
             }
 
@@ -263,7 +263,7 @@ namespace SpiderEye.Server
                     result = returnType.GetProperty("Result").GetValue(result);
                 }
 
-                string json = JsonConverter.Serialize(result);
+                string json = JsonConvert.Serialize(result);
                 using (var stream = response.OutputStream)
                 using (var writer = new StreamWriter(stream, Encoding.UTF8))
                 {

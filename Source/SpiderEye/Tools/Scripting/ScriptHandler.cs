@@ -20,12 +20,12 @@ namespace SpiderEye.Tools.Scripting
         {
             try
             {
-                var info = JsonConverter.Deserialize<InvokeInfoModel>(data);
+                var info = JsonConvert.Deserialize<InvokeInfoModel>(data);
                 if (info != null)
                 {
                     if (info.Type == "title")
                     {
-                        string title = JsonConverter.Deserialize<string>(info.Parameters);
+                        string title = JsonConvert.Deserialize<string>(info.Parameters);
                         TitleChanged?.Invoke(this, title);
                     }
                     else if (info.Type == "api")
@@ -45,7 +45,7 @@ namespace SpiderEye.Tools.Scripting
 
         private void EndApiCall(InvokeInfoModel info, ApiResultModel result)
         {
-            string resultJson = JsonConverter.Serialize(result);
+            string resultJson = JsonConvert.Serialize(result);
             webview.ExecuteScript($"window._spidereye._endApiCall({info.CallbackId}, {resultJson})");
         }
     }
