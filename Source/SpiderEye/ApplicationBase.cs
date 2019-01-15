@@ -1,6 +1,6 @@
 ﻿using System;
+using SpiderEye.Scripting.Api;
 using SpiderEye.Server;
-using SpiderEye.Tools.Scripting.Api;
 
 namespace SpiderEye
 {

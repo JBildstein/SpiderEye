@@ -23,7 +23,7 @@ namespace SpiderEye
             if (IsWindows())
             {
 #if NET462
-                return new Windows.WpfApplication(config);
+                return new UI.Windows.WpfApplication(config);
 #elif NETSTANDARD2_0
                 throw new PlatformNotSupportedException("Windows is only supported on .Net 4.6.2 or newer");
 #else
@@ -32,11 +32,11 @@ namespace SpiderEye
             }
             else if (IsLinux())
             {
-                return new Linux.GtkApplication(config);
+                return new UI.Linux.GtkApplication(config);
             }
             else if (IsMac())
             {
-                return new Mac.CocoaApplication(config);
+                return new UI.Mac.CocoaApplication(config);
             }
             else { throw new PlatformNotSupportedException(); }
         }

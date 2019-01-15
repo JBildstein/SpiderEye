@@ -12,8 +12,8 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <Compile Remove="Windows\**" />
-    <None Include="Windows\**" />
+    <Compile Remove="UI\Windows\**" />
+    <None Include="UI\Windows\**" />
   </ItemGroup>
 
   <ItemGroup>

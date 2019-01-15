@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using SpiderEye.Tools.Scripting;
+using SpiderEye.Scripting;
 
 namespace SpiderEye
 {

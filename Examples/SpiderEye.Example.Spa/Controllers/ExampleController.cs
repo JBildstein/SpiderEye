@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using SpiderEye.Mvc;
 using SpiderEye.Routing;
 
 namespace SpiderEye.Example.Spa.Controllers

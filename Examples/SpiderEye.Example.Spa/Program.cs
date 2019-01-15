@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using SpiderEye.Example.Spa.Controllers;
+using SpiderEye.Mvc;
 
 namespace SpiderEye.Example.Spa
 {
