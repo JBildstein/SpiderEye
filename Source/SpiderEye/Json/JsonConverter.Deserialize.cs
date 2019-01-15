@@ -592,11 +592,6 @@ namespace SpiderEye.Json
             }
         }
 
-        private void CheckIsValue(JsonValueType type)
-        {
-            if (!JsonTools.IsJsonValue(type)) { ThrowWrongJsonTypeError("value", type); }
-        }
-
         private void ThrowWrongJsonTypeError(string actual, JsonValueType expected)
         {
             throw new Exception($"JSON defines {actual} but expected a JSON type of {expected}");
