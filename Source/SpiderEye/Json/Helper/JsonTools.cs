@@ -95,13 +95,13 @@ namespace SpiderEye.Json
                 | JsonValueType.String
                 | JsonValueType.DateTime;
 
-            return (values & type) != 0;
+            return (values & type) == type;
         }
 
         public static bool IsJsonNumber(JsonValueType type)
         {
             const JsonValueType values = JsonValueType.Float | JsonValueType.Int | JsonValueType.Null;
-            return (values & type) != 0;
+            return (values & type) == type;
         }
     }
 }

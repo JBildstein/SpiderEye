@@ -90,7 +90,9 @@ namespace SpiderEye.Json
 
                     case JsonValueType.Float:
                         decimal floatValue = (decimal)Convert.ChangeType(value, typeof(decimal));
-                        builder.Append(floatValue.ToString("G17", CultureInfo.InvariantCulture));
+                        builder.Append(floatValue.ToString("G15", CultureInfo.InvariantCulture));
+                        bool appendZero = Math.Round(floatValue % 1, 15, MidpointRounding.AwayFromZero) == 0;
+                        if (appendZero) { builder.Append(".0"); }
                         break;
 
                     case JsonValueType.Bool:

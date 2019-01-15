@@ -36,7 +36,7 @@ namespace SpiderEye.Json
         {
             Name = JsTools.NormalizeToDotnetName(info.Name);
             ValueType = valueType;
-            CanBeNull = valueType.IsByRef || Nullable.GetUnderlyingType(valueType) != null;
+            CanBeNull = !valueType.IsValueType || Nullable.GetUnderlyingType(valueType) != null;
             JsonType = JsonTools.GetJsonType(valueType);
 
             if (CanBeNull) { JsonType |= JsonValueType.Null; }

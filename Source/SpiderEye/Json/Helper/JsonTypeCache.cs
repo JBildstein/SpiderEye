@@ -63,11 +63,14 @@ namespace SpiderEye.Json
 
                     Func<object> ctor = () => Activator.CreateInstance(genericType);
                     maps.Add(type, new JsonTypeMap(type, jsonType, ctor));
+
+                    BuildMapFor(valueType);
                 }
                 else if (JsonTools.IsJsonValue(jsonType))
                 {
                     maps.Add(type, new JsonTypeMap(type, jsonType));
                 }
+                else { throw new Exception($"Unknown JSON value type \"{jsonType}\". This is a bug."); }
             }
         }
 

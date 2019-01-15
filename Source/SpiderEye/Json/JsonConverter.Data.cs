@@ -53,10 +53,16 @@ namespace SpiderEye.Json
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void CheckCanMovePosition(int count)
+            public bool CanMovePosition(int count)
             {
                 int newIndex = index + count;
-                if (newIndex >= length || newIndex < 0)
+                return newIndex < length && newIndex >= 0;
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public void CheckCanMovePosition(int count)
+            {
+                if (!CanMovePosition(count))
                 {
                     throw new FormatException("JSON ended unexpectedly");
                 }

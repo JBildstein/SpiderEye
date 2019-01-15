@@ -132,6 +132,7 @@ namespace SpiderEye.Json
                     case '\t':
                     case '\r':
                     case '\n':
+                    case ',':
                         continue;
 
                     case '{':
@@ -164,7 +165,12 @@ namespace SpiderEye.Json
                     string resultString = ParseString(json, false);
                     if (typeMap.JsonType.HasFlag(JsonValueType.DateTime))
                     {
-                        result = DateTime.ParseExact(resultString, "o", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
+                        result = DateTime.ParseExact(
+                            resultString,
+                            "o",
+                            CultureInfo.InvariantCulture,
+                            DateTimeStyles.AssumeUniversal)
+                            .ToUniversalTime();
                     }
                     else { result = resultString; }
                     break;
@@ -192,7 +198,7 @@ namespace SpiderEye.Json
                 case 't':
                     CheckIsBool(typeMap.JsonType);
                     ParseConstantValueString(json, "true");
-                    result = false;
+                    result = true;
                     break;
 
                 case 'f':
@@ -233,12 +239,13 @@ namespace SpiderEye.Json
                 switch (*start)
                 {
                     case '"':
-                        escaped = !escaped;
                         result[i] = *start;
+                        escaped = !escaped;
                         break;
 
                     case '\\':
                         if (escaped) { result[i] = '\\'; }
+                        else { i--; }
                         escaped = !escaped;
                         break;
 
@@ -294,9 +301,10 @@ namespace SpiderEye.Json
                     case 'u':
                         if (escaped)
                         {
-                            string codeString = new string(json.Pointer, 0, 4);
+                            string codeString = new string(start + 1, 0, 4);
                             result[i] = (char)Convert.ToInt32(codeString, 16);
                             escaped = false;
+                            start += 4;
                             break;
                         }
                         else { goto default; }
@@ -363,6 +371,7 @@ namespace SpiderEye.Json
         private object ParseNumber(JsonData json, JsonTypeMap typeMap)
         {
             string stringValue = GetNumberString(json, out bool isFloat);
+            object value;
             if (isFloat)
             {
                 decimal result = decimal.Parse(stringValue, NumberStyles.Float, CultureInfo.InvariantCulture);
@@ -371,7 +380,7 @@ namespace SpiderEye.Json
                     // interpret value as Unix seconds
                     return DateTimeOffset.FromUnixTimeMilliseconds((long)((result * 1000) + 0.5m)).DateTime;
                 }
-                else { return Convert.ChangeType(result, typeMap.Type); }
+                else { value = result; }
             }
             else
             {
@@ -381,19 +390,21 @@ namespace SpiderEye.Json
                     // interpret value as Unix milliseconds
                     return DateTimeOffset.FromUnixTimeMilliseconds(result).DateTime;
                 }
-                else { return Convert.ChangeType(result, typeMap.Type); }
+                else { value = result; }
             }
+
+            var type = Nullable.GetUnderlyingType(typeMap.Type) ?? typeMap.Type;
+            return Convert.ChangeType(value, type);
         }
 
         private unsafe string GetNumberString(JsonData json, out bool isFloat)
         {
             char* start = json.Pointer;
-            int length = 1;
+            int length = 0;
             isFloat = false;
+            bool canEnd = false;
             while (true)
             {
-                json.Increment();
-
                 switch (json.Value)
                 {
                     case ' ':
@@ -401,6 +412,9 @@ namespace SpiderEye.Json
                     case '\r':
                     case '\n':
                     case ',':
+                    case '}':
+                    case ']':
+                        json.Decrement();
                         return new string(start, 0, length);
 
                     case '0':
@@ -413,14 +427,18 @@ namespace SpiderEye.Json
                     case '7':
                     case '8':
                     case '9':
+                        canEnd = true;
+                        break;
+
                     case '-':
                     case 'e':
                     case 'E':
-                        // valid values
+                        canEnd = false;
                         break;
 
                     case '.':
                         isFloat = true;
+                        canEnd = false;
                         break;
 
                     default:
@@ -428,6 +446,10 @@ namespace SpiderEye.Json
                 }
 
                 length++;
+
+                if (canEnd && !json.CanMovePosition(1)) { return new string(start, 0, length); }
+
+                json.Increment();
             }
         }
 
