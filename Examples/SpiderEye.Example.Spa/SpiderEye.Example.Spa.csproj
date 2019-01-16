@@ -20,8 +20,4 @@
       <LogicalName>%(RelativeDir)%(RecursiveDir)%(Filename)%(Extension)</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Angular\app\services\" />
-  </ItemGroup>
 </Project>
