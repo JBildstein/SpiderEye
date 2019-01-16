@@ -159,6 +159,9 @@ namespace SpiderEye.Server
                         context.Response.StatusCode = 200;
 
                         var controller = controllerInfo.Factory();
+                        controller.Request = new RequestInfo(context.Request);
+                        controller.Response = new ResponseInfo(context.Response);
+
                         object[] parameters = await ResolveParameters(controllerInfo, context.Request);
                         object controllerResult = controllerInfo.Method.Invoke(controller, parameters);
                         await WriteControllerResult(controllerResult, controllerInfo.Method.ReturnType, context.Response);
@@ -265,8 +268,9 @@ namespace SpiderEye.Server
                 }
 
                 string json = JsonConvert.Serialize(result);
+                response.ContentEncoding = response.ContentEncoding ?? Encoding.UTF8;
                 using (var stream = response.OutputStream)
-                using (var writer = new StreamWriter(stream, Encoding.UTF8))
+                using (var writer = new StreamWriter(stream, response.ContentEncoding))
                 {
                     await writer.WriteAsync(json);
                 }
