@@ -1,9 +1,11 @@
-﻿namespace SpiderEye.Mvc
+﻿using System;
+
+namespace SpiderEye.Mvc
 {
     /// <summary>
     /// Base class for any controller.
     /// </summary>
-    public abstract class Controller
+    public abstract class Controller : IDisposable
     {
         /// <summary>
         /// Gets the request information.
@@ -21,6 +23,14 @@
         {
             get;
             internal set;
+        }
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing,
+        /// releasing, or resetting unmanaged resources.
+        /// </summary>
+        public virtual void Dispose()
+        {
         }
     }
 }

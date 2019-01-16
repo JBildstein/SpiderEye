@@ -1,6 +1,7 @@
 ﻿using System;
 using SpiderEye.Scripting.Api;
 using SpiderEye.Server;
+using SpiderEye.Server.Middleware;
 
 namespace SpiderEye
 {
@@ -16,7 +17,10 @@ namespace SpiderEye
         {
             this.config = config ?? throw new ArgumentNullException(nameof(config));
 
-            server = new ContentServer(config.ContentAssembly, config.ContentFolder, config.Port);
+            server = new ContentServer(config.Port);
+
+            server.RegisterMiddleware(new EmbeddedFileMiddleware(config.ContentAssembly, config.ContentFolder));
+            server.RegisterMiddleware(new ControllerMiddleware());
         }
 
         public virtual void Run()
