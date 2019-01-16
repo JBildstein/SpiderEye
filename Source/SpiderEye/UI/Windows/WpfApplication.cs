@@ -32,17 +32,14 @@ namespace SpiderEye.UI.Windows
             application.MainWindow = window;
         }
 
-        public override void Run()
-        {
-            base.Run();
-            application.Run();
-
-            webview.Control.Dispose();
-        }
-
         public override void Exit()
         {
             application.Shutdown();
+        }
+
+        protected override void RunMainLoop()
+        {
+            application.Run();
         }
     }
 }

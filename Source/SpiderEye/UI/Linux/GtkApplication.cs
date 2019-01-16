@@ -17,7 +17,6 @@ namespace SpiderEye.UI.Linux
 
         private readonly GtkWindow window;
         private readonly GtkWebview webview;
-        private volatile bool keepRunning = true;
 
         public GtkApplication(AppConfiguration config)
             : base(config)
@@ -30,21 +29,14 @@ namespace SpiderEye.UI.Linux
             window.Closed += Window_Closed;
         }
 
-        public override void Run()
-        {
-            base.Run();
-
-            while (keepRunning)
-            {
-                Gtk.MainIteration();
-            }
-
-            window.Destroy();
-        }
-
         public override void Exit()
         {
-            keepRunning = false;
+            Gtk.Quit();
+        }
+
+        protected override void RunMainLoop()
+        {
+            while (!Gtk.MainIteration()) { }
         }
 
         private static void Init()

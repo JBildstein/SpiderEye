@@ -41,8 +41,8 @@ namespace SpiderEye.UI.Linux
             Gtk.Window.SetResizable(window, config.CanResize);
 
             IntPtr scroller = Gtk.Window.CreateScrolled(IntPtr.Zero, IntPtr.Zero);
-            Gtk.Window.ContainerAdd(window, scroller);
-            Gtk.Window.ContainerAdd(scroller, webview.Handle);
+            Gtk.Widget.ContainerAdd(window, scroller);
+            Gtk.Widget.ContainerAdd(scroller, webview.Handle);
 
             using (GLibString name = "destroy")
             {
@@ -56,7 +56,7 @@ namespace SpiderEye.UI.Linux
 
         public void Show()
         {
-            Gtk.Window.ShowAll(window);
+            Gtk.Widget.ShowAll(window);
             Gtk.Window.Present(window);
         }
 
@@ -65,9 +65,9 @@ namespace SpiderEye.UI.Linux
             Gtk.Window.Close(window);
         }
 
-        public void Destroy()
+        public void Dispose()
         {
-            Gtk.Window.Destroy(window);
+            Gtk.Widget.Destroy(window);
         }
 
         private void DestroyCallback(IntPtr widget, IntPtr arg)
@@ -82,7 +82,7 @@ namespace SpiderEye.UI.Linux
 
         private void Webview_CloseRequested(object sender, EventArgs e)
         {
-            Gtk.Window.Close(window);
+            Close();
         }
     }
 }

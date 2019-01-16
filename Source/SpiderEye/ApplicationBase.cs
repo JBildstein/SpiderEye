@@ -23,22 +23,35 @@ namespace SpiderEye
             server.RegisterMiddleware(new ControllerMiddleware());
         }
 
-        public virtual void Run()
+        public void Run()
         {
-            ApiResolver.InitApi();
-
-            server.Start();
-
-            if (string.IsNullOrWhiteSpace(config.Host))
+            try
             {
-                config.Host = server.HostAddress;
-            }
+                ApiResolver.InitApi();
 
-            string url = new Uri(new Uri(config.Host), config.StartPageUrl).ToString();
-            Webview.LoadUrl(url);
-            MainWindow.Show();
+                server.Start();
+
+                if (string.IsNullOrWhiteSpace(config.Host))
+                {
+                    config.Host = server.HostAddress;
+                }
+
+                string url = new Uri(new Uri(config.Host), config.StartPageUrl).ToString();
+                Webview.LoadUrl(url);
+                MainWindow.Show();
+
+                RunMainLoop();
+            }
+            finally
+            {
+                Webview.Dispose();
+                MainWindow.Dispose();
+                server.Dispose();
+            }
         }
 
         public abstract void Exit();
+
+        protected abstract void RunMainLoop();
     }
 }

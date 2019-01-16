@@ -27,5 +27,9 @@ namespace SpiderEye.UI.Windows
 
             webview.ScriptHandler.TitleChanged += (s, e) => Title = e ?? config.Title;
         }
+
+        public void Dispose()
+        {
+        }
     }
 }

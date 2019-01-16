@@ -75,6 +75,11 @@ namespace SpiderEye.UI.Linux
             }
         }
 
+        public void Dispose()
+        {
+            Gtk.Widget.Destroy(Handle);
+        }
+
         public async Task<string> CallFunction(string function)
         {
             return await Task.Run(() =>

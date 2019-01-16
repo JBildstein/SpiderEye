@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace SpiderEye.UI.Windows
+﻿namespace SpiderEye.UI.Windows
 {
     /// <summary>
     /// Represents a WPF webview.
@@ -10,6 +8,6 @@ namespace SpiderEye.UI.Windows
         /// <summary>
         /// Gets the webview control.
         /// </summary>
-        IDisposable Control { get; }
+        object Control { get; }
     }
 }

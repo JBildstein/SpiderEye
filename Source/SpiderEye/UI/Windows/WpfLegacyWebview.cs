@@ -11,7 +11,7 @@ namespace SpiderEye.UI.Windows
     {
         public ScriptHandler ScriptHandler { get; }
 
-        public IDisposable Control
+        public object Control
         {
             get { return webview; }
         }
@@ -47,6 +47,11 @@ namespace SpiderEye.UI.Windows
         {
             string result = webview.InvokeScript("eval", new string[] { function }) as string;
             return Task.FromResult(result);
+        }
+
+        public void Dispose()
+        {
+            webview.Dispose();
         }
 
         private void Webview_LoadCompleted(object sender, NavigationEventArgs e)

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using SpiderEye.Scripting;
 
 namespace SpiderEye
@@ -6,7 +7,7 @@ namespace SpiderEye
     /// <summary>
     /// Represents a webview.
     /// </summary>
-    internal interface IWebview
+    internal interface IWebview : IDisposable
     {
         /// <summary>
         /// Gets the script handler.

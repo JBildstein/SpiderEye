@@ -10,7 +10,7 @@ namespace SpiderEye.UI.Windows
     {
         public ScriptHandler ScriptHandler { get; }
 
-        public IDisposable Control
+        public object Control
         {
             get { return webview; }
         }
@@ -42,6 +42,11 @@ namespace SpiderEye.UI.Windows
         public async Task<string> CallFunction(string function)
         {
             return await webview.InvokeScriptAsync("eval", new string[] { function });
+        }
+
+        public void Dispose()
+        {
+            webview.Dispose();
         }
 
         private void Webview_ScriptNotify(object sender, WebViewControlScriptNotifyEventArgs e)

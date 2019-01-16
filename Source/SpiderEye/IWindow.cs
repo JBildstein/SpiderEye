@@ -1,9 +1,11 @@
+using System;
+
 namespace SpiderEye
 {
     /// <summary>
     /// Represents a window.
     /// </summary>
-    public interface IWindow
+    public interface IWindow : IDisposable
     {
         /// <summary>
         /// Gets or sets the window title.
