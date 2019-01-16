@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Globalization;
 using System.Text;
+using SpiderEye.Json.Collections;
 using SpiderEye.Tools;
 
 namespace SpiderEye.Json
@@ -16,12 +17,15 @@ namespace SpiderEye.Json
             cache.BuildMapFor(type);
 
             var builder = new StringBuilder();
-            WriteValue(value, builder, type);
+            var queue = new HashQueue<object>();
+            WriteValue(value, builder, type, queue);
+
+            var stack = new Stack();
 
             return builder.ToString();
         }
 
-        private void WriteValue(object value, StringBuilder builder, Type type)
+        private void WriteValue(object value, StringBuilder builder, Type type, HashQueue<object> queue)
         {
             if (value == null)
             {
@@ -30,9 +34,9 @@ namespace SpiderEye.Json
             }
 
             var typeMap = cache.GetMap(type);
-
             if (typeMap.JsonType.HasFlag(JsonValueType.Object))
             {
+                CheckForRecursion(value, queue);
                 builder.Append("{");
 
                 bool first = true;
@@ -49,31 +53,35 @@ namespace SpiderEye.Json
 
                         object itemValue = item.Getter(value);
                         if (item.AsRawJson && itemValue != null) { builder.Append(itemValue.ToString()); }
-                        else { WriteValue(itemValue, builder, item.ValueType); }
+                        else { WriteValue(itemValue, builder, item.ValueType, queue); }
                     }
                 }
 
                 builder.Append("}");
+                queue.Pop();
             }
             else if (typeMap.JsonType.HasFlag(JsonValueType.Array))
             {
-                if (value is IEnumerable list)
+                if (!(value is IEnumerable list))
                 {
-                    builder.Append("[");
-
-                    var valueType = JsonTools.GetArrayValueType(typeMap.Type);
-                    bool first = true;
-                    foreach (object item in list)
-                    {
-                        if (!first) { builder.Append(","); }
-                        first = false;
-
-                        WriteValue(item, builder, valueType);
-                    }
-
-                    builder.Append("]");
+                    throw new InvalidOperationException($"Supposed JSON array type does not implement IEnumerable: \"{type.Name}\"");
                 }
-                else { throw new InvalidOperationException($"Supposed JSON array type does not implement IEnumerable: \"{type.Name}\""); }
+
+                CheckForRecursion(value, queue);
+                builder.Append("[");
+
+                var valueType = JsonTools.GetArrayValueType(typeMap.Type);
+                bool first = true;
+                foreach (object item in list)
+                {
+                    if (!first) { builder.Append(","); }
+                    first = false;
+
+                    WriteValue(item, builder, valueType, queue);
+                }
+
+                builder.Append("]");
+                queue.Pop();
             }
             else
             {
@@ -151,6 +159,14 @@ namespace SpiderEye.Json
             }
 
             builder.Append("\"");
+        }
+
+        private void CheckForRecursion(object value, HashQueue<object> queue)
+        {
+            if (!queue.Push(value))
+            {
+                throw new InvalidOperationException("Recursion detected");
+            }
         }
     }
 }

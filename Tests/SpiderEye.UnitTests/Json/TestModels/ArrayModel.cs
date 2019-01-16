@@ -49,11 +49,11 @@ namespace SpiderEye.Json.TestModels
         {
             if (obj is ArrayModel model)
             {
-                return ValuesEqual(IntArray, model.IntArray) &&
-                    ValuesEqual(IntIEnumerable, model.IntIEnumerable) &&
-                    ValuesEqual(IntICollection, model.IntICollection) &&
-                    ValuesEqual(IntIList, model.IntIList) &&
-                    ValuesEqual(IntList, model.IntList);
+                return ArrayValuesEqual(IntArray, model.IntArray) &&
+                    ArrayValuesEqual(IntIEnumerable, model.IntIEnumerable) &&
+                    ArrayValuesEqual(IntICollection, model.IntICollection) &&
+                    ArrayValuesEqual(IntIList, model.IntIList) &&
+                    ArrayValuesEqual(IntList, model.IntList);
             }
 
             return false;
@@ -64,7 +64,7 @@ namespace SpiderEye.Json.TestModels
             return base.GetHashCode();
         }
 
-        private bool ValuesEqual(IEnumerable<int> a, IEnumerable<int> b)
+        private bool ArrayValuesEqual<T>(IEnumerable<T> a, IEnumerable<T> b)
         {
             if (a == b) { return true; }
             else if (a == null || b == null) { return false; }

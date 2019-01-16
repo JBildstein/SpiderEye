@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
 namespace SpiderEye.Json
 {
@@ -29,12 +28,9 @@ namespace SpiderEye.Json
             this.constructor = constructor ?? throw new ArgumentNullException(nameof(constructor));
         }
 
-        public JsonTypeMap(Type type, JsonValueType jsonType, ConstructorInfo constructor, Dictionary<string, JsonValueMap> valueMaps)
-            : this(type, jsonType)
+        public JsonTypeMap(Type type, JsonValueType jsonType, Func<object> constructor, Dictionary<string, JsonValueMap> valueMaps)
+            : this(type, jsonType, constructor)
         {
-            if (constructor == null) { throw new ArgumentNullException(nameof(constructor)); }
-
-            this.constructor = () => constructor.Invoke(null);
             this.valueMaps = valueMaps ?? throw new ArgumentNullException(nameof(valueMaps));
         }
 

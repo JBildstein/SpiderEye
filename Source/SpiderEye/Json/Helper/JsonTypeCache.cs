@@ -28,10 +28,19 @@ namespace SpiderEye.Json
                 var jsonType = JsonTools.GetJsonType(type);
                 if (jsonType == JsonValueType.Object)
                 {
-                    var ctor = type.GetConstructors().FirstOrDefault(t => t.GetParameters().Length == 0);
-                    if (ctor == null) { throw new InvalidOperationException($"Type {type.Name} does not have a suitable constructor"); }
+                    Func<object> constructor;
+                    if (type.IsValueType) { constructor = () => Activator.CreateInstance(type); }
+                    else
+                    {
+                        var constructorInfo = type.GetConstructors().FirstOrDefault(t => t.GetParameters().Length == 0);
+                        if (constructorInfo == null) { throw new InvalidOperationException($"Type {type.Name} does not have a suitable constructor"); }
+
+                        constructor = () => constructorInfo.Invoke(null);
+                    }
 
                     var valueMaps = new Dictionary<string, JsonValueMap>();
+                    maps.Add(type, new JsonTypeMap(type, jsonType, constructor, valueMaps));
+
                     foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
                     {
                         if (!IsIgnored(property) && JsonValueMap.IsValid(property))
@@ -53,16 +62,14 @@ namespace SpiderEye.Json
                             BuildMapFor(field.FieldType);
                         }
                     }
-
-                    maps.Add(type, new JsonTypeMap(type, jsonType, ctor, valueMaps));
                 }
                 else if (jsonType == JsonValueType.Array)
                 {
                     var valueType = JsonTools.GetArrayValueType(type);
                     var genericType = typeof(SingleLinkedList<>).MakeGenericType(valueType);
 
-                    Func<object> ctor = () => Activator.CreateInstance(genericType);
-                    maps.Add(type, new JsonTypeMap(type, jsonType, ctor));
+                    Func<object> constructor = () => Activator.CreateInstance(genericType);
+                    maps.Add(type, new JsonTypeMap(type, jsonType, constructor));
 
                     BuildMapFor(valueType);
                 }

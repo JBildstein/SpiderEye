@@ -14,6 +14,16 @@ namespace SpiderEye.Json
             Assert.IsType<ArgumentNullException>(exception);
         }
 
+        [Fact]
+        public void Serialize_WithRecursiveValue_ThrowsException()
+        {
+            var converter = new JsonConverter();
+
+            var exception = Record.Exception(() => converter.Serialize(ObjectModel.Recursive));
+
+            Assert.IsType<InvalidOperationException>(exception);
+        }
+
         [Theory]
         [MemberData(nameof(SerializeData))]
         public void Serialize_WithSupportedValues_ReturnsJson(object value, string expected)
@@ -67,6 +77,8 @@ namespace SpiderEye.Json
             new object[] { NullableValuesModel.Default, NullableValuesModel.DefaultJson },
             new object[] { NullableValuesModel.Null, NullableValuesModel.NullJson },
             new object[] { ValuesModel.Default, ValuesModel.DefaultJson },
+            new object[] { NestedModel.Default, NestedModel.DefaultJson },
+            new object[] { ValueTypeModel.Default, ValueTypeModel.DefaultJson },
         };
 
         public static readonly object[][] DeserializeData =
@@ -98,6 +110,8 @@ namespace SpiderEye.Json
             new object[] { NullableValuesModel.Default, NullableValuesModel.DefaultJson, typeof(NullableValuesModel) },
             new object[] { NullableValuesModel.Null, NullableValuesModel.NullJson, typeof(NullableValuesModel) },
             new object[] { ValuesModel.Default, ValuesModel.DefaultJson, typeof(ValuesModel) },
+            new object[] { NestedModel.Default, NestedModel.DefaultJson, typeof(NestedModel) },
+            new object[] { ValueTypeModel.Default, ValueTypeModel.DefaultJson, typeof(ValueTypeModel) },
         };
     }
 }
