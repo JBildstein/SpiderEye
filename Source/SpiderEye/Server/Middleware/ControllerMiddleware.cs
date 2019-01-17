@@ -13,11 +13,18 @@ namespace SpiderEye.Server.Middleware
 {
     internal class ControllerMiddleware : IMiddleware
     {
+        private readonly IControllerRegistry controllerRegistry;
+
+        public ControllerMiddleware(IControllerRegistry controllerRegistry)
+        {
+            this.controllerRegistry = controllerRegistry ?? throw new ArgumentNullException(nameof(controllerRegistry));
+        }
+
         public async Task InvokeAsync(HttpListenerContext context, Func<Task> next)
         {
             var httpMethod = (HttpMethod)Enum.Parse(typeof(HttpMethod), context.Request.HttpMethod, true);
             string path = context.Request.Url.GetComponents(UriComponents.Path, UriFormat.Unescaped).ToLower();
-            if (ControllerRegistry.TryGetInfo(httpMethod, path, out ControllerMethodInfo controllerInfo))
+            if (controllerRegistry.TryGetInfo(httpMethod, path, out ControllerMethodInfo controllerInfo))
             {
                 context.Response.AddHeader("Cache-Control", "no-cache, no-store, must-revalidate");
                 context.Response.ContentType = MimeTypes.Json;

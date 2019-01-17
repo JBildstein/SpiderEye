@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using SpiderEye.Configuration;
 using SpiderEye.Example.Spa.Controllers;
-using SpiderEye.Mvc;
 
 namespace SpiderEye.Example.Spa
 {
@@ -20,7 +19,8 @@ namespace SpiderEye.Example.Spa
             // this is only called in Debug mode:
             SetDevServer(config);
 
-            ControllerRegistry.Register<ExampleController>();
+            // register a controller so we can call it later from the webview
+            config.Server.RegisterController<ExampleController>();
 
             Application.Run(config);
         }

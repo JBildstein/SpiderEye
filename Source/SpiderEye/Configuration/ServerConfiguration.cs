@@ -1,4 +1,7 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
+using SpiderEye.Mvc;
 
 namespace SpiderEye.Configuration
 {
@@ -40,6 +43,11 @@ namespace SpiderEye.Configuration
         public Assembly ContentAssembly { get; set; }
 
         /// <summary>
+        /// Gets the controller registry.
+        /// </summary>
+        internal IControllerRegistry Controllers { get; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ServerConfiguration"/> class.
         /// </summary>
         public ServerConfiguration()
@@ -49,6 +57,29 @@ namespace SpiderEye.Configuration
             ContentFolder = "App";
             Host = null;
             ContentAssembly = Assembly.GetEntryAssembly();
+
+            Controllers = new ControllerRegistry();
+        }
+
+        /// <summary>
+        /// Registers a controller of a given type.
+        /// </summary>
+        /// <typeparam name="T">The type of the controller to register.</typeparam>
+        public void RegisterController<T>()
+            where T : Controller, new()
+        {
+            Controllers.Register<T>();
+        }
+
+        /// <summary>
+        /// Registers a controller with a factory method.
+        /// </summary>
+        /// <typeparam name="T">The type of the controller to register.</typeparam>
+        /// <param name="controllerFactory">The factory to create a controller instance.</param>
+        public void Register<T>(Func<T> controllerFactory)
+            where T : Controller
+        {
+            Controllers.Register(controllerFactory);
         }
     }
 }

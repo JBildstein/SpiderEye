@@ -10,15 +10,15 @@ namespace SpiderEye.Mvc
     /// <summary>
     /// Provides methods to register controllers.
     /// </summary>
-    public static class ControllerRegistry
+    internal class ControllerRegistry : IControllerRegistry
     {
-        private static readonly Dictionary<string, ControllerMethodInfo> Paths = new Dictionary<string, ControllerMethodInfo>();
+        private readonly Dictionary<string, ControllerMethodInfo> paths = new Dictionary<string, ControllerMethodInfo>();
 
         /// <summary>
         /// Registers a controller of a given type.
         /// </summary>
         /// <typeparam name="T">The type of the controller to register.</typeparam>
-        public static void Register<T>()
+        public void Register<T>()
             where T : Controller, new()
         {
             Register(() => Activator.CreateInstance<T>());
@@ -29,7 +29,7 @@ namespace SpiderEye.Mvc
         /// </summary>
         /// <typeparam name="T">The type of the controller to register.</typeparam>
         /// <param name="controllerFactory">The factory to create a controller instance.</param>
-        public static void Register<T>(Func<T> controllerFactory)
+        public void Register<T>(Func<T> controllerFactory)
             where T : Controller
         {
             if (controllerFactory == null) { throw new ArgumentNullException(nameof(controllerFactory)); }
@@ -49,13 +49,20 @@ namespace SpiderEye.Mvc
             AddMethods(type, uri, controllerFactory);
         }
 
-        internal static bool TryGetInfo(HttpMethod httpMethod, string path, out ControllerMethodInfo info)
+        /// <summary>
+        /// Tries to get the controller info for a given path.
+        /// </summary>
+        /// <param name="httpMethod">The HTTP method of the request.</param>
+        /// <param name="path">The request path.</param>
+        /// <param name="info">The controller info if found; null otherwise.</param>
+        /// <returns>True if a controller was found for the given path; False otherwise.</returns>
+        public bool TryGetInfo(HttpMethod httpMethod, string path, out ControllerMethodInfo info)
         {
             string key = $"{httpMethod.ToString().ToUpper()} {path.ToLower()}";
-            return Paths.TryGetValue(key, out info);
+            return paths.TryGetValue(key, out info);
         }
 
-        private static void AddMethods(Type type, Uri controllerUri, Func<Controller> factory)
+        private void AddMethods(Type type, Uri controllerUri, Func<Controller> factory)
         {
             var methods = type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
             foreach (var method in methods)
@@ -79,7 +86,7 @@ namespace SpiderEye.Mvc
 
                 string fullUrl = new Uri(controllerUri, url).GetComponents(UriComponents.Path, UriFormat.Unescaped).ToLower();
                 string key = $"{httpMethod.ToString().ToUpper()} {fullUrl}";
-                if (Paths.ContainsKey(key))
+                if (paths.ContainsKey(key))
                 {
                     string message = $"Path {key} was already added. Source: \"{type.Name}.{method.Name}\"";
                     throw new InvalidOperationException(message);
@@ -87,11 +94,11 @@ namespace SpiderEye.Mvc
 
                 var parameters = GetParameterInfos(method);
                 var info = new ControllerMethodInfo(httpMethod, fullUrl, method, parameters, factory);
-                Paths.Add(key, info);
+                paths.Add(key, info);
             }
         }
 
-        private static MethodParameterInfo[] GetParameterInfos(MethodInfo method)
+        private MethodParameterInfo[] GetParameterInfos(MethodInfo method)
         {
             bool hasBody = false;
             var parameters = method.GetParameters();

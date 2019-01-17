@@ -23,7 +23,7 @@ namespace SpiderEye
                 server = new ContentServer(config.Server.Port);
 
                 server.RegisterMiddleware(new EmbeddedFileMiddleware(config.Server.ContentAssembly, config.Server.ContentFolder));
-                server.RegisterMiddleware(new ControllerMiddleware());
+                server.RegisterMiddleware(new ControllerMiddleware(config.Server.Controllers));
             }
         }
 
