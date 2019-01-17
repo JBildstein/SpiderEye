@@ -1,4 +1,5 @@
 ﻿using System;
+using SpiderEye.Configuration;
 using SpiderEye.UI.Linux.Native;
 
 namespace SpiderEye.UI.Linux
@@ -10,22 +11,14 @@ namespace SpiderEye.UI.Linux
             get { return window; }
         }
 
-        public override IWebview Webview
-        {
-            get { return webview; }
-        }
-
         private readonly GtkWindow window;
-        private readonly GtkWebview webview;
 
         public GtkApplication(AppConfiguration config)
             : base(config)
         {
             Init();
 
-            webview = new GtkWebview(config);
-            window = new GtkWindow(config, webview);
-
+            window = new GtkWindow(config.Window);
             window.Closed += Window_Closed;
         }
 

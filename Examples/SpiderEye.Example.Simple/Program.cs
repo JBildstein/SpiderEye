@@ -1,4 +1,5 @@
 ﻿using System;
+using SpiderEye.Configuration;
 
 namespace SpiderEye.Example.Simple
 {
@@ -7,15 +8,11 @@ namespace SpiderEye.Example.Simple
         [STAThread]
         public static void Main(string[] args)
         {
-            var config = new AppConfiguration
-            {
-                Title = "Hello World",
-                Width = 900,
-                Height = 600,
-                CanResize = true,
-                StartPageUrl = "index.html",
-                ContentFolder = "App", // this relates to the path defined in the .csproj file
-            };
+            // this creates a new app configuration with default values
+            var config = new AppConfiguration();
+
+            // this relates to the path defined in the .csproj file
+            config.Server.ContentFolder = "App";
 
             Application.Run(config);
         }

@@ -1,4 +1,6 @@
-﻿namespace SpiderEye
+﻿using SpiderEye.UI;
+
+namespace SpiderEye
 {
     /// <summary>
     /// Represents an application.

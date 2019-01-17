@@ -46,8 +46,17 @@ namespace SpiderEye.UI.Linux.Native
             [DllImport(GtkNativeDll, EntryPoint = "gtk_window_set_default_size", CallingConvention = CallingConvention.Cdecl)]
             public static extern void SetDefaultSize(IntPtr window, int width, int height);
 
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_window_get_size", CallingConvention = CallingConvention.Cdecl)]
+            public static extern void GetSize(IntPtr window, out int width, out int height);
+
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_window_get_resizable", CallingConvention = CallingConvention.Cdecl)]
+            public static extern bool GetResizable(IntPtr window);
+
             [DllImport(GtkNativeDll, EntryPoint = "gtk_window_set_resizable", CallingConvention = CallingConvention.Cdecl)]
             public static extern void SetResizable(IntPtr window, bool resizable);
+
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_window_set_type_hint", CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetTypeHint(IntPtr window, GdkWindowTypeHint hint);
 
             [DllImport(GtkNativeDll, EntryPoint = "gtk_window_set_position", CallingConvention = CallingConvention.Cdecl)]
             public static extern void SetPosition(IntPtr window, GtkWindowPosition position);
@@ -57,6 +66,42 @@ namespace SpiderEye.UI.Linux.Native
 
             [DllImport(GtkNativeDll, EntryPoint = "gtk_window_unfullscreen", CallingConvention = CallingConvention.Cdecl)]
             public static extern void Unfullscreen(IntPtr window);
+
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_window_maximize", CallingConvention = CallingConvention.Cdecl)]
+            public static extern void Maximize(IntPtr window);
+
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_window_unmaximize", CallingConvention = CallingConvention.Cdecl)]
+            public static extern void Unmaximize(IntPtr window);
+
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_window_iconify", CallingConvention = CallingConvention.Cdecl)]
+            public static extern void Minimize(IntPtr window);
+
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_window_deiconify", CallingConvention = CallingConvention.Cdecl)]
+            public static extern void Unminimize(IntPtr window);
+
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_window_is_maximized", CallingConvention = CallingConvention.Cdecl)]
+            public static extern bool IsMaximized(IntPtr window);
+
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_window_resize", CallingConvention = CallingConvention.Cdecl)]
+            public static extern void Resize(IntPtr window, int width, int height);
+        }
+
+        public static class Css
+        {
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_css_provider_new", CallingConvention = CallingConvention.Cdecl)]
+            public static extern IntPtr Create();
+
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_css_provider_load_from_data", CallingConvention = CallingConvention.Cdecl)]
+            public static extern bool LoadData(IntPtr provider, IntPtr data, IntPtr size, IntPtr error);
+        }
+
+        public static class StyleContext
+        {
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_widget_get_style_context", CallingConvention = CallingConvention.Cdecl)]
+            public static extern IntPtr Get(IntPtr widget);
+
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_style_context_add_provider", CallingConvention = CallingConvention.Cdecl)]
+            public static extern void AddProvider(IntPtr context, IntPtr provider, GtkStyleProviderPriority priority);
         }
 
         [DllImport(GtkNativeDll, EntryPoint = "gtk_init_check", CallingConvention = CallingConvention.Cdecl)]

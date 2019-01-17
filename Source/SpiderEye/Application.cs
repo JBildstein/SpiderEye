@@ -1,4 +1,5 @@
 using System;
+using SpiderEye.Configuration;
 #if NETSTANDARD2_0
 using System.Runtime.InteropServices;
 #endif

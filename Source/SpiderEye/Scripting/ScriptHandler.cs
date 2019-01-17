@@ -2,6 +2,7 @@
 using SpiderEye.Json;
 using SpiderEye.Scripting.Api;
 using SpiderEye.Scripting.Models;
+using SpiderEye.UI;
 
 namespace SpiderEye.Scripting
 {

@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using SpiderEye.Scripting;
 
-namespace SpiderEye
+namespace SpiderEye.UI
 {
     /// <summary>
     /// Represents a webview.
@@ -24,13 +24,14 @@ namespace SpiderEye
         /// Executes the given JavaScript within the webview.
         /// </summary>
         /// <param name="script">The JavaScript to execute.</param>
-        void ExecuteScript(string script);
+        /// <returns>The result of the script.</returns>
+        string ExecuteScript(string script);
 
         /// <summary>
-        /// Executes the given JavaScript function and gets the result.
+        /// Executes the given JavaScript within the webview and gets the result.
         /// </summary>
-        /// <param name="function">The function to call.</param>
-        /// <returns>A <see cref="Task{TResult}"/> with the result of the function.</returns>
-        Task<string> CallFunction(string function);
+        /// <param name="script">The JavaScript to execute.</param>
+        /// <returns>A <see cref="Task{TResult}"/> with the result of the script.</returns>
+        Task<string> ExecuteScriptAsync(string script);
     }
 }

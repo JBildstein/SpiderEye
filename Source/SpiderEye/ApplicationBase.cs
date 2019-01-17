@@ -1,14 +1,15 @@
 ﻿using System;
+using SpiderEye.Configuration;
 using SpiderEye.Scripting.Api;
 using SpiderEye.Server;
 using SpiderEye.Server.Middleware;
+using SpiderEye.UI;
 
 namespace SpiderEye
 {
     internal abstract class ApplicationBase : IApplication
     {
         public abstract IWindow MainWindow { get; }
-        public abstract IWebview Webview { get; }
 
         protected readonly AppConfiguration config;
         protected readonly ContentServer server;
@@ -17,10 +18,13 @@ namespace SpiderEye
         {
             this.config = config ?? throw new ArgumentNullException(nameof(config));
 
-            server = new ContentServer(config.Port);
+            if (config.Server.UseInternalServer)
+            {
+                server = new ContentServer(config.Server.Port);
 
-            server.RegisterMiddleware(new EmbeddedFileMiddleware(config.ContentAssembly, config.ContentFolder));
-            server.RegisterMiddleware(new ControllerMiddleware());
+                server.RegisterMiddleware(new EmbeddedFileMiddleware(config.Server.ContentAssembly, config.Server.ContentFolder));
+                server.RegisterMiddleware(new ControllerMiddleware());
+            }
         }
 
         public void Run()
@@ -29,24 +33,25 @@ namespace SpiderEye
             {
                 ApiResolver.InitApi();
 
-                server.Start();
-
-                if (string.IsNullOrWhiteSpace(config.Host))
+                bool hasHostAddress = !string.IsNullOrWhiteSpace(config.Server.Host);
+                if (config.Server.UseInternalServer)
                 {
-                    config.Host = server.HostAddress;
-                }
+                    server.Start();
 
-                string url = new Uri(new Uri(config.Host), config.StartPageUrl).ToString();
-                Webview.LoadUrl(url);
+                    if (!hasHostAddress) { config.Server.Host = server.HostAddress; }
+                }
+                else if (!hasHostAddress) { throw new InvalidOperationException("Can't load page without host address."); }
+
+                string url = new Uri(new Uri(config.Server.Host), config.Server.StartPageUrl).ToString();
+                MainWindow.LoadUrl(url);
                 MainWindow.Show();
 
                 RunMainLoop();
             }
             finally
             {
-                Webview.Dispose();
                 MainWindow.Dispose();
-                server.Dispose();
+                server?.Dispose();
             }
         }
 

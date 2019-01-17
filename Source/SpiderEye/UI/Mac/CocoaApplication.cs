@@ -1,4 +1,5 @@
 ﻿using System;
+using SpiderEye.Configuration;
 
 namespace SpiderEye.UI.Mac
 {

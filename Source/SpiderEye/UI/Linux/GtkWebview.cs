@@ -18,26 +18,47 @@ namespace SpiderEye.UI.Linux
         public readonly IntPtr Handle;
 
         private readonly IntPtr manager;
-        private readonly AppConfiguration config;
-        private readonly string initScript;
 
-        public GtkWebview(AppConfiguration config)
+        public GtkWebview(bool enableScriptInterface)
         {
-            this.config = config ?? throw new ArgumentNullException(nameof(config));
-
-            initScript = Resources.GetInitScript("Linux");
-            manager = WebKit.Manager.Create();
-            using (GLibString name = "script-message-received::external")
+            if (enableScriptInterface)
             {
-                GLib.ConnectSignal(manager, name, (ScriptDelegate)ScriptCallback, IntPtr.Zero);
-            }
+                ScriptHandler = new ScriptHandler(this);
 
-            using (GLibString name = "external")
-            {
-                WebKit.Manager.RegisterScriptMessageHandler(manager, name);
-            }
+                manager = WebKit.Manager.Create();
+                using (GLibString name = "script-message-received::external")
+                {
+                    GLib.ConnectSignal(manager, name, (ScriptDelegate)ScriptCallback, IntPtr.Zero);
+                }
 
-            Handle = WebKit.CreateWithUserContentManager(manager);
+                using (GLibString name = "external")
+                {
+                    WebKit.Manager.RegisterScriptMessageHandler(manager, name);
+                }
+
+                using (GLibString scriptText = Resources.GetInitScript("Linux"))
+                {
+                    IntPtr script = IntPtr.Zero;
+
+                    try
+                    {
+                        script = WebKit.Manager.CreateScript(
+                            manager,
+                            scriptText,
+                            WebKitInjectedFrames.AllFrames,
+                            WebKitInjectionTime.DocumentStart,
+                            IntPtr.Zero,
+                            IntPtr.Zero);
+
+                        WebKit.Manager.AddScript(manager, script);
+                    }
+                    finally { WebKit.Manager.UnrefScript(script); }
+                }
+
+                Handle = WebKit.CreateWithUserContentManager(manager);
+            }
+            else { Handle = WebKit.Create(); }
+
             using (GLibString name = "load-changed")
             {
                 GLib.ConnectSignal(Handle, name, (PageLoadDelegate)LoadCallback, IntPtr.Zero);
@@ -67,12 +88,9 @@ namespace SpiderEye.UI.Linux
             }
         }
 
-        public void ExecuteScript(string script)
+        public string ExecuteScript(string script)
         {
-            using (GLibString gscript = script)
-            {
-                WebKit.JavaScript.BeginExecute(Handle, gscript, IntPtr.Zero, null, IntPtr.Zero);
-            }
+            return ExecuteScriptAsync(script).GetAwaiter().GetResult();
         }
 
         public void Dispose()
@@ -80,7 +98,7 @@ namespace SpiderEye.UI.Linux
             Gtk.Widget.Destroy(Handle);
         }
 
-        public async Task<string> CallFunction(string function)
+        public async Task<string> ExecuteScriptAsync(string script)
         {
             return await Task.Run(() =>
             {
@@ -126,7 +144,7 @@ namespace SpiderEye.UI.Linux
                     }
                 }
 
-                using (GLibString gfunction = function)
+                using (GLibString gfunction = script)
                 {
                     WebKit.JavaScript.BeginExecute(Handle, gfunction, IntPtr.Zero, Callback, IntPtr.Zero);
                 }
@@ -155,10 +173,6 @@ namespace SpiderEye.UI.Linux
 
         private void LoadCallback(IntPtr webview, WebKitLoadEvent type, IntPtr userdata)
         {
-            if (type == WebKitLoadEvent.Finished)
-            {
-                ExecuteScript(initScript);
-            }
         }
 
         private bool ContextMenuCallback(IntPtr webview, IntPtr default_menu, IntPtr hit_test_result, bool triggered_with_keyboard, IntPtr arg)

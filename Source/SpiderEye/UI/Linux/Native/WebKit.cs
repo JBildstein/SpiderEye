@@ -16,6 +16,15 @@ namespace SpiderEye.UI.Linux.Native
 
             [DllImport(WebkitNativeDll, EntryPoint = "webkit_user_content_manager_register_script_message_handler", CallingConvention = CallingConvention.Cdecl)]
             public static extern bool RegisterScriptMessageHandler(IntPtr manager, IntPtr name);
+
+            [DllImport(WebkitNativeDll, EntryPoint = "webkit_user_script_new", CallingConvention = CallingConvention.Cdecl)]
+            public static extern IntPtr CreateScript(IntPtr manager, IntPtr source, WebKitInjectedFrames injectedFrames, WebKitInjectionTime injectedTime, IntPtr whitelist, IntPtr blacklist);
+
+            [DllImport(WebkitNativeDll, EntryPoint = "webkit_user_content_manager_add_script", CallingConvention = CallingConvention.Cdecl)]
+            public static extern void AddScript(IntPtr manager, IntPtr script);
+
+            [DllImport(WebkitNativeDll, EntryPoint = "webkit_user_script_unref", CallingConvention = CallingConvention.Cdecl)]
+            public static extern bool UnrefScript(IntPtr script);
         }
 
         public static class Settings
@@ -92,6 +101,9 @@ namespace SpiderEye.UI.Linux.Native
             [DllImport(JavaScriptCoreNativeDll, EntryPoint = "webkit_javascript_result_unref", CallingConvention = CallingConvention.Cdecl)]
             public static extern void ReleaseJsResult(IntPtr jsResult);
         }
+
+        [DllImport(WebkitNativeDll, EntryPoint = "webkit_web_view_new", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr Create();
 
         [DllImport(WebkitNativeDll, EntryPoint = "webkit_web_view_new_with_user_content_manager", CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr CreateWithUserContentManager(IntPtr manager);

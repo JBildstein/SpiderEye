@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.Toolkit.Win32.UI.Controls.Interop.WinRT;
 using Microsoft.Toolkit.Wpf.UI.Controls;
 using SpiderEye.Scripting;
@@ -15,18 +14,19 @@ namespace SpiderEye.UI.Windows
             get { return webview; }
         }
 
-        private readonly AppConfiguration config;
         private readonly WebView webview;
 
-        public WpfWebview(AppConfiguration config)
+        public WpfWebview(bool enableScriptInterface)
         {
-            this.config = config ?? throw new ArgumentNullException(nameof(config));
-
             webview = new WebView();
-            ScriptHandler = new ScriptHandler(this);
-            webview.IsScriptNotifyAllowed = true;
-            webview.ScriptNotify += Webview_ScriptNotify;
-            webview.AddInitializeScript(Resources.GetInitScript("Windows"));
+
+            webview.IsScriptNotifyAllowed = enableScriptInterface;
+            if (enableScriptInterface)
+            {
+                ScriptHandler = new ScriptHandler(this);
+                webview.ScriptNotify += Webview_ScriptNotify;
+                webview.AddInitializeScript(Resources.GetInitScript("Windows"));
+            }
         }
 
         public void LoadUrl(string url)
@@ -34,14 +34,14 @@ namespace SpiderEye.UI.Windows
             webview.Navigate(url);
         }
 
-        public void ExecuteScript(string script)
+        public string ExecuteScript(string script)
         {
-            webview.InvokeScript("eval", new string[] { script });
+            return webview.InvokeScript("eval", new string[] { script });
         }
 
-        public async Task<string> CallFunction(string function)
+        public async Task<string> ExecuteScriptAsync(string script)
         {
-            return await webview.InvokeScriptAsync("eval", new string[] { function });
+            return await webview.InvokeScriptAsync("eval", new string[] { script });
         }
 
         public void Dispose()

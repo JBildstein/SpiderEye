@@ -1,7 +1,5 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using System.Windows.Controls;
-using System.Windows.Navigation;
 using SpiderEye.Scripting;
 using SpiderEye.UI.Windows.Internal;
 
@@ -16,21 +14,21 @@ namespace SpiderEye.UI.Windows
             get { return webview; }
         }
 
-        private readonly AppConfiguration config;
         private readonly WebBrowser webview;
         private readonly ScriptInterface scriptInterface;
-        private readonly string initScript;
 
-        public WpfLegacyWebview(AppConfiguration config)
+        public WpfLegacyWebview(bool enableScriptInterface)
         {
-            this.config = config ?? throw new ArgumentNullException(nameof(config));
-
             webview = new WebBrowser();
-            ScriptHandler = new ScriptHandler(this);
-            scriptInterface = new ScriptInterface(ScriptHandler);
-            initScript = Resources.GetInitScript("Windows");
-            webview.ObjectForScripting = scriptInterface;
-            webview.LoadCompleted += Webview_LoadCompleted;
+
+            if (enableScriptInterface)
+            {
+                ScriptHandler = new ScriptHandler(this);
+                scriptInterface = new ScriptInterface(ScriptHandler);
+                webview.ObjectForScripting = scriptInterface;
+                string initScript = Resources.GetInitScript("Windows");
+                webview.LoadCompleted += (s, e) => ExecuteScript(initScript);
+            }
         }
 
         public void LoadUrl(string url)
@@ -38,25 +36,20 @@ namespace SpiderEye.UI.Windows
             webview.Navigate(url);
         }
 
-        public void ExecuteScript(string script)
+        public string ExecuteScript(string script)
         {
-            webview.InvokeScript("eval", new string[] { script });
+            return webview.InvokeScript("eval", new string[] { script })?.ToString();
         }
 
-        public Task<string> CallFunction(string function)
+        public Task<string> ExecuteScriptAsync(string script)
         {
-            string result = webview.InvokeScript("eval", new string[] { function }) as string;
+            string result = webview.InvokeScript("eval", new string[] { script })?.ToString();
             return Task.FromResult(result);
         }
 
         public void Dispose()
         {
             webview.Dispose();
-        }
-
-        private void Webview_LoadCompleted(object sender, NavigationEventArgs e)
-        {
-            ExecuteScript(initScript);
         }
     }
 }
