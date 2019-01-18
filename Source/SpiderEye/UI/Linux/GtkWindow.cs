@@ -85,7 +85,7 @@ namespace SpiderEye.UI.Linux
             if (config.UseBrowserTitle)
             {
                 webview.TitleChanged += Webview_TitleChanged;
-                webview.ScriptHandler.TitleChanged += Webview_TitleChanged;
+                if (config.EnableScriptInterface) { webview.ScriptHandler.TitleChanged += Webview_TitleChanged; }
             }
         }
 
