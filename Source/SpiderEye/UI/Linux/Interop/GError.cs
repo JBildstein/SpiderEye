@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 
 namespace SpiderEye.UI.Linux.Interop
 {
+    [StructLayout(LayoutKind.Sequential)]
     internal struct GError
     {
         public readonly uint Domain;
