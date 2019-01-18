@@ -3,17 +3,16 @@
 
 using System;
 using System.Windows;
+using System.Windows.Interop;
 using System.Windows.Media;
 using SpiderEye.Configuration;
+using SpiderEye.UI.Windows.Interop;
 
 namespace SpiderEye.UI.Windows
 {
     internal class WpfWindow : Window, IWindow
     {
-        public IWebview Webview
-        {
-            get { return webview; }
-        }
+        public event EventHandler WindowReady;
 
         int IWindow.Width
         {
@@ -34,16 +33,24 @@ namespace SpiderEye.UI.Windows
         }
 
         private readonly WindowConfiguration config;
-        private readonly IWpfWebview webview;
+        private IWpfWebview webview;
 
         public WpfWindow(WindowConfiguration config)
         {
             this.config = config ?? throw new ArgumentNullException(nameof(config));
 
-            // WebViewCompatible does not expose methods required for SpiderEye.
-            // As a workaround, do the same thing as WebViewCompatible with the methods that are needed.
-            if (UseLegacy()) { webview = new WpfLegacyWebview(config.EnableScriptInterface); }
-            else { webview = new WpfWebview(config.EnableScriptInterface); }
+            if (UseLegacy())
+            {
+                webview = new WpfLegacyWebview(config.EnableScriptInterface);
+                Loaded += (s, e) => WindowReady(this, EventArgs.Empty);
+            }
+            else
+            {
+                var helper = new WindowInteropHelper(this);
+                var view = new WpfWebview(helper.EnsureHandle(), config);
+                webview = view;
+                view.WebviewLoaded += (s, e) => WindowReady(this, EventArgs.Empty);
+            }
 
             AddChild(webview.Control);
 
@@ -56,7 +63,7 @@ namespace SpiderEye.UI.Windows
             if (string.IsNullOrWhiteSpace(BackgroundColor)) { BackgroundColor = "#FFFFFF"; }
             Background = new BrushConverter().ConvertFrom(BackgroundColor) as SolidColorBrush;
 
-            if (config.UseBrowserTitle)
+            if (config.UseBrowserTitle && config.EnableScriptInterface)
             {
                 webview.ScriptHandler.TitleChanged += (s, e) => Title = e ?? config.Title;
             }
@@ -105,7 +112,11 @@ namespace SpiderEye.UI.Windows
             return true;
 #warning Legacy Webview is enabled!
 #else
-            return Microsoft.Toolkit.Wpf.UI.Controls.WebViewCompatible.IsLegacy;
+            string path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "edgehtml.dll");
+            if (!System.IO.File.Exists(path)) { return false; }
+
+            var version = Native.GetOsVersion();
+            return !(version.MajorVersion >= 10 && version.BuildNumber >= 17134);
 #endif
         }
     }

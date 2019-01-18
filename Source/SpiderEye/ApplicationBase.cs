@@ -42,8 +42,6 @@ namespace SpiderEye
                 }
                 else if (!hasHostAddress) { throw new InvalidOperationException("Can't load page without host address."); }
 
-                string url = new Uri(new Uri(config.Server.Host), config.Server.StartPageUrl).ToString();
-                MainWindow.LoadUrl(url);
                 MainWindow.Show();
 
                 RunMainLoop();
@@ -58,5 +56,11 @@ namespace SpiderEye
         public abstract void Exit();
 
         protected abstract void RunMainLoop();
+
+        protected void LoadStartPage()
+        {
+            string url = new Uri(new Uri(config.Server.Host), config.Server.StartPageUrl).ToString();
+            MainWindow.LoadUrl(url);
+        }
     }
 }

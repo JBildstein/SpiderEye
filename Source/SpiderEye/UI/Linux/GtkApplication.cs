@@ -29,6 +29,7 @@ namespace SpiderEye.UI.Linux
 
         protected override void RunMainLoop()
         {
+            LoadStartPage();
             while (!Gtk.MainIteration()) { }
         }
 
