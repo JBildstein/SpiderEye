@@ -1,7 +1,9 @@
-﻿using System;
+﻿// uncomment this to enable legacy webview even if it's supported:
+// #define USE_LEGACY_WEBVIEW
+
+using System;
 using System.Windows;
 using System.Windows.Media;
-using Microsoft.Toolkit.Wpf.UI.Controls;
 using SpiderEye.Configuration;
 
 namespace SpiderEye.UI.Windows
@@ -40,7 +42,7 @@ namespace SpiderEye.UI.Windows
 
             // WebViewCompatible does not expose methods required for SpiderEye.
             // As a workaround, do the same thing as WebViewCompatible with the methods that are needed.
-            if (WebViewCompatible.IsLegacy) { webview = new WpfLegacyWebview(config.EnableScriptInterface); }
+            if (UseLegacy()) { webview = new WpfLegacyWebview(config.EnableScriptInterface); }
             else { webview = new WpfWebview(config.EnableScriptInterface); }
 
             AddChild(webview.Control);
@@ -95,6 +97,16 @@ namespace SpiderEye.UI.Windows
         {
             Width = width;
             Height = height;
+        }
+
+        private bool UseLegacy()
+        {
+#if USE_LEGACY_WEBVIEW
+            return true;
+#warning Legacy Webview is enabled!
+#else
+            return Microsoft.Toolkit.Wpf.UI.Controls.WebViewCompatible.IsLegacy;
+#endif
         }
     }
 }
