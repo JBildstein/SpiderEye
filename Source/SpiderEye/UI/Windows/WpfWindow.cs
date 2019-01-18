@@ -93,7 +93,8 @@ namespace SpiderEye.UI.Windows
 
         public void Resize(int width, int height)
         {
-            throw new NotImplementedException();
+            Width = width;
+            Height = height;
         }
     }
 }
