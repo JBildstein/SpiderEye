@@ -107,6 +107,9 @@ namespace SpiderEye.UI.Linux.Native
         [DllImport(GtkNativeDll, EntryPoint = "gtk_init_check", CallingConvention = CallingConvention.Cdecl)]
         public static extern bool Init(ref int argc, ref IntPtr argv);
 
+        [DllImport(GtkNativeDll, EntryPoint = "gtk_main", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Main();
+
         [DllImport(GtkNativeDll, EntryPoint = "gtk_main_iteration", CallingConvention = CallingConvention.Cdecl)]
         public static extern bool MainIteration();
 

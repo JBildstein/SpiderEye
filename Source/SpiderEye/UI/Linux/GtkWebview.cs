@@ -76,9 +76,9 @@ namespace SpiderEye.UI.Linux
                 GLib.ConnectSignal(Handle, "notify::title", (WebviewDelegate)TitleChangeCallback, IntPtr.Zero);
             }
 
-            if (!string.IsNullOrWhiteSpace(config.ExternalHost))
+            if (string.IsNullOrWhiteSpace(config.ExternalHost))
             {
-                scheme = "spideryey";
+                scheme = "spidereye";
                 customHost = $"{scheme}://resources.{CreateRandomString(8)}.internal";
 
                 IntPtr context = WebKit.Context.Get(Handle);
@@ -107,7 +107,7 @@ namespace SpiderEye.UI.Linux
 
         public void Dispose()
         {
-            Gtk.Widget.Destroy(Handle);
+            // gets automatically disposed by parent window
         }
 
         public async Task<string> ExecuteScriptAsync(string script)

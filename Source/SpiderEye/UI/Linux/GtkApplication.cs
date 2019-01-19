@@ -32,7 +32,7 @@ namespace SpiderEye.UI.Linux
             MainWindow.LoadUrl(config.StartPageUrl);
             MainWindow.Show();
 
-            while (!Gtk.MainIteration()) { }
+            Gtk.Main();
         }
 
         private static void Init()
