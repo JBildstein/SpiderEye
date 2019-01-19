@@ -1,5 +1,6 @@
 using System;
 using SpiderEye.Configuration;
+using SpiderEye.Content;
 using SpiderEye.UI.Linux.Interop;
 using SpiderEye.UI.Linux.Native;
 
@@ -60,7 +61,8 @@ namespace SpiderEye.UI.Linux
         {
             this.config = config ?? throw new ArgumentNullException(nameof(config));
 
-            webview = new GtkWebview(config.EnableScriptInterface);
+            var contentProvider = new EmbeddedFileProvider(config.ContentAssembly, config.ContentFolder);
+            webview = new GtkWebview(contentProvider, config);
             window = Gtk.Window.Create(GtkWindowType.Toplevel);
 
             Title = config.Window.Title;
@@ -75,10 +77,7 @@ namespace SpiderEye.UI.Linux
             Gtk.Widget.ContainerAdd(window, scroller);
             Gtk.Widget.ContainerAdd(scroller, webview.Handle);
 
-            using (GLibString name = "destroy")
-            {
-                GLib.ConnectSignal(window, name, (DestroyCallbackDelegate)DestroyCallback, IntPtr.Zero);
-            }
+            GLib.ConnectSignal(window, "destroy", (DestroyCallbackDelegate)DestroyCallback, IntPtr.Zero);
 
             webview.CloseRequested += Webview_CloseRequested;
 
