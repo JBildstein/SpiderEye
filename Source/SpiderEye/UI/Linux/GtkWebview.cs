@@ -1,8 +1,12 @@
 ﻿using System;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using SpiderEye.Configuration;
+using SpiderEye.Content;
 using SpiderEye.Scripting;
+using SpiderEye.Tools;
 using SpiderEye.UI.Linux.Interop;
 using SpiderEye.UI.Linux.Native;
 
@@ -17,19 +21,23 @@ namespace SpiderEye.UI.Linux
 
         public readonly IntPtr Handle;
 
+        private readonly IContentProvider contentProvider;
+        private readonly AppConfiguration config;
         private readonly IntPtr manager;
+        private readonly string scheme;
+        private readonly string customHost;
 
-        public GtkWebview(bool enableScriptInterface)
+        public GtkWebview(IContentProvider contentProvider, AppConfiguration config)
         {
-            if (enableScriptInterface)
+            this.contentProvider = contentProvider ?? throw new ArgumentNullException(nameof(contentProvider));
+            this.config = config ?? throw new ArgumentNullException(nameof(config));
+
+            if (config.EnableScriptInterface)
             {
                 ScriptHandler = new ScriptHandler(this);
 
                 manager = WebKit.Manager.Create();
-                using (GLibString name = "script-message-received::external")
-                {
-                    GLib.ConnectSignal(manager, name, (ScriptDelegate)ScriptCallback, IntPtr.Zero);
-                }
+                GLib.ConnectSignal(manager, "script-message-received::external", (ScriptDelegate)ScriptCallback, IntPtr.Zero);
 
                 using (GLibString name = "external")
                 {
@@ -59,29 +67,33 @@ namespace SpiderEye.UI.Linux
             }
             else { Handle = WebKit.Create(); }
 
-            using (GLibString name = "load-changed")
+            GLib.ConnectSignal(Handle, "load-changed", (PageLoadDelegate)LoadCallback, IntPtr.Zero);
+            GLib.ConnectSignal(Handle, "context-menu", (ContextMenuRequestDelegate)ContextMenuCallback, IntPtr.Zero);
+            GLib.ConnectSignal(Handle, "close", (WebviewDelegate)CloseCallback, IntPtr.Zero);
+
+            if (config.Window.UseBrowserTitle)
             {
-                GLib.ConnectSignal(Handle, name, (PageLoadDelegate)LoadCallback, IntPtr.Zero);
+                GLib.ConnectSignal(Handle, "notify::title", (WebviewDelegate)TitleChangeCallback, IntPtr.Zero);
             }
 
-            using (GLibString name = "context-menu")
+            if (!string.IsNullOrWhiteSpace(config.ExternalHost))
             {
-                GLib.ConnectSignal(Handle, name, (ContextMenuRequestDelegate)ContextMenuCallback, IntPtr.Zero);
-            }
+                scheme = "spideryey";
+                customHost = $"{scheme}://resources.{CreateRandomString(8)}.internal";
 
-            using (GLibString name = "notify::title")
-            {
-                GLib.ConnectSignal(Handle, name, (WebviewDelegate)TitleChangeCallback, IntPtr.Zero);
-            }
-
-            using (GLibString name = "close")
-            {
-                GLib.ConnectSignal(Handle, name, (WebviewDelegate)CloseCallback, IntPtr.Zero);
+                IntPtr context = WebKit.Context.Get(Handle);
+                using (GLibString gscheme = scheme)
+                {
+                    WebKit.Context.RegisterUriScheme(context, gscheme, UriSchemeCallback, IntPtr.Zero, IntPtr.Zero);
+                }
             }
         }
 
         public void NavigateToFile(string url)
         {
+            if (customHost != null) { url = UriTools.Combine(customHost, url).ToString(); }
+            else { url = UriTools.Combine(config.ExternalHost, url).ToString(); }
+
             using (GLibString gurl = url)
             {
                 WebKit.LoadUri(Handle, gurl);
@@ -171,6 +183,71 @@ namespace SpiderEye.UI.Linux
             }
         }
 
+        private async void UriSchemeCallback(IntPtr request, IntPtr userdata)
+        {
+            try
+            {
+                var uri = new Uri(GLibString.FromPointer(WebKit.UriScheme.GetRequestUri(request)));
+                string schemeAndServer = uri.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped);
+                if (schemeAndServer == customHost)
+                {
+                    using (var contentStream = await contentProvider.GetStreamAsync(uri))
+                    {
+                        if (contentStream != null)
+                        {
+                            IntPtr stream = IntPtr.Zero;
+                            try
+                            {
+                                if (contentStream is UnmanagedMemoryStream unmanagedMemoryStream)
+                                {
+                                    unsafe
+                                    {
+                                        long length = unmanagedMemoryStream.Length - unmanagedMemoryStream.Position;
+                                        stream = GLib.CreateStreamFromData((IntPtr)unmanagedMemoryStream.PositionPointer, length, IntPtr.Zero);
+                                        FinishUriSchemeCallback(request, stream, length, uri);
+                                        return;
+                                    }
+                                }
+                                else
+                                {
+                                    byte[] data;
+                                    long length;
+                                    if (contentStream is MemoryStream memoryStream)
+                                    {
+                                        data = memoryStream.GetBuffer();
+                                        length = memoryStream.Length;
+                                    }
+                                    else
+                                    {
+                                        using (var copyStream = new MemoryStream())
+                                        {
+                                            await contentStream.CopyToAsync(copyStream);
+                                            data = copyStream.GetBuffer();
+                                            length = copyStream.Length;
+                                        }
+                                    }
+
+                                    unsafe
+                                    {
+                                        fixed (byte* dataPtr = data)
+                                        {
+                                            stream = GLib.CreateStreamFromData((IntPtr)dataPtr, length, IntPtr.Zero);
+                                            FinishUriSchemeCallback(request, stream, length, uri);
+                                            return;
+                                        }
+                                    }
+                                }
+                            }
+                            finally { if (stream != IntPtr.Zero) { GLib.UnrefObject(stream); } }
+                        }
+                    }
+                }
+
+                FinishUriSchemeCallbackWithError(request);
+            }
+            catch { FinishUriSchemeCallbackWithError(request); }
+        }
+
         private void LoadCallback(IntPtr webview, WebKitLoadEvent type, IntPtr userdata)
         {
         }
@@ -190,6 +267,35 @@ namespace SpiderEye.UI.Linux
         {
             string title = GLibString.FromPointer(WebKit.GetTitle(webview));
             TitleChanged?.Invoke(this, title);
+        }
+
+        private void FinishUriSchemeCallback(IntPtr request, IntPtr stream, long streamLength, Uri uri)
+        {
+            using (GLibString mimetype = MimeTypes.FindForUri(uri))
+            {
+                WebKit.UriScheme.FinishSchemeRequest(request, stream, streamLength, mimetype);
+            }
+        }
+
+        private void FinishUriSchemeCallbackWithError(IntPtr request)
+        {
+            uint domain = GLib.GetFileErrorQuark();
+            var error = new GError(domain, 4, IntPtr.Zero); // error code 4 = not found
+            WebKit.UriScheme.FinishSchemeRequestWithError(request, ref error);
+        }
+
+        private string CreateRandomString(int length)
+        {
+            const string possible = "0123456789abcdefghijklmnopqrstuvwxyz";
+            var rand = new Random();
+            char[] result = new char[length];
+
+            for (int i = 0; i < result.Length; i++)
+            {
+                result[i] = possible[rand.Next(0, possible.Length)];
+            }
+
+            return new string(result);
         }
     }
 }

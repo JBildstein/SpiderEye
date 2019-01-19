@@ -50,8 +50,8 @@ namespace SpiderEye.UI.Linux.Native
 
         public static class Context
         {
-            [DllImport(WebkitNativeDll, EntryPoint = "webkit_web_context_get_default", CallingConvention = CallingConvention.Cdecl)]
-            public static extern IntPtr GetDefault();
+            [DllImport(WebkitNativeDll, EntryPoint = "webkit_web_view_get_context", CallingConvention = CallingConvention.Cdecl)]
+            public static extern IntPtr Get(IntPtr webview);
 
             [DllImport(WebkitNativeDll, EntryPoint = "webkit_web_context_register_uri_scheme", CallingConvention = CallingConvention.Cdecl)]
             public static extern void RegisterUriScheme(IntPtr context, IntPtr scheme, WebKitUriSchemeRequestDelegate callback, IntPtr user_data, IntPtr user_data_destroy_func);
