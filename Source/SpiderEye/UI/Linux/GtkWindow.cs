@@ -53,21 +53,21 @@ namespace SpiderEye.UI.Linux
         }
 
         private readonly IntPtr window;
-        private readonly WindowConfiguration config;
+        private readonly AppConfiguration config;
         private readonly GtkWebview webview;
 
-        public GtkWindow(WindowConfiguration config)
+        public GtkWindow(AppConfiguration config)
         {
             this.config = config ?? throw new ArgumentNullException(nameof(config));
 
             webview = new GtkWebview(config.EnableScriptInterface);
             window = Gtk.Window.Create(GtkWindowType.Toplevel);
 
-            Title = config.Title;
-            CanResize = config.CanResize;
-            Gtk.Window.SetDefaultSize(window, config.Width, config.Height);
+            Title = config.Window.Title;
+            CanResize = config.Window.CanResize;
+            Gtk.Window.SetDefaultSize(window, config.Window.Width, config.Window.Height);
 
-            BackgroundColor = config.BackgroundColor;
+            BackgroundColor = config.Window.BackgroundColor;
             if (string.IsNullOrWhiteSpace(BackgroundColor)) { BackgroundColor = "#FFFFFF"; }
             SetBackgroundColor(BackgroundColor);
 
@@ -82,7 +82,7 @@ namespace SpiderEye.UI.Linux
 
             webview.CloseRequested += Webview_CloseRequested;
 
-            if (config.UseBrowserTitle)
+            if (config.Window.UseBrowserTitle)
             {
                 webview.TitleChanged += Webview_TitleChanged;
                 if (config.EnableScriptInterface) { webview.ScriptHandler.TitleChanged += Webview_TitleChanged; }
@@ -129,7 +129,7 @@ namespace SpiderEye.UI.Linux
 
         public void LoadUrl(string url)
         {
-            webview.LoadUrl(url);
+            webview.NavigateToFile(url);
         }
 
         public void Dispose()
@@ -145,7 +145,7 @@ namespace SpiderEye.UI.Linux
 
         private void Webview_TitleChanged(object sender, string title)
         {
-            Title = title ?? config.Title;
+            Title = title ?? config.Window.Title;
         }
 
         private void Webview_CloseRequested(object sender, EventArgs e)

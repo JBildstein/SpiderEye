@@ -36,11 +36,6 @@
         public bool UseBrowserTitle { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the scripting interface between browser and window is enabled. Default is true.
-        /// </summary>
-        public bool EnableScriptInterface { get; set; }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="WindowConfiguration"/> class.
         /// </summary>
         public WindowConfiguration()
@@ -51,7 +46,6 @@
             BackgroundColor = "#FFFFFF";
             CanResize = true;
             UseBrowserTitle = true;
-            EnableScriptInterface = true;
         }
     }
 }

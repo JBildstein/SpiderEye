@@ -1,6 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using System.Windows.Controls;
+using SpiderEye.Configuration;
 using SpiderEye.Scripting;
+using SpiderEye.Tools;
 using SpiderEye.UI.Windows.Internal;
 
 namespace SpiderEye.UI.Windows
@@ -16,12 +19,17 @@ namespace SpiderEye.UI.Windows
 
         private readonly WebBrowser webview;
         private readonly ScriptInterface scriptInterface;
+        private readonly string hostAddress;
 
-        public WpfLegacyWebview(bool enableScriptInterface)
+        public WpfLegacyWebview(AppConfiguration config, string hostAddress)
         {
+            if (config == null) { throw new ArgumentNullException(nameof(config)); }
+
+            this.hostAddress = hostAddress ?? throw new ArgumentNullException(nameof(hostAddress));
+
             webview = new WebBrowser();
 
-            if (enableScriptInterface)
+            if (config.EnableScriptInterface)
             {
                 ScriptHandler = new ScriptHandler(this);
                 scriptInterface = new ScriptInterface(ScriptHandler);
@@ -31,9 +39,10 @@ namespace SpiderEye.UI.Windows
             }
         }
 
-        public void LoadUrl(string url)
+        public void NavigateToFile(string url)
         {
-            webview.Navigate(url);
+            var uri = UriTools.Combine(hostAddress, url);
+            webview.Navigate(uri);
         }
 
         public string ExecuteScript(string script)

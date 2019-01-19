@@ -1,14 +1,17 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using global::Windows.Web.UI;
 using SpiderEye.Configuration;
+using SpiderEye.Content;
 using SpiderEye.Scripting;
+using SpiderEye.Tools;
+using SpiderEye.UI.Windows.Interop;
 using Windows.Web.UI.Interop;
 using Color = Windows.UI.Color;
 using Rect = Windows.Foundation.Rect;
+using Size = System.Windows.Size;
 
 namespace SpiderEye.UI.Windows
 {
@@ -23,15 +26,18 @@ namespace SpiderEye.UI.Windows
             get { return this; }
         }
 
-        private readonly WindowConfiguration config;
+        private readonly AppConfiguration config;
+        private readonly EdgeUriToStreamResolver streamResolver;
 
-        private HandleRef parentWindow;
-        private HandleRef childWindow;
         private WebViewControl webview;
 
-        public WpfWebview(IntPtr window, WindowConfiguration config)
+        public WpfWebview(IntPtr window, IContentProvider contentProvider, AppConfiguration config)
         {
+            if (contentProvider == null) { throw new ArgumentNullException(nameof(contentProvider)); }
+
             this.config = config ?? throw new ArgumentNullException(nameof(config));
+
+            streamResolver = new EdgeUriToStreamResolver(contentProvider);
 
             SizeChanged += (s, e) => UpdateSize(e.NewSize);
 
@@ -43,9 +49,18 @@ namespace SpiderEye.UI.Windows
             Init(window);
         }
 
-        public void LoadUrl(string url)
+        public void NavigateToFile(string url)
         {
-            webview.Source = new Uri(url);
+            if (string.IsNullOrWhiteSpace(config.ExternalHost))
+            {
+                var uri = webview.BuildLocalStreamUri("spidereye", url);
+                webview.NavigateToLocalStreamUri(uri, streamResolver);
+            }
+            else
+            {
+                var uri = UriTools.Combine(config.ExternalHost, url);
+                webview.Navigate(uri);
+            }
         }
 
         public string ExecuteScript(string script)
@@ -64,25 +79,32 @@ namespace SpiderEye.UI.Windows
             webview = null;
         }
 
-        private void Init(IntPtr parentWindow)
+        private void Init(IntPtr window)
         {
+            Native.EnableMouseInPointer(true);
+            Native.CheckLastError();
+
             Dispatcher.InvokeAsync(
                 async () =>
                 {
                     var process = new WebViewControlProcess();
                     var bounds = new Rect(0, 0, RenderSize.Width, RenderSize.Height);
 
-                    webview = await process.CreateWebViewControlAsync(parentWindow.ToInt64(), bounds);
+                    webview = await process.CreateWebViewControlAsync(window.ToInt64(), bounds);
                     UpdateSize(RenderSize);
 
-                    webview.DefaultBackgroundColor = ParseColor(config.BackgroundColor);
+                    webview.DefaultBackgroundColor = ParseColor(config.Window.BackgroundColor);
                     webview.Settings.IsScriptNotifyAllowed = config.EnableScriptInterface;
                     if (config.EnableScriptInterface)
                     {
                         webview.ScriptNotify += Webview_ScriptNotify;
 
+                        // TODO: don't think script injection works yet
+                        string initScript = SpiderEye.Resources.GetInitScript("Windows");
+                        webview.NavigationCompleted += (s, e) => ExecuteScript(initScript);
+
                         // TODO: needs Win10 1809 - 10.0.17763.0
-                        // webview.AddInitializeScript(SpiderEye.Resources.GetInitScript("Windows"));
+                        // webview.AddInitializeScript(initScript);
                     }
 
                     Dispatcher.Invoke(() => WebviewLoaded?.Invoke(this, EventArgs.Empty));
@@ -112,31 +134,17 @@ namespace SpiderEye.UI.Windows
         private Color ParseColor(string hex)
         {
             hex = hex?.TrimStart('#');
-            if (string.IsNullOrWhiteSpace(hex) || hex.Length != 6 || hex.Length != 3)
+            if (string.IsNullOrWhiteSpace(hex) || hex.Length != 6)
             {
-                hex = "FFF";
-            }
-
-            string r, g, b;
-            if (hex.Length == 3)
-            {
-                r = hex[0].ToString();
-                g = hex[1].ToString();
-                b = hex[2].ToString();
-            }
-            else
-            {
-                r = hex.Substring(0, 2);
-                g = hex.Substring(2, 2);
-                b = hex.Substring(4, 2);
+                hex = "FFFFFF";
             }
 
             return new Color
             {
                 A = byte.MaxValue,
-                R = Convert.ToByte(r, 16),
-                G = Convert.ToByte(r, 16),
-                B = Convert.ToByte(r, 16),
+                R = Convert.ToByte(hex.Substring(0, 2), 16),
+                G = Convert.ToByte(hex.Substring(2, 2), 16),
+                B = Convert.ToByte(hex.Substring(4, 2), 16),
             };
         }
     }

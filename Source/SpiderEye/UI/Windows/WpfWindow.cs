@@ -1,11 +1,10 @@
-﻿// uncomment this to enable legacy webview even if it's supported:
-// #define USE_LEGACY_WEBVIEW
-
-using System;
+﻿using System;
+using System.IO;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
 using SpiderEye.Configuration;
+using SpiderEye.Content;
 using SpiderEye.UI.Windows.Interop;
 
 namespace SpiderEye.UI.Windows
@@ -32,51 +31,62 @@ namespace SpiderEye.UI.Windows
             set { ResizeMode = value ? ResizeMode.CanResize : ResizeMode.NoResize; }
         }
 
-        private readonly WindowConfiguration config;
+        private readonly ContentServer server;
         private IWpfWebview webview;
 
-        public WpfWindow(WindowConfiguration config)
+        public WpfWindow(AppConfiguration config)
         {
-            this.config = config ?? throw new ArgumentNullException(nameof(config));
+            if (config == null) { throw new ArgumentNullException(nameof(config)); }
 
-            if (UseLegacy())
+            var contentProvider = new EmbeddedFileProvider(config.ContentAssembly, config.ContentFolder);
+            if (config.ForceWindowsLegacyWebview || UseLegacy())
             {
-                webview = new WpfLegacyWebview(config.EnableScriptInterface);
+                string hostAddress;
+                if (!string.IsNullOrWhiteSpace(config.ExternalHost))
+                {
+                    server = new ContentServer(contentProvider);
+                    server.Start();
+                    hostAddress = server.HostAddress;
+                }
+                else { hostAddress = config.ExternalHost; }
+
+                webview = new WpfLegacyWebview(config, hostAddress);
                 Loaded += (s, e) => WindowReady(this, EventArgs.Empty);
             }
             else
             {
                 var helper = new WindowInteropHelper(this);
-                var view = new WpfWebview(helper.EnsureHandle(), config);
+                var view = new WpfWebview(helper.EnsureHandle(), contentProvider, config);
                 webview = view;
                 view.WebviewLoaded += (s, e) => WindowReady(this, EventArgs.Empty);
             }
 
             AddChild(webview.Control);
 
-            Title = config.Title;
-            Width = config.Width;
-            Height = config.Height;
-            CanResize = config.CanResize;
+            Title = config.Window.Title;
+            Width = config.Window.Width;
+            Height = config.Window.Height;
+            CanResize = config.Window.CanResize;
 
-            BackgroundColor = config.BackgroundColor;
+            BackgroundColor = config.Window.BackgroundColor;
             if (string.IsNullOrWhiteSpace(BackgroundColor)) { BackgroundColor = "#FFFFFF"; }
             Background = new BrushConverter().ConvertFrom(BackgroundColor) as SolidColorBrush;
 
-            if (config.UseBrowserTitle && config.EnableScriptInterface)
+            if (config.Window.UseBrowserTitle && config.EnableScriptInterface)
             {
-                webview.ScriptHandler.TitleChanged += (s, e) => Title = e ?? config.Title;
+                webview.ScriptHandler.TitleChanged += (s, e) => Title = e ?? config.Window.Title;
             }
         }
 
         public void Dispose()
         {
             webview.Dispose();
+            server?.Dispose();
         }
 
         public void LoadUrl(string url)
         {
-            webview.LoadUrl(url);
+            webview.NavigateToFile(url);
         }
 
         public void SetWindowState(WindowState state)
@@ -108,16 +118,11 @@ namespace SpiderEye.UI.Windows
 
         private bool UseLegacy()
         {
-#if USE_LEGACY_WEBVIEW
-            return true;
-#warning Legacy Webview is enabled!
-#else
-            string path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "edgehtml.dll");
-            if (!System.IO.File.Exists(path)) { return false; }
+            string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "edgehtml.dll");
+            if (!File.Exists(path)) { return false; }
 
             var version = Native.GetOsVersion();
             return !(version.MajorVersion >= 10 && version.BuildNumber >= 17134);
-#endif
         }
     }
 }

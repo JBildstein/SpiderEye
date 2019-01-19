@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading.Tasks;
 
-namespace SpiderEye.Server
+namespace SpiderEye.Content
 {
     /// <summary>
     /// A simple HTTP server to run inside a SpiderEye app.
@@ -22,23 +20,26 @@ namespace SpiderEye.Server
             private set;
         }
 
-        private readonly List<IMiddleware> middlewareList = new List<IMiddleware>();
         private readonly HttpListener listener;
+        private readonly IContentProvider contentProvider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ContentServer"/> class.
         /// </summary>
-        public ContentServer()
-            : this(0)
+        /// <param name="contentProvider">The content provider that gets called for each request.</param>
+        public ContentServer(IContentProvider contentProvider)
+            : this(contentProvider, 0)
         {
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ContentServer"/> class.
         /// </summary>
+        /// <param name="contentProvider">The content provider that gets called for each request.</param>
         /// <param name="port">The port number the server should listen to. If set to zero or null, it will be auto-assigned.</param>
-        public ContentServer(int? port)
+        public ContentServer(IContentProvider contentProvider, int? port)
         {
+            this.contentProvider = contentProvider ?? throw new ArgumentNullException(nameof(contentProvider));
             listener = new HttpListener();
 
             if (port != null && port != 0) { HostAddress = $"http://localhost:{port}/"; }
@@ -69,17 +70,6 @@ namespace SpiderEye.Server
             listener.Close();
         }
 
-        /// <summary>
-        /// Adds a middleware to the pipeline.
-        /// </summary>
-        /// <param name="middleware">The middleware to add.</param>
-        internal void RegisterMiddleware(IMiddleware middleware)
-        {
-            if (middleware == null) { throw new ArgumentNullException(nameof(middleware)); }
-
-            middlewareList.Add(middleware);
-        }
-
         private static int GetFreeTcpPort()
         {
             TcpListener tcp = null;
@@ -107,21 +97,24 @@ namespace SpiderEye.Server
 
             try
             {
-                var enumerator = middlewareList.GetEnumerator();
-                if (enumerator.MoveNext()) { await ExecuteMiddleware(context, enumerator); }
-                else { context.Response.StatusCode = 404; }
+                if (context.Request.HttpMethod.ToUpper() == "GET")
+                {
+                    using (var stream = await contentProvider.GetStreamAsync(context.Request.Url))
+                    {
+                        if (stream != null)
+                        {
+                            using (var responseStream = context.Response.OutputStream)
+                            {
+                                await stream.CopyToAsync(responseStream);
+                            }
+                        }
+                        else { context.Response.StatusCode = 404; }
+                    }
+                }
+                else { context.Response.StatusCode = 400; }
             }
             catch { context.Response.StatusCode = 500; }
             finally { context.Response.Close(); }
-        }
-
-        private async Task ExecuteMiddleware(HttpListenerContext context, IEnumerator<IMiddleware> enumerator)
-        {
-            await enumerator.Current.InvokeAsync(context, async () =>
-            {
-                if (enumerator.MoveNext()) { await ExecuteMiddleware(context, enumerator); }
-                else { await Task.CompletedTask; }
-            });
         }
     }
 }

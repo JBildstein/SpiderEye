@@ -18,7 +18,7 @@ namespace SpiderEye.UI.Linux
         {
             Init();
 
-            window = new GtkWindow(config.Window);
+            window = new GtkWindow(config);
             window.Closed += Window_Closed;
         }
 
@@ -29,7 +29,9 @@ namespace SpiderEye.UI.Linux
 
         protected override void RunMainLoop()
         {
-            LoadStartPage();
+            MainWindow.LoadUrl(config.StartPageUrl);
+            MainWindow.Show();
+
             while (!Gtk.MainIteration()) { }
         }
 

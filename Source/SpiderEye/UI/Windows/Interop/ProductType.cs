@@ -1,8 +1,5 @@
-﻿using System.Runtime.InteropServices;
-
-namespace SpiderEye.UI.Windows.Interop
+﻿namespace SpiderEye.UI.Windows.Interop
 {
-
     internal enum ProductType : byte
     {
         Workstation = 1,

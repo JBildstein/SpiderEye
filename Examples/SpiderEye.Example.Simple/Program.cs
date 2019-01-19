@@ -12,7 +12,7 @@ namespace SpiderEye.Example.Simple
             var config = new AppConfiguration();
 
             // this relates to the path defined in the .csproj file
-            config.Server.ContentFolder = "App";
+            config.ContentFolder = "App";
 
             Application.Run(config);
         }

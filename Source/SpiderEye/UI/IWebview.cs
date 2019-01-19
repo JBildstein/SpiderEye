@@ -18,7 +18,7 @@ namespace SpiderEye.UI
         /// Loads the given URL.
         /// </summary>
         /// <param name="url">The URL to load.</param>
-        void LoadUrl(string url);
+        void NavigateToFile(string url);
 
         /// <summary>
         /// Executes the given JavaScript within the webview.

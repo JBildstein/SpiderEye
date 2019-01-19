@@ -80,7 +80,7 @@ namespace SpiderEye.UI.Linux
             }
         }
 
-        public void LoadUrl(string url)
+        public void NavigateToFile(string url)
         {
             using (GLibString gurl = url)
             {

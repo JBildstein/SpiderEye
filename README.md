@@ -10,7 +10,7 @@ What's the name supposed to mean? Simple: what kind of view does a spiders eye h
 | OS | Version | Webview | Browser Engine |
 | ----- | ----- | ----- | ----- |
 | Windows | 7, 8.x, 10 | WPF WebBrowser control | IE 9-11 (depending on OS and installed version) |
-| Windows |  10 Build 1803 | Microsoft.Toolkit.Wpf.UI.Controls.WebView | Edge |
+| Windows |  10 Build 1803 | WebViewControl | Edge |
 | Linux | - | WebKit2GTK | WebKit |
 | macOS | - | Not implemented yet | WebKit |
 
@@ -35,7 +35,7 @@ A SpiderEye app can be created from a normal .Net Core console app. Only a few s
 
   <ItemGroup>
     <!-- Reference to the SpiderEye NuGet package -->
-    <PackageReference Include="Bildstein.SpiderEye" Version="1.0.0-alpha.1" />
+    <PackageReference Include="Bildstein.SpiderEye" Version="1.0.0-alpha.2" />
   </ItemGroup>
 
   <ItemGroup>
@@ -61,21 +61,38 @@ namespace SpiderEyeExample
         [STAThread]
         public static void Main(string[] args)
         {
-            var config = new AppConfiguration
-            {
-                Title = "Hello World",  // the initial window title. this will be updated later by the html page title
-                Width = 900,
-                Height = 600,
-                CanResize = true,
-                StartPageUrl = "index.html", // the html page that is loaded when the application starts
-                ContentFolder = "App", // this relates to the path defined in the project file
-            };
+            // this creates a new app configuration with default values
+            var config = new AppConfiguration();
+
+            // this relates to the path defined in the .csproj file
+            config.ContentFolder = "App";
 
             // run the application
             Application.Run(config);
         }
     }
 }
+```
+
+To make sure that the newest IE version is used on Windows, set the `doctype` and add the `X-UA-Compatible` header with the value `IE=edge`:
+```html
+<!doctype html>
+<html lang="en">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <!-- Other stuff you may want to add -->
+
+    <title>Hello World</title>
+
+    <link href="site.css" rel="stylesheet" />
+</head>
+<body>
+    <h1>Hello World</h1>
+
+    <script src="site.js" type="text/javascript"></script>
+</body>
+</html>
 ```
 
 The Folder structure for this example looks like this:
@@ -95,11 +112,17 @@ macOS: `dotnet publish -c Release -f netcoreapp2.2 -r osx-64 -o ./bin/Publish/Ma
 
 Further examples can be found in the `Examples` folder
 
+#### Windows 10 Edge and localhost
+
+The WebViewControl based on Edge does not allow localhost addresses for security reasons. More info [here](https://msdn.microsoft.com/en-us/library/windows/apps/hh780593.aspx).
+To get around that restriction for development (e.g. to use the Angular dev server or similar), call this in the command line:\
+`checknetisolation LoopbackExempt -a -n=Microsoft.Win32WebViewHost_cw5n1h2txyewy`
+
 ## Development
 
 To build the project you'll need an up-to-date version of Visual Studio 2017 or Visual Studio Code as well as the .Net Core SDK 2.2.
 You can develop and run the project on all platforms but only if you target .Net Core/Standard.
-Building for Windows requires .Net 4.6.2 and WPF which is not available on Linux and macOS.
+Building for Windows requires .Net 4.6.2, WPF and the Windows 10 SDK.
 
 ## Contributing
 Please check first if there is already an open issue or pull request before creating a new one.
