@@ -96,9 +96,14 @@ namespace SpiderEye.UI.Mac.Native
             return SendMessage(id, RegisterName(sel), a);
         }
 
-        public static IntPtr Call(IntPtr id, string sel, double a, double b, double c, double d)
+        public static IntPtr Call(string id, string sel, IntPtr a, IntPtr b)
         {
-            return SendMessage(id, RegisterName(sel), a, b, c, d);
+            return SendMessage(GetClass(id), RegisterName(sel), a, b);
+        }
+
+        public static IntPtr Call(IntPtr id, string sel, IntPtr a, IntPtr b)
+        {
+            return SendMessage(id, RegisterName(sel), a, b);
         }
 
         public static IntPtr Call(IntPtr id, string sel, CGRect rect, IntPtr a)

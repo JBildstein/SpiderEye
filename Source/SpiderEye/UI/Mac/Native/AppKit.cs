@@ -10,7 +10,6 @@ namespace SpiderEye.UI.Mac.Native
         [DllImport(AppKitFramework, EntryPoint = "objc_getClass", CharSet = CharSet.Ansi)]
         public static extern IntPtr GetClass(string name);
 
-
         public static IntPtr Call(string id, string sel)
         {
             return ObjC.SendMessage(GetClass(id), ObjC.RegisterName(sel));
@@ -19,6 +18,11 @@ namespace SpiderEye.UI.Mac.Native
         public static IntPtr Call(IntPtr id, string sel)
         {
             return ObjC.SendMessage(id, ObjC.RegisterName(sel));
+        }
+
+        public static IntPtr Call(string id, string sel, double a, double b, double c, double d)
+        {
+            return ObjC.SendMessage(GetClass(id), ObjC.RegisterName(sel), a, b, c, d);
         }
     }
 }

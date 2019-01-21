@@ -29,7 +29,9 @@ namespace SpiderEye.UI.Mac
                 0);
 
             SetTitle(config.Window.Title);
-            SetColor(config.Window.BackgroundColor);
+
+            IntPtr bgColor = NSColor.FromHex(config.Window.BackgroundColor);
+            ObjC.Call(Handle, "setBackgroundColor:", bgColor);
 
             webview = new CocoaWebview(config);
             ObjC.Call(Handle, "setContentView:", webview.Handle);
@@ -47,6 +49,7 @@ namespace SpiderEye.UI.Mac
 
         public void LoadUrl(string url)
         {
+            webview.NavigateToFile(url);
         }
 
         public void SetWindowState(WindowState state)
@@ -80,23 +83,6 @@ namespace SpiderEye.UI.Mac
         private void SetTitle(string title)
         {
             NSString.Use(title, nsTitle => ObjC.Call(Handle, "setTitle:", nsTitle));
-        }
-
-        private void SetColor(string hex)
-        {
-            hex = hex?.TrimStart('#');
-            if (string.IsNullOrWhiteSpace(hex) || hex.Length != 6)
-            {
-                hex = "FFFFFF";
-            }
-
-            double r = Convert.ToByte(hex.Substring(0, 2), 16) / 255d;
-            double g = Convert.ToByte(hex.Substring(2, 2), 16) / 255d;
-            double b = Convert.ToByte(hex.Substring(4, 2), 16) / 255d;
-
-            IntPtr color = AppKit.Call("NSColor", "alloc");
-            ObjC.Call(color, "initWithSrgbRed:green:blue:alpha:", r, g, b, 1d);
-            ObjC.Call(Handle, "backgroundColor:", color);
         }
     }
 }

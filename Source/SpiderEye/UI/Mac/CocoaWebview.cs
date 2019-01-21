@@ -29,6 +29,12 @@ namespace SpiderEye.UI.Mac
             {
                 ScriptHandler = new ScriptHandler(this);
             }
+
+            IntPtr bgColor = NSColor.FromHex(config.Window.BackgroundColor);
+            ObjC.Call(Handle, "setBackgroundColor:", bgColor);
+
+            IntPtr boolValue = Foundation.Call("NSNumber", "numberWithBool:", 0);
+            NSString.Use("drawsBackground", nsString => ObjC.Call(Handle, "setValue:forKey:", boolValue, nsString));
         }
 
         public void NavigateToFile(string url)
