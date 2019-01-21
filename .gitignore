@@ -261,7 +261,7 @@ __pycache__/
 *.pyc
 
 # macOS
-.DS_Store/
+.DS_Store
 
 # Angular publish folder from examples
 dist
