@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TypeScriptCompileBlocked>True</TypeScriptCompileBlocked>
     <OutputType>WinExe</OutputType>
-    <TargetFrameworks>net462;netcoreapp2.2</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.2;net462</TargetFrameworks>
     <RuntimeIdentifiers>win;linux;osx</RuntimeIdentifiers>
   </PropertyGroup>
 
