@@ -1,30 +1,52 @@
-﻿using System;
+using System;
 using SpiderEye.Configuration;
+using SpiderEye.UI.Mac.Interop;
+using SpiderEye.UI.Mac.Native;
 
 namespace SpiderEye.UI.Mac
 {
-    internal class CocoaApplication : IApplication
+    internal class CocoaApplication : ApplicationBase
     {
-        public IWindow MainWindow
+        public override IWindow MainWindow
         {
-            get { throw new NotImplementedException(); }
+            get { return window; }
         }
 
-        private readonly AppConfiguration config;
+        private readonly IntPtr application;
+        private readonly CocoaWindow window;
 
         public CocoaApplication(AppConfiguration config)
+            : base(config)
         {
-            this.config = config ?? throw new ArgumentNullException(nameof(config));
+            application = AppKit.Call("NSApplication", "sharedApplication");
+            ObjC.Call(application, "setActivationPolicy:", 0);
+
+            IntPtr appDelegateClass = ObjC.AllocateClassPair(ObjC.GetClass("NSObject"), "AppDelegate", IntPtr.Zero);
+            ObjC.AddProtocol(appDelegateClass, ObjC.GetProtocol("NSApplicationDelegate"));
+
+            ObjC.AddMethod(
+                appDelegateClass,
+                ObjC.RegisterName("applicationShouldTerminateAfterLastWindowClosed:"),
+                (ShouldTerminateDelegate)((s, o, n) => 1),
+                "c@:@");
+
+            ObjC.RegisterClassPair(appDelegateClass);
+
+            IntPtr appDelegate = ObjC.Call(appDelegateClass, "new");
+            ObjC.Call(application, "setDelegate:", appDelegate);
+
+            window = new CocoaWindow(config);
         }
 
-        public void Run()
+        public override void Exit()
         {
-            throw new NotImplementedException();
+            ObjC.Call(application, "stop");
         }
 
-        public void Exit()
+        protected override void RunMainLoop()
         {
-            throw new NotImplementedException();
+            ObjC.Call(application, "activateIgnoringOtherApps:", 1);
+            ObjC.Call(application, "run");
         }
     }
 }

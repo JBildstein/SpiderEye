@@ -11,8 +11,8 @@ What's the name supposed to mean? Simple: what kind of view does a spiders eye h
 | ----- | ----- | ----- | ----- |
 | Windows | 7, 8.x, 10 | WPF WebBrowser control | IE 9-11 (depending on OS and installed version) |
 | Windows |  10 Build 1803 | WebViewControl | Edge |
-| Linux | - | WebKit2GTK | WebKit |
-| macOS | - | Not implemented yet | WebKit |
+| Linux | libwebkit2gtk-4.0 libgtk-3 | WebKit2GTK | WebKit |
+| macOS | 10.10+ 64bit | WKWebView | WebKit |
 
 ## Installation
 
