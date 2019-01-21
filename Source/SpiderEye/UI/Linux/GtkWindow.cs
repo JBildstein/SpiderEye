@@ -27,32 +27,6 @@ namespace SpiderEye.UI.Linux
             }
         }
 
-        public int Width
-        {
-            get
-            {
-                Gtk.Window.GetSize(window, out int width, out int height);
-                return width;
-            }
-        }
-
-        public int Height
-        {
-            get
-            {
-                Gtk.Window.GetSize(window, out int width, out int height);
-                return height;
-            }
-        }
-
-        public string BackgroundColor { get; set; }
-
-        public bool CanResize
-        {
-            get { return Gtk.Window.GetResizable(window); }
-            set { Gtk.Window.SetResizable(window, value); }
-        }
-
         private readonly IntPtr window;
         private readonly AppConfiguration config;
         private readonly GtkWebview webview;
@@ -66,12 +40,12 @@ namespace SpiderEye.UI.Linux
             window = Gtk.Window.Create(GtkWindowType.Toplevel);
 
             Title = config.Window.Title;
-            CanResize = config.Window.CanResize;
+            Gtk.Window.SetResizable(window, config.Window.CanResize);
             Gtk.Window.SetDefaultSize(window, config.Window.Width, config.Window.Height);
 
-            BackgroundColor = config.Window.BackgroundColor;
-            if (string.IsNullOrWhiteSpace(BackgroundColor)) { BackgroundColor = "#FFFFFF"; }
-            SetBackgroundColor(BackgroundColor);
+            string backgroundColor = config.Window.BackgroundColor;
+            if (string.IsNullOrWhiteSpace(backgroundColor)) { backgroundColor = "#FFFFFF"; }
+            SetBackgroundColor(backgroundColor);
 
             IntPtr scroller = Gtk.Window.CreateScrolled(IntPtr.Zero, IntPtr.Zero);
             Gtk.Widget.ContainerAdd(window, scroller);
@@ -97,11 +71,6 @@ namespace SpiderEye.UI.Linux
         public void Close()
         {
             Gtk.Window.Close(window);
-        }
-
-        public void Resize(int width, int height)
-        {
-            Gtk.Window.Resize(window, width, height);
         }
 
         public void SetWindowState(WindowState state)

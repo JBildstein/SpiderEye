@@ -13,18 +13,6 @@ namespace SpiderEye.UI.Windows
     {
         public event EventHandler WindowReady;
 
-        int IWindow.Width
-        {
-            get { return (int)Width; }
-        }
-
-        int IWindow.Height
-        {
-            get { return (int)Height; }
-        }
-
-        public string BackgroundColor { get; }
-
         public bool CanResize
         {
             get { return ResizeMode == ResizeMode.CanResize; }
@@ -68,9 +56,9 @@ namespace SpiderEye.UI.Windows
             Height = config.Window.Height;
             CanResize = config.Window.CanResize;
 
-            BackgroundColor = config.Window.BackgroundColor;
-            if (string.IsNullOrWhiteSpace(BackgroundColor)) { BackgroundColor = "#FFFFFF"; }
-            Background = new BrushConverter().ConvertFrom(BackgroundColor) as SolidColorBrush;
+            string backgroundColor = config.Window.BackgroundColor;
+            if (string.IsNullOrWhiteSpace(backgroundColor)) { backgroundColor = "#FFFFFF"; }
+            Background = new BrushConverter().ConvertFrom(backgroundColor) as SolidColorBrush;
 
             if (config.Window.UseBrowserTitle && config.EnableScriptInterface)
             {
@@ -108,12 +96,6 @@ namespace SpiderEye.UI.Windows
                 default:
                     throw new ArgumentException($"Invalid window state of \"{state}\"", nameof(state));
             }
-        }
-
-        public void Resize(int width, int height)
-        {
-            Width = width;
-            Height = height;
         }
 
         private bool UseLegacy()
