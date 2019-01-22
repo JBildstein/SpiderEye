@@ -19,11 +19,14 @@ namespace SpiderEye.UI.Mac
             this.config = config ?? throw new ArgumentNullException(nameof(config));
 
             Handle = AppKit.Call("NSWindow", "alloc");
-            var style = NSWindowStyleMask.Titled | NSWindowStyleMask.Closable | NSWindowStyleMask.Miniaturizable | NSWindowStyleMask.Resizable;
+
+            var style = NSWindowStyleMask.Titled | NSWindowStyleMask.Closable | NSWindowStyleMask.Miniaturizable;
+            if (config.Window.CanResize) { style |= NSWindowStyleMask.Resizable; }
+
             ObjC.SendMessage(
                 Handle,
                 ObjC.RegisterName("initWithContentRect:styleMask:backing:defer:"),
-                new CGRect(0, 0, 600, 400),
+                new CGRect(0, 0, config.Window.Width, config.Window.Height),
                 (int)style,
                 2,
                 0);
@@ -35,10 +38,17 @@ namespace SpiderEye.UI.Mac
 
             webview = new CocoaWebview(config);
             ObjC.Call(Handle, "setContentView:", webview.Handle);
+
+            if (config.Window.UseBrowserTitle)
+            {
+                webview.TitleChanged += Webview_TitleChanged;
+                if (config.EnableScriptInterface) { webview.ScriptHandler.TitleChanged += Webview_TitleChanged; }
+            }
         }
 
         public void Show()
         {
+            ObjC.Call(Handle, "center");
             ObjC.Call(Handle, "makeKeyAndOrderFront:", IntPtr.Zero);
         }
 
@@ -78,6 +88,11 @@ namespace SpiderEye.UI.Mac
         public void Dispose()
         {
             // will be released automatically
+        }
+
+        private void Webview_TitleChanged(object sender, string title)
+        {
+            if (title != null) { SetTitle(title); }
         }
 
         private void SetTitle(string title)

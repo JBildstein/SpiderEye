@@ -27,7 +27,7 @@ namespace SpiderEye.UI.Mac
             ObjC.AddMethod(
                 appDelegateClass,
                 ObjC.RegisterName("applicationShouldTerminateAfterLastWindowClosed:"),
-                (ShouldTerminateDelegate)((s, o, n) => 1),
+                (ShouldTerminateDelegate)ShouldTerminateCallback,
                 "c@:@");
 
             ObjC.RegisterClassPair(appDelegateClass);
@@ -50,6 +50,11 @@ namespace SpiderEye.UI.Mac
 
             ObjC.Call(application, "activateIgnoringOtherApps:", 1);
             ObjC.Call(application, "run");
+        }
+
+        private byte ShouldTerminateCallback(IntPtr self, IntPtr op, IntPtr notification)
+        {
+            return 1;
         }
     }
 }
