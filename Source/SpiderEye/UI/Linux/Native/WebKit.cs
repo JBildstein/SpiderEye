@@ -98,7 +98,7 @@ namespace SpiderEye.UI.Linux.Native
             [DllImport(JavaScriptCoreNativeDll, EntryPoint = "jsc_value_to_string_as_bytes", CallingConvention = CallingConvention.Cdecl)]
             public static extern IntPtr GetStringBytes(IntPtr value);
 
-            [DllImport(JavaScriptCoreNativeDll, EntryPoint = "webkit_javascript_result_unref", CallingConvention = CallingConvention.Cdecl)]
+            [DllImport(WebkitNativeDll, EntryPoint = "webkit_javascript_result_unref", CallingConvention = CallingConvention.Cdecl)]
             public static extern void ReleaseJsResult(IntPtr jsResult);
         }
 
