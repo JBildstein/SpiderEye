@@ -102,67 +102,72 @@ namespace SpiderEye.UI.Linux
 
         public string ExecuteScript(string script)
         {
-            return ExecuteScriptAsync(script).GetAwaiter().GetResult();
+            var task = ExecuteScriptAsync(script);
+
+            // main loop would deadlock without this
+            while (!task.IsCompleted)
+            {
+                Gtk.MainIteration();
+            }
+
+            return task.Result;
+        }
+
+        public Task<string> ExecuteScriptAsync(string script)
+        {
+            var taskResult = new TaskCompletionSource<string>();
+
+            unsafe void Callback(IntPtr webview, IntPtr asyncResult, IntPtr userdata)
+            {
+                IntPtr jsResult = IntPtr.Zero;
+                try
+                {
+                    jsResult = WebKit.JavaScript.EndExecute(webview, asyncResult, out IntPtr errorPtr);
+                    if (jsResult != IntPtr.Zero)
+                    {
+                        IntPtr value = WebKit.JavaScript.GetValue(jsResult);
+                        if (WebKit.JavaScript.IsValueString(value))
+                        {
+                            IntPtr bytes = WebKit.JavaScript.GetStringBytes(value);
+                            IntPtr bytesPtr = GLib.GetBytesDataPointer(bytes, out UIntPtr length);
+
+                            string result = Encoding.UTF8.GetString((byte*)bytesPtr, (int)length);
+                            taskResult.TrySetResult(result);
+
+                            GLib.UnrefBytes(bytes);
+                        }
+                    }
+                    else
+                    {
+                        try
+                        {
+                            var error = Marshal.PtrToStructure<GError>(errorPtr);
+                            string errorMessage = GLibString.FromPointer(error.Message);
+                            taskResult.TrySetException(new Exception($"Script execution failed with: \"{errorMessage}\""));
+                        }
+                        finally { GLib.FreeError(errorPtr); }
+                    }
+                }
+                finally
+                {
+                    if (jsResult != IntPtr.Zero)
+                    {
+                        WebKit.JavaScript.ReleaseJsResult(jsResult);
+                    }
+                }
+            }
+
+            using (GLibString gfunction = script)
+            {
+                WebKit.JavaScript.BeginExecute(Handle, gfunction, IntPtr.Zero, Callback, IntPtr.Zero);
+            }
+
+            return taskResult.Task;
         }
 
         public void Dispose()
         {
             // gets automatically disposed by parent window
-        }
-
-        public async Task<string> ExecuteScriptAsync(string script)
-        {
-            return await Task.Run(() =>
-            {
-                var taskResult = new TaskCompletionSource<string>();
-
-                unsafe void Callback(IntPtr webview, IntPtr asyncResult, IntPtr userdata)
-                {
-                    IntPtr jsResult = IntPtr.Zero;
-                    try
-                    {
-                        jsResult = WebKit.JavaScript.EndExecute(webview, asyncResult, out IntPtr errorPtr);
-                        if (jsResult != IntPtr.Zero)
-                        {
-                            IntPtr value = WebKit.JavaScript.GetValue(jsResult);
-                            if (WebKit.JavaScript.IsValueString(value))
-                            {
-                                IntPtr bytes = WebKit.JavaScript.GetStringBytes(value);
-                                IntPtr bytesPtr = GLib.GetBytesDataPointer(bytes, out UIntPtr length);
-
-                                string result = Encoding.UTF8.GetString((byte*)bytesPtr, (int)length);
-                                taskResult.TrySetResult(result);
-
-                                GLib.UnrefBytes(bytes);
-                            }
-                        }
-                        else
-                        {
-                            try
-                            {
-                                var error = Marshal.PtrToStructure<GError>(errorPtr);
-                                string errorMessage = GLibString.FromPointer(error.Message);
-                                taskResult.TrySetException(new Exception($"Script execution failed with {errorMessage}"));
-                            }
-                            finally { GLib.FreeError(errorPtr); }
-                        }
-                    }
-                    finally
-                    {
-                        if (jsResult != IntPtr.Zero)
-                        {
-                            WebKit.JavaScript.ReleaseJsResult(jsResult);
-                        }
-                    }
-                }
-
-                using (GLibString gfunction = script)
-                {
-                    WebKit.JavaScript.BeginExecute(Handle, gfunction, IntPtr.Zero, Callback, IntPtr.Zero);
-                }
-
-                return taskResult.Task;
-            });
         }
 
         private unsafe void ScriptCallback(IntPtr manager, IntPtr jsResult, IntPtr userdata)
