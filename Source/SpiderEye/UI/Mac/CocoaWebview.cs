@@ -30,16 +30,31 @@ namespace SpiderEye.UI.Mac
 
             IntPtr configuration = WebKit.Call("WKWebViewConfiguration", "new");
             IntPtr manager = WebKit.Call(configuration, "userContentController");
+            IntPtr callbackClass = CreateCallbackClass();
+
+            IntPtr preferences = ObjC.Call(configuration, "preferences");
+            NSString.Use("developerExtrasEnabled", nsString => ObjC.Call(preferences, "setValue:forKey:", new IntPtr(1), nsString));
 
             CreateSchemeHandler(configuration);
-
-            Handle = WebKit.Call("WKWebView", "alloc");
-            ObjC.Call(Handle, "initWithFrame:configuration:", CGRect.Zero, configuration);
 
             if (config.EnableScriptInterface)
             {
                 ScriptHandler = new ScriptHandler(this);
+
+                NSString.Use("external", nsString => ObjC.Call(manager, "addScriptMessageHandler:name:", callbackClass, nsString));
+
+                IntPtr script = WebKit.Call("WKUserScript", "alloc");
+                NSString.Use(Resources.GetInitScript("Unix"), nsString =>
+                {
+                    ObjC.Call(script, "initWithSource:injectionTime:forMainFrameOnly:", nsString, IntPtr.Zero, IntPtr.Zero);
+                });
+
+                ObjC.Call(manager, "addUserScript:", script);
             }
+
+            Handle = WebKit.Call("WKWebView", "alloc");
+            ObjC.Call(Handle, "initWithFrame:configuration:", CGRect.Zero, configuration);
+            ObjC.Call(Handle, "setNavigationDelegate:", callbackClass);
 
             IntPtr bgColor = NSColor.FromHex(config.Window.BackgroundColor);
             ObjC.Call(Handle, "setBackgroundColor:", bgColor);
@@ -47,7 +62,13 @@ namespace SpiderEye.UI.Mac
             IntPtr boolValue = Foundation.Call("NSNumber", "numberWithBool:", 0);
             NSString.Use("drawsBackground", nsString => ObjC.Call(Handle, "setValue:forKey:", boolValue, nsString));
 
-            CreateCallbackClass();
+            if (config.Window.UseBrowserTitle)
+            {
+                NSString.Use("title", nsString =>
+                {
+                    ObjC.Call(Handle, "addObserver:forKeyPath:options:context:", callbackClass, nsString, IntPtr.Zero, IntPtr.Zero);
+                });
+            }
         }
 
         public void NavigateToFile(string url)
@@ -124,7 +145,7 @@ namespace SpiderEye.UI.Mac
             // will be released automatically
         }
 
-        private void CreateCallbackClass()
+        private IntPtr CreateCallbackClass()
         {
             IntPtr callbackClass = ObjC.AllocateClassPair(ObjC.GetClass("NSObject"), "CallbackClass", IntPtr.Zero);
             ObjC.AddProtocol(callbackClass, ObjC.GetProtocol("WKNavigationDelegate"));
@@ -145,24 +166,12 @@ namespace SpiderEye.UI.Mac
             ObjC.AddMethod(
                 callbackClass,
                 ObjC.RegisterName("userContentController:didReceiveScriptMessage:"),
-                (ScriptCallbackDelegate)((s, o, n, m) =>
-                {
-                    Console.WriteLine("Script message received");
-                }),
+                (ScriptCallbackDelegate)ScriptCallback,
                 "v@:@@");
 
             ObjC.RegisterClassPair(callbackClass);
 
-            IntPtr callbacks = ObjC.Call(callbackClass, "new");
-            ObjC.Call(Handle, "setNavigationDelegate:", callbacks);
-
-            if (config.Window.UseBrowserTitle)
-            {
-                NSString.Use("title", nsString =>
-                {
-                    ObjC.Call(Handle, "addObserver:forKeyPath:options:context:", callbacks, nsString, IntPtr.Zero, IntPtr.Zero);
-                });
-            }
+            return ObjC.Call(callbackClass, "new");
         }
 
         private void CreateSchemeHandler(IntPtr configuration)
@@ -194,6 +203,17 @@ namespace SpiderEye.UI.Mac
             }
         }
 
+        private void ScriptCallback(IntPtr self, IntPtr op, IntPtr notification, IntPtr message)
+        {
+            IntPtr body = ObjC.Call(message, "body");
+            IntPtr isString = ObjC.Call(body, "isKindOfClass:", Foundation.GetClass("NSString"));
+            if (isString != IntPtr.Zero)
+            {
+                string data = NSString.GetString(body);
+                ScriptHandler.HandleScriptCall(data);
+            }
+        }
+
         private void UriSchemeStartCallback(IntPtr self, IntPtr op, IntPtr view, IntPtr schemeTask)
         {
             try
@@ -203,7 +223,7 @@ namespace SpiderEye.UI.Mac
 
                 var uri = new Uri(NSString.GetString(ObjC.Call(url, "absoluteString")));
                 string schemeAndServer = uri.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped);
-                if (false && schemeAndServer == customHost)
+                if (schemeAndServer == customHost)
                 {
                     using (var contentStream = contentProvider.GetStreamAsync(uri).GetAwaiter().GetResult())
                     {

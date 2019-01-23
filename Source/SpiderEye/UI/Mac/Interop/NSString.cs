@@ -22,11 +22,17 @@ namespace SpiderEye.UI.Mac.Interop
             }
         }
 
-        public static unsafe string GetString(IntPtr handle)
+        public static string GetString(IntPtr handle)
         {
             if (handle == IntPtr.Zero) { return null; }
 
             IntPtr utf8 = ObjC.Call(handle, "UTF8String");
+            return Utf8PointerToString(utf8);
+        }
+
+        public static unsafe string Utf8PointerToString(IntPtr utf8)
+        {
+            if (utf8 == IntPtr.Zero) { return null; }
 
             int count = 0;
             byte* ptr = (byte*)utf8;
