@@ -24,7 +24,6 @@ namespace SpiderEye.UI.Linux
         private readonly IContentProvider contentProvider;
         private readonly AppConfiguration config;
         private readonly IntPtr manager;
-        private readonly string scheme;
         private readonly string customHost;
 
         public GtkWebview(IContentProvider contentProvider, AppConfiguration config)
@@ -78,8 +77,8 @@ namespace SpiderEye.UI.Linux
 
             if (string.IsNullOrWhiteSpace(config.ExternalHost))
             {
-                scheme = "spidereye";
-                customHost = $"{scheme}://resources.{CreateRandomString(8)}.internal";
+                const string scheme = "spidereye";
+                customHost = UriTools.GetRandomResourceUrl(scheme);
 
                 IntPtr context = WebKit.Context.Get(Handle);
                 using (GLibString gscheme = scheme)
@@ -91,6 +90,8 @@ namespace SpiderEye.UI.Linux
 
         public void NavigateToFile(string url)
         {
+            if (url == null) { throw new ArgumentNullException(nameof(url)); }
+
             if (customHost != null) { url = UriTools.Combine(customHost, url).ToString(); }
             else { url = UriTools.Combine(config.ExternalHost, url).ToString(); }
 
@@ -287,20 +288,6 @@ namespace SpiderEye.UI.Linux
             uint domain = GLib.GetFileErrorQuark();
             var error = new GError(domain, 4, IntPtr.Zero); // error code 4 = not found
             WebKit.UriScheme.FinishSchemeRequestWithError(request, ref error);
-        }
-
-        private string CreateRandomString(int length)
-        {
-            const string possible = "0123456789abcdefghijklmnopqrstuvwxyz";
-            var rand = new Random();
-            char[] result = new char[length];
-
-            for (int i = 0; i < result.Length; i++)
-            {
-                result[i] = possible[rand.Next(0, possible.Length)];
-            }
-
-            return new string(result);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using SpiderEye.Configuration;
+using SpiderEye.Content;
 using SpiderEye.UI.Mac.Interop;
 using SpiderEye.UI.Mac.Native;
 
@@ -36,7 +37,8 @@ namespace SpiderEye.UI.Mac
             IntPtr bgColor = NSColor.FromHex(config.Window.BackgroundColor);
             ObjC.Call(Handle, "setBackgroundColor:", bgColor);
 
-            webview = new CocoaWebview(config);
+            var contentProvider = new EmbeddedFileProvider(config.ContentAssembly, config.ContentFolder);
+            webview = new CocoaWebview(contentProvider, config);
             ObjC.Call(Handle, "setContentView:", webview.Handle);
 
             if (config.Window.UseBrowserTitle)

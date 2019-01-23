@@ -33,13 +33,16 @@ namespace SpiderEye.UI.Mac.Native
         public static extern IntPtr SendMessage(IntPtr self, IntPtr op);
 
         [DllImport(ObjCLib, EntryPoint = "objc_msgSend")]
-        public static extern IntPtr SendMessage(IntPtr self, IntPtr op, IntPtr value);
-
-        [DllImport(ObjCLib, EntryPoint = "objc_msgSend")]
-        public static extern IntPtr SendMessage(IntPtr self, IntPtr op, IntPtr a, IntPtr b, IntPtr c, IntPtr d);
+        public static extern IntPtr SendMessage(IntPtr self, IntPtr op, IntPtr a);
 
         [DllImport(ObjCLib, EntryPoint = "objc_msgSend")]
         public static extern IntPtr SendMessage(IntPtr self, IntPtr op, IntPtr a, IntPtr b);
+
+        [DllImport(ObjCLib, EntryPoint = "objc_msgSend")]
+        public static extern IntPtr SendMessage(IntPtr self, IntPtr op, IntPtr a, IntPtr b, IntPtr c);
+
+        [DllImport(ObjCLib, EntryPoint = "objc_msgSend")]
+        public static extern IntPtr SendMessage(IntPtr self, IntPtr op, IntPtr a, IntPtr b, IntPtr c, IntPtr d);
 
         [DllImport(ObjCLib, EntryPoint = "objc_msgSend")]
         public static extern IntPtr SendMessage(IntPtr self, IntPtr op, IntPtr a, UIntPtr b);

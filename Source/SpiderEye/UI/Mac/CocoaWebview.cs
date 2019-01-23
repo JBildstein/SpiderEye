@@ -1,7 +1,10 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using SpiderEye.Configuration;
+using SpiderEye.Content;
 using SpiderEye.Scripting;
+using SpiderEye.Tools;
 using SpiderEye.UI.Mac.Interop;
 using SpiderEye.UI.Mac.Native;
 
@@ -15,17 +18,23 @@ namespace SpiderEye.UI.Mac
 
         public readonly IntPtr Handle;
 
+        private readonly IContentProvider contentProvider;
         private readonly AppConfiguration config;
 
-        public CocoaWebview(AppConfiguration config)
+        private string customHost;
+
+        public CocoaWebview(IContentProvider contentProvider, AppConfiguration config)
         {
+            this.contentProvider = contentProvider ?? throw new ArgumentNullException(nameof(contentProvider));
             this.config = config ?? throw new ArgumentNullException(nameof(config));
 
-            IntPtr conf = WebKit.Call("WKWebViewConfiguration", "new");
-            IntPtr manager = WebKit.Call(conf, "userContentController");
+            IntPtr configuration = WebKit.Call("WKWebViewConfiguration", "new");
+            IntPtr manager = WebKit.Call(configuration, "userContentController");
+
+            CreateSchemeHandler(configuration);
 
             Handle = WebKit.Call("WKWebView", "alloc");
-            ObjC.Call(Handle, "initWithFrame:configuration:", CGRect.Zero, conf);
+            ObjC.Call(Handle, "initWithFrame:configuration:", CGRect.Zero, configuration);
 
             if (config.EnableScriptInterface)
             {
@@ -44,6 +53,9 @@ namespace SpiderEye.UI.Mac
         public void NavigateToFile(string url)
         {
             if (url == null) { throw new ArgumentNullException(nameof(url)); }
+
+            if (customHost != null) { url = UriTools.Combine(customHost, url).ToString(); }
+            else { url = UriTools.Combine(config.ExternalHost, url).ToString(); }
 
             NSString.Use(url, nsUrlString =>
             {
@@ -153,6 +165,102 @@ namespace SpiderEye.UI.Mac
             }
         }
 
+        private void CreateSchemeHandler(IntPtr configuration)
+        {
+            if (string.IsNullOrWhiteSpace(config.ExternalHost))
+            {
+                const string scheme = "spidereye";
+                customHost = UriTools.GetRandomResourceUrl(scheme);
+
+                IntPtr handlerClass = ObjC.AllocateClassPair(ObjC.GetClass("NSObject"), "SchemeHandler", IntPtr.Zero);
+                ObjC.AddProtocol(handlerClass, ObjC.GetProtocol("WKURLSchemeHandler"));
+
+                ObjC.AddMethod(
+                    handlerClass,
+                    ObjC.RegisterName("webView:startURLSchemeTask:"),
+                    (SchemeHandlerDelegate)UriSchemeStartCallback,
+                    "v@:@@");
+
+                ObjC.AddMethod(
+                    handlerClass,
+                    ObjC.RegisterName("webView:stopURLSchemeTask:"),
+                    (SchemeHandlerDelegate)UriSchemeStopCallback,
+                    "v@:@@");
+
+                ObjC.RegisterClassPair(handlerClass);
+
+                IntPtr handler = ObjC.Call(handlerClass, "new");
+                NSString.Use(scheme, nsString => ObjC.Call(configuration, "setURLSchemeHandler:forURLScheme:", handler, nsString));
+            }
+        }
+
+        private void UriSchemeStartCallback(IntPtr self, IntPtr op, IntPtr view, IntPtr schemeTask)
+        {
+            try
+            {
+                IntPtr request = ObjC.Call(schemeTask, "request");
+                IntPtr url = ObjC.Call(request, "URL");
+
+                var uri = new Uri(NSString.GetString(ObjC.Call(url, "absoluteString")));
+                string schemeAndServer = uri.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped);
+                if (false && schemeAndServer == customHost)
+                {
+                    using (var contentStream = contentProvider.GetStreamAsync(uri).GetAwaiter().GetResult())
+                    {
+                        if (contentStream != null)
+                        {
+                            if (contentStream is UnmanagedMemoryStream unmanagedMemoryStream)
+                            {
+                                unsafe
+                                {
+                                    long length = unmanagedMemoryStream.Length - unmanagedMemoryStream.Position;
+                                    var data = (IntPtr)unmanagedMemoryStream.PositionPointer;
+                                    FinishUriSchemeCallback(url, schemeTask, data, length, uri);
+                                    return;
+                                }
+                            }
+                            else
+                            {
+                                byte[] data;
+                                long length;
+                                if (contentStream is MemoryStream memoryStream)
+                                {
+                                    data = memoryStream.GetBuffer();
+                                    length = memoryStream.Length;
+                                }
+                                else
+                                {
+                                    using (var copyStream = new MemoryStream())
+                                    {
+                                        contentStream.CopyTo(copyStream);
+                                        data = copyStream.GetBuffer();
+                                        length = copyStream.Length;
+                                    }
+                                }
+
+                                unsafe
+                                {
+                                    fixed (byte* dataPtr = data)
+                                    {
+                                        FinishUriSchemeCallback(url, schemeTask, (IntPtr)dataPtr, length, uri);
+                                        return;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                FinishUriSchemeCallbackWithError(schemeTask, 404);
+            }
+            catch { FinishUriSchemeCallbackWithError(schemeTask, 500); }
+        }
+
+        private void UriSchemeStopCallback(IntPtr self, IntPtr op, IntPtr view, IntPtr schemeTask)
+        {
+            // don't think anything needs to be done here
+        }
+
         private void ObservedValueChanged(IntPtr self, IntPtr op, IntPtr keyPath, IntPtr obj, IntPtr change, IntPtr context)
         {
             string key = NSString.GetString(keyPath);
@@ -165,6 +273,39 @@ namespace SpiderEye.UI.Mac
 
         private void LoadCallback(IntPtr self, IntPtr op, IntPtr view, IntPtr navigation)
         {
+        }
+
+        private void FinishUriSchemeCallback(IntPtr url, IntPtr schemeTask, IntPtr data, long contentLength, Uri uri)
+        {
+            IntPtr response = Foundation.Call("NSURLResponse", "alloc");
+            NSString.Use(MimeTypes.FindForUri(uri), nsString =>
+            {
+                ObjC.Call(
+                    response,
+                    "initWithURL:MIMEType:expectedContentLength:textEncodingName:",
+                    url,
+                    nsString,
+                    new IntPtr(contentLength),
+                    IntPtr.Zero);
+            });
+
+            ObjC.Call(schemeTask, "didReceiveResponse:", response);
+
+            IntPtr nsData = Foundation.Call("NSData", "dataWithBytesNoCopy:length:freeWhenDone:", data, new IntPtr(contentLength), IntPtr.Zero);
+            ObjC.Call(schemeTask, "didReceiveData:", nsData);
+
+            ObjC.Call(schemeTask, "didFinish");
+        }
+
+        private void FinishUriSchemeCallbackWithError(IntPtr schemeTask, int errorCode)
+        {
+            IntPtr error = IntPtr.Zero;
+            NSString.Use("com.bildstein.spidereye", domain =>
+            {
+                error = Foundation.Call("NSError", "errorWithDomain:code:userInfo:", domain, new IntPtr(errorCode), IntPtr.Zero);
+            });
+
+            ObjC.Call(schemeTask, "didFailWithError:", error);
         }
     }
 }
