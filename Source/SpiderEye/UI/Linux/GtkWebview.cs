@@ -43,7 +43,7 @@ namespace SpiderEye.UI.Linux
                     WebKit.Manager.RegisterScriptMessageHandler(manager, name);
                 }
 
-                using (GLibString scriptText = Resources.GetInitScript("Linux"))
+                using (GLibString scriptText = Resources.GetInitScript("Unix"))
                 {
                     IntPtr script = IntPtr.Zero;
 
