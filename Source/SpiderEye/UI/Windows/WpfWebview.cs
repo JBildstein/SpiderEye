@@ -117,7 +117,6 @@ namespace SpiderEye.UI.Windows
 
         private void Webview_NavigationCompleted(object sender, WebViewControlNavigationCompletedEventArgs e)
         {
-            // TODO: don't think script injection works yet
             string initScript = SpiderEye.Resources.GetInitScript("Windows");
             ExecuteScript(initScript);
 

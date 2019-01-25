@@ -2,8 +2,8 @@
 window._spidereye.updateTitle(document.title);
 
 if (typeof MutationObserver !== 'undefined') {
-    new MutationObserver(function (mutations) {
-        window._spidereye.updateTitle(mutations[0].target.nodeValue);
+    new MutationObserver(function () {
+        window._spidereye.updateTitle(document.title);
     }).observe(document.querySelector('title'),
         { subtree: true, characterData: true, childList: true });
 } else if (document.attachEvent) {
