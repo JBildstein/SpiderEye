@@ -18,9 +18,16 @@ namespace SpiderEye
 
         public void Run()
         {
+            Run(true);
+        }
+
+        public void Run(bool showWindow)
+        {
             try
             {
                 ApiResolver.InitApi();
+
+                if (showWindow) { MainWindow.Show(); }
                 RunMainLoop();
             }
             finally

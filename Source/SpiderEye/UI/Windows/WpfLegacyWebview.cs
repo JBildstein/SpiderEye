@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using System.Windows.Navigation;
 using SpiderEye.Configuration;
 using SpiderEye.Scripting;
 using SpiderEye.Tools;
@@ -10,6 +11,8 @@ namespace SpiderEye.UI.Windows
 {
     internal class WpfLegacyWebview : IWebview, IWpfWebview
     {
+        public event EventHandler PageLoaded;
+
         public ScriptHandler ScriptHandler { get; }
 
         public object Control
@@ -34,8 +37,7 @@ namespace SpiderEye.UI.Windows
                 ScriptHandler = new ScriptHandler(this);
                 scriptInterface = new ScriptInterface(ScriptHandler);
                 webview.ObjectForScripting = scriptInterface;
-                string initScript = Resources.GetInitScript("Windows");
-                webview.LoadCompleted += (s, e) => ExecuteScript(initScript);
+                webview.LoadCompleted += Webview_LoadCompleted;
             }
         }
 
@@ -59,6 +61,14 @@ namespace SpiderEye.UI.Windows
         public void Dispose()
         {
             webview.Dispose();
+        }
+
+        private void Webview_LoadCompleted(object sender, NavigationEventArgs e)
+        {
+            string initScript = Resources.GetInitScript("Windows");
+            ExecuteScript(initScript);
+
+            PageLoaded?.Invoke(this, EventArgs.Empty);
         }
     }
 }

@@ -30,7 +30,6 @@ namespace SpiderEye.UI.Linux
         protected override void RunMainLoop()
         {
             MainWindow.LoadUrl(config.StartPageUrl);
-            MainWindow.Show();
 
             Gtk.Main();
         }

@@ -30,7 +30,6 @@ namespace SpiderEye.UI.Windows
 
         protected override void RunMainLoop()
         {
-            MainWindow.Show();
             application.Run();
         }
 

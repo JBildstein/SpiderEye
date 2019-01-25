@@ -46,7 +46,6 @@ namespace SpiderEye.UI.Mac
         protected override void RunMainLoop()
         {
             MainWindow.LoadUrl(config.StartPageUrl);
-            MainWindow.Show();
 
             ObjC.Call(application, "activateIgnoringOtherApps:", 1);
             ObjC.Call(application, "run");
