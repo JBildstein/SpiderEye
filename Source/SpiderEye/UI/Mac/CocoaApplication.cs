@@ -19,7 +19,7 @@ namespace SpiderEye.UI.Mac
             : base(config)
         {
             application = AppKit.Call("NSApplication", "sharedApplication");
-            ObjC.Call(application, "setActivationPolicy:", 0);
+            ObjC.Call(application, "setActivationPolicy:", IntPtr.Zero);
 
             IntPtr appDelegateClass = ObjC.AllocateClassPair(ObjC.GetClass("NSObject"), "AppDelegate", IntPtr.Zero);
             ObjC.AddProtocol(appDelegateClass, ObjC.GetProtocol("NSApplicationDelegate"));
