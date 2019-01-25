@@ -8,6 +8,11 @@ namespace SpiderEye.UI
     public interface IWindow : IDisposable
     {
         /// <summary>
+        /// Fires once the content in the webview has loaded.
+        /// </summary>
+        event EventHandler PageLoaded;
+
+        /// <summary>
         /// Gets or sets the window title.
         /// </summary>
         string Title { get; set; }

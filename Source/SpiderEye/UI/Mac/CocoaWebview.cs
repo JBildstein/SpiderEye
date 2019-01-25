@@ -12,6 +12,7 @@ namespace SpiderEye.UI.Mac
 {
     internal class CocoaWebview : IWebview
     {
+        public event EventHandler PageLoaded;
         public event EventHandler<string> TitleChanged;
 
         public ScriptHandler ScriptHandler { get; }
@@ -293,6 +294,7 @@ namespace SpiderEye.UI.Mac
 
         private void LoadCallback(IntPtr self, IntPtr op, IntPtr view, IntPtr navigation)
         {
+            PageLoaded?.Invoke(this, EventArgs.Empty);
         }
 
         private void FinishUriSchemeCallback(IntPtr url, IntPtr schemeTask, IntPtr data, long contentLength, Uri uri)

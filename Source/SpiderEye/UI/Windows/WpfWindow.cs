@@ -13,6 +13,12 @@ namespace SpiderEye.UI.Windows
     {
         public event EventHandler WindowReady;
 
+        public event EventHandler PageLoaded
+        {
+            add { webview.PageLoaded += value; }
+            remove { webview.PageLoaded -= value; }
+        }
+
         public bool CanResize
         {
             get { return ResizeMode == ResizeMode.CanResize; }

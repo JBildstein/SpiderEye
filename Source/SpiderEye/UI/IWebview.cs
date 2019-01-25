@@ -10,6 +10,11 @@ namespace SpiderEye.UI
     internal interface IWebview : IDisposable
     {
         /// <summary>
+        /// Fires once the content in this webview has loaded.
+        /// </summary>
+        event EventHandler PageLoaded;
+
+        /// <summary>
         /// Gets the script handler.
         /// </summary>
         ScriptHandler ScriptHandler { get; }

@@ -8,6 +8,12 @@ namespace SpiderEye.UI.Linux
 {
     internal class GtkWindow : IWindow
     {
+        public event EventHandler PageLoaded
+        {
+            add { webview.PageLoaded += value; }
+            remove { webview.PageLoaded -= value; }
+        }
+
         public event EventHandler Closed;
 
         public IWebview Webview

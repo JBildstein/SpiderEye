@@ -8,7 +8,17 @@ namespace SpiderEye.UI.Mac
 {
     internal class CocoaWindow : IWindow
     {
-        public string Title { get; set; }
+        public event EventHandler PageLoaded
+        {
+            add { webview.PageLoaded += value; }
+            remove { webview.PageLoaded -= value; }
+        }
+
+        public string Title
+        {
+            get { return NSString.GetString(ObjC.Call(Handle, "title")); }
+            set { NSString.Use(value ?? string.Empty, nsTitle => ObjC.Call(Handle, "setTitle:", nsTitle)); }
+        }
 
         public readonly IntPtr Handle;
 
@@ -32,7 +42,7 @@ namespace SpiderEye.UI.Mac
                 2,
                 0);
 
-            SetTitle(config.Window.Title);
+            Title = config.Window.Title;
 
             IntPtr bgColor = NSColor.FromHex(config.Window.BackgroundColor);
             ObjC.Call(Handle, "setBackgroundColor:", bgColor);
@@ -94,12 +104,7 @@ namespace SpiderEye.UI.Mac
 
         private void Webview_TitleChanged(object sender, string title)
         {
-            if (title != null) { SetTitle(title); }
-        }
-
-        private void SetTitle(string title)
-        {
-            NSString.Use(title, nsTitle => ObjC.Call(Handle, "setTitle:", nsTitle));
+            Title = title ?? config.Window.Title;
         }
     }
 }

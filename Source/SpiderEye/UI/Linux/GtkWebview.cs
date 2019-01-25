@@ -14,6 +14,7 @@ namespace SpiderEye.UI.Linux
 {
     internal class GtkWebview : IWebview
     {
+        public event EventHandler PageLoaded;
         public event EventHandler CloseRequested;
         public event EventHandler<string> TitleChanged;
 
@@ -256,6 +257,10 @@ namespace SpiderEye.UI.Linux
 
         private void LoadCallback(IntPtr webview, WebKitLoadEvent type, IntPtr userdata)
         {
+            if (type == WebKitLoadEvent.Finished)
+            {
+                PageLoaded?.Invoke(this, EventArgs.Empty);
+            }
         }
 
         private bool ContextMenuCallback(IntPtr webview, IntPtr default_menu, IntPtr hit_test_result, bool triggered_with_keyboard, IntPtr arg)
