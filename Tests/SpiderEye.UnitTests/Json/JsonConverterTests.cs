@@ -79,6 +79,7 @@ namespace SpiderEye.Json
             new object[] { ValuesModel.Default, ValuesModel.DefaultJson },
             new object[] { NestedModel.Default, NestedModel.DefaultJson },
             new object[] { ValueTypeModel.Default, ValueTypeModel.DefaultJson },
+            new object[] { AttributesModel.DefaultWrite, AttributesModel.DefaultWriteJson },
         };
 
         public static readonly object[][] DeserializeData =
@@ -112,6 +113,7 @@ namespace SpiderEye.Json
             new object[] { ValuesModel.Default, ValuesModel.DefaultJson, typeof(ValuesModel) },
             new object[] { NestedModel.Default, NestedModel.DefaultJson, typeof(NestedModel) },
             new object[] { ValueTypeModel.Default, ValueTypeModel.DefaultJson, typeof(ValueTypeModel) },
+            new object[] { AttributesModel.DefaultRead, AttributesModel.DefaultReadJson, typeof(AttributesModel) },
         };
     }
 }

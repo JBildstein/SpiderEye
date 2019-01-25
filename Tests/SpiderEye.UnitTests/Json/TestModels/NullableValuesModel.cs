@@ -165,34 +165,34 @@ namespace SpiderEye.Json.TestModels
         {
             if (obj is NullableValuesModel model)
             {
-                return UInt8Property == model.UInt8Property &&
-                    Int8Property == model.Int8Property &&
-                    Int16Property == model.Int16Property &&
-                    UInt16Property == model.UInt16Property &&
-                    Int32Property == model.Int32Property &&
-                    UInt32Property == model.UInt32Property &&
-                    Int64Property == model.Int64Property &&
-                    UInt64Property == model.UInt64Property &&
-                    FloatProperty == model.FloatProperty &&
-                    DoubleProperty == model.DoubleProperty &&
-                    DecimalProperty == model.DecimalProperty &&
-                    BoolProperty == model.BoolProperty &&
-                    StringProperty == model.StringProperty &&
-                    DateTimeProperty == model.DateTimeProperty &&
-                    UInt8Field == model.UInt8Field &&
-                    Int8Field == model.Int8Field &&
-                    Int16Field == model.Int16Field &&
-                    UInt16Field == model.UInt16Field &&
-                    Int32Field == model.Int32Field &&
-                    UInt32Field == model.UInt32Field &&
-                    Int64Field == model.Int64Field &&
-                    UInt64Field == model.UInt64Field &&
-                    FloatField == model.FloatField &&
-                    DoubleField == model.DoubleField &&
-                    DecimalField == model.DecimalField &&
-                    BoolField == model.BoolField &&
-                    StringField == model.StringField &&
-                    DateTimeField == model.DateTimeField;
+                return UInt8Property == model.UInt8Property
+                    && Int8Property == model.Int8Property
+                    && Int16Property == model.Int16Property
+                    && UInt16Property == model.UInt16Property
+                    && Int32Property == model.Int32Property
+                    && UInt32Property == model.UInt32Property
+                    && Int64Property == model.Int64Property
+                    && UInt64Property == model.UInt64Property
+                    && FloatProperty == model.FloatProperty
+                    && DoubleProperty == model.DoubleProperty
+                    && DecimalProperty == model.DecimalProperty
+                    && BoolProperty == model.BoolProperty
+                    && StringProperty == model.StringProperty
+                    && DateTimeProperty == model.DateTimeProperty
+                    && UInt8Field == model.UInt8Field
+                    && Int8Field == model.Int8Field
+                    && Int16Field == model.Int16Field
+                    && UInt16Field == model.UInt16Field
+                    && Int32Field == model.Int32Field
+                    && UInt32Field == model.UInt32Field
+                    && Int64Field == model.Int64Field
+                    && UInt64Field == model.UInt64Field
+                    && FloatField == model.FloatField
+                    && DoubleField == model.DoubleField
+                    && DecimalField == model.DecimalField
+                    && BoolField == model.BoolField
+                    && StringField == model.StringField
+                    && DateTimeField == model.DateTimeField;
             }
 
             return false;

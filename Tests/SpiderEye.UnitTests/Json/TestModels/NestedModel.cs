@@ -63,8 +63,8 @@ namespace SpiderEye.Json.TestModels
         {
             if (obj is NestedModel model)
             {
-                return ObjectValuesEqual(Arrays, model.Arrays) &&
-                    ArrayValuesEqual(ObjectArray, model.ObjectArray);
+                return ObjectValuesEqual(Arrays, model.Arrays)
+                    && ArrayValuesEqual(ObjectArray, model.ObjectArray);
             }
 
             return false;

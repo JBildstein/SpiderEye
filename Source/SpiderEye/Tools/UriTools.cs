@@ -6,6 +6,9 @@ namespace SpiderEye.Tools
     {
         public static Uri Combine(string host, string path)
         {
+            if (host == null) { throw new ArgumentNullException(nameof(host)); }
+            if (path == null) { throw new ArgumentNullException(nameof(path)); }
+
             if (!host.EndsWith("/")) { host += "/"; }
             path = path.TrimStart('/');
 

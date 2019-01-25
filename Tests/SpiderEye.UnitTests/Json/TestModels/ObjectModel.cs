@@ -16,10 +16,10 @@ namespace SpiderEye.Json.TestModels
         {
             if (obj is ObjectModel model)
             {
-                return Value == model.Value &&
-                    ArrayValuesEqual(ArrayValue, model.ArrayValue) &&
-                    StructValue == model.StructValue &&
-                    ObjectValuesEqual(ObjectValue, model.ObjectValue);
+                return Value == model.Value
+                    && ArrayValuesEqual(ArrayValue, model.ArrayValue)
+                    && StructValue == model.StructValue
+                    && ObjectValuesEqual(ObjectValue, model.ObjectValue);
             }
 
             return false;

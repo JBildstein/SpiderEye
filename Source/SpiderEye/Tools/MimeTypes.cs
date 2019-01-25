@@ -25,6 +25,11 @@ namespace SpiderEye.Tools
         public const string JavaScript = "application/javascript";
 
         /// <summary>
+        /// The binary data mime type string.
+        /// </summary>
+        public const string Binary = "application/octet-stream";
+
+        /// <summary>
         /// The file extension to mime type map. Add or remove values depending on your need.
         /// Note that the extension must start with a period "." and be in lower case.
         /// </summary>
@@ -86,7 +91,7 @@ namespace SpiderEye.Tools
         public static string FindForUri(Uri uri)
         {
             if (TryFindForUri(uri, out string mime)) { return mime; }
-            else { return "application/octet-stream"; }
+            else { return Binary; }
         }
 
         /// <summary>
@@ -97,7 +102,7 @@ namespace SpiderEye.Tools
         public static string FindForFile(string file)
         {
             if (TryFindForFile(file, out string mime)) { return mime; }
-            else { return "application/octet-stream"; }
+            else { return Binary; }
         }
 
         /// <summary>
@@ -108,7 +113,7 @@ namespace SpiderEye.Tools
         public static string FindForExtension(string extension)
         {
             if (TryFindForExtension(extension, out string mime)) { return mime; }
-            else { return "application/octet-stream"; }
+            else { return Binary; }
         }
 
         /// <summary>

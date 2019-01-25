@@ -49,11 +49,11 @@ namespace SpiderEye.Json.TestModels
         {
             if (obj is ArrayModel model)
             {
-                return ArrayValuesEqual(IntArray, model.IntArray) &&
-                    ArrayValuesEqual(IntIEnumerable, model.IntIEnumerable) &&
-                    ArrayValuesEqual(IntICollection, model.IntICollection) &&
-                    ArrayValuesEqual(IntIList, model.IntIList) &&
-                    ArrayValuesEqual(IntList, model.IntList);
+                return ArrayValuesEqual(IntArray, model.IntArray)
+                    && ArrayValuesEqual(IntIEnumerable, model.IntIEnumerable)
+                    && ArrayValuesEqual(IntICollection, model.IntICollection)
+                    && ArrayValuesEqual(IntIList, model.IntIList)
+                    && ArrayValuesEqual(IntList, model.IntList);
             }
 
             return false;

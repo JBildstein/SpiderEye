@@ -104,7 +104,12 @@ namespace SpiderEye.Json
 
                             SkipValueEndWhitespace(json);
                         }
-                        else { SkipValue(json); }
+                        else
+                        {
+                            SkipValue(json);
+                            SkipValueEndWhitespace(json);
+                        }
+
                         break;
 
                     case '}':
@@ -575,7 +580,12 @@ namespace SpiderEye.Json
                         break;
 
                     case ',':
-                        if (arrayDepth == 0 && objectDepth == 0) { return; }
+                        if (arrayDepth == 0 && objectDepth == 0)
+                        {
+                            json.Decrement();
+                            return;
+                        }
+
                         break;
                 }
 

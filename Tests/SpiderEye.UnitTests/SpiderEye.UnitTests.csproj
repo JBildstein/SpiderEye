@@ -17,4 +17,15 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Source\SpiderEye\SpiderEye.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Resources\**">
+      <LogicalName>%(RelativeDir)%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Content\Resources\Nested\SomeOtherfile.txt" />
+    <None Remove="Content\Resources\SomeFile.txt" />
+  </ItemGroup>
 </Project>
