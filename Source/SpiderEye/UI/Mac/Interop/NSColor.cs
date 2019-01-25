@@ -1,4 +1,5 @@
 ﻿using System;
+using SpiderEye.Tools;
 using SpiderEye.UI.Mac.Native;
 
 namespace SpiderEye.UI.Mac.Interop
@@ -7,17 +8,9 @@ namespace SpiderEye.UI.Mac.Interop
     {
         public static IntPtr FromHex(string hex)
         {
-            hex = hex?.TrimStart('#');
-            if (string.IsNullOrWhiteSpace(hex) || hex.Length != 6)
-            {
-                hex = "FFFFFF";
-            }
+            ColorTools.ParseHex(hex, out byte r, out byte g, out byte b);
 
-            double r = Convert.ToByte(hex.Substring(0, 2), 16) / 255d;
-            double g = Convert.ToByte(hex.Substring(2, 2), 16) / 255d;
-            double b = Convert.ToByte(hex.Substring(4, 2), 16) / 255d;
-
-            return AppKit.Call("NSColor", "colorWithRed:green:blue:alpha:", r, g, b, 1d);
+            return AppKit.Call("NSColor", "colorWithRed:green:blue:alpha:", r / 255d, g / 255d, b / 255d, 1d);
         }
     }
 }

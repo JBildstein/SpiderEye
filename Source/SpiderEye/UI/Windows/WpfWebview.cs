@@ -132,19 +132,9 @@ namespace SpiderEye.UI.Windows
 
         private Color ParseColor(string hex)
         {
-            hex = hex?.TrimStart('#');
-            if (string.IsNullOrWhiteSpace(hex) || hex.Length != 6)
-            {
-                hex = "FFFFFF";
-            }
+            ColorTools.ParseHex(hex, out byte r, out byte g, out byte b);
 
-            return new Color
-            {
-                A = byte.MaxValue,
-                R = Convert.ToByte(hex.Substring(0, 2), 16),
-                G = Convert.ToByte(hex.Substring(2, 2), 16),
-                B = Convert.ToByte(hex.Substring(4, 2), 16),
-            };
+            return new Color { A = byte.MaxValue, R = r, G = g, B = b, };
         }
 
         private T RunSynchronous<T>(Task<T> task)
