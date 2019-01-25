@@ -35,14 +35,14 @@ A SpiderEye app can be created from a normal .Net Core console app. Only a few s
 
   <ItemGroup>
     <!-- Reference to the SpiderEye NuGet package -->
-    <PackageReference Include="Bildstein.SpiderEye" Version="1.0.0-alpha.2" />
+    <PackageReference Include="Bildstein.SpiderEye" Version="1.0.0-alpha.3" />
   </ItemGroup>
 
   <ItemGroup>
     <!-- The App folder is where all our html, css, js, etc. files are (change if you use a different folder) -->
     <EmbeddedResource Include="App\**">
       <!-- this retains the original filename of the embedded files (required to located them later) -->
-      <LogicalName>%(RelativeDir)%(RecursiveDir)%(Filename)%(Extension)</LogicalName>
+      <LogicalName>%(RelativeDir)%(Filename)%(Extension)</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
 </Project>

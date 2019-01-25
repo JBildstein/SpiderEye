@@ -11,7 +11,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="App\**">
-      <LogicalName>%(RelativeDir)%(RecursiveDir)%(Filename)%(Extension)</LogicalName>
+      <LogicalName>%(RelativeDir)%(Filename)%(Extension)</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
 </Project>
