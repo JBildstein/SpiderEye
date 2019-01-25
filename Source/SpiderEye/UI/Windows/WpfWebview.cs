@@ -18,7 +18,6 @@ namespace SpiderEye.UI.Windows
     internal class WpfWebview : FrameworkElement, IWebview, IWpfWebview
     {
         public event EventHandler PageLoaded;
-        public event EventHandler WebviewLoaded;
 
         public ScriptHandler ScriptHandler { get; }
 
@@ -66,7 +65,7 @@ namespace SpiderEye.UI.Windows
 
         public string ExecuteScript(string script)
         {
-            return ExecuteScriptAsync(script).GetAwaiter().GetResult();
+            return RunSynchronous(ExecuteScriptAsync(script));
         }
 
         public async Task<string> ExecuteScriptAsync(string script)
@@ -85,29 +84,23 @@ namespace SpiderEye.UI.Windows
             Native.EnableMouseInPointer(true);
             Native.CheckLastError();
 
-            Dispatcher.InvokeAsync(
-                async () =>
-                {
-                    var process = new WebViewControlProcess();
-                    var bounds = new Rect(0, 0, RenderSize.Width, RenderSize.Height);
+            var process = new WebViewControlProcess();
+            var bounds = new Rect(0, 0, RenderSize.Width, RenderSize.Height);
 
-                    webview = await process.CreateWebViewControlAsync(window.ToInt64(), bounds);
-                    UpdateSize(RenderSize);
+            webview = RunSynchronous(process.CreateWebViewControlAsync(window.ToInt64(), bounds).AsTask());
 
-                    webview.DefaultBackgroundColor = ParseColor(config.Window.BackgroundColor);
-                    webview.Settings.IsScriptNotifyAllowed = config.EnableScriptInterface;
-                    if (config.EnableScriptInterface)
-                    {
-                        webview.ScriptNotify += Webview_ScriptNotify;
-                        webview.NavigationCompleted += Webview_NavigationCompleted;
+            UpdateSize(RenderSize);
 
-                        // TODO: needs Win10 1809 - 10.0.17763.0
-                        // webview.AddInitializeScript(initScript);
-                    }
+            webview.DefaultBackgroundColor = ParseColor(config.Window.BackgroundColor);
+            webview.Settings.IsScriptNotifyAllowed = config.EnableScriptInterface;
+            if (config.EnableScriptInterface)
+            {
+                webview.ScriptNotify += Webview_ScriptNotify;
+                webview.NavigationCompleted += Webview_NavigationCompleted;
 
-                    Dispatcher.Invoke(() => WebviewLoaded?.Invoke(this, EventArgs.Empty));
-                },
-                DispatcherPriority.Send);
+                // TODO: needs Win10 1809 - 10.0.17763.0
+                // webview.AddInitializeScript(initScript);
+            }
         }
 
         private void Webview_ScriptNotify(IWebViewControl sender, WebViewControlScriptNotifyEventArgs e)
@@ -152,6 +145,27 @@ namespace SpiderEye.UI.Windows
                 G = Convert.ToByte(hex.Substring(2, 2), 16),
                 B = Convert.ToByte(hex.Substring(4, 2), 16),
             };
+        }
+
+        private T RunSynchronous<T>(Task<T> task)
+        {
+            T result = default;
+            Exception ex = null;
+            var frame = new DispatcherFrame(true);
+
+            task.ContinueWith(t =>
+            {
+                if (t.IsFaulted) { ex = t.Exception; }
+                else { result = t.Result; }
+
+                frame.Continue = false;
+            });
+
+            Dispatcher.PushFrame(frame);
+
+            if (ex != null) { throw ex; }
+
+            return result;
         }
     }
 }

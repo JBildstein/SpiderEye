@@ -27,7 +27,9 @@ namespace SpiderEye
             {
                 ApiResolver.InitApi();
 
+                MainWindow.LoadUrl(config.StartPageUrl);
                 if (showWindow) { MainWindow.Show(); }
+
                 RunMainLoop();
             }
             finally

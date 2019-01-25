@@ -11,8 +11,6 @@ namespace SpiderEye.UI.Windows
 {
     internal class WpfWindow : Window, IWindow
     {
-        public event EventHandler WindowReady;
-
         public event EventHandler PageLoaded
         {
             add { webview.PageLoaded += value; }
@@ -45,14 +43,12 @@ namespace SpiderEye.UI.Windows
                 else { hostAddress = config.ExternalHost; }
 
                 webview = new WpfLegacyWebview(config, hostAddress);
-                Loaded += (s, e) => WindowReady(this, EventArgs.Empty);
             }
             else
             {
                 var helper = new WindowInteropHelper(this);
                 var view = new WpfWebview(helper.EnsureHandle(), contentProvider, config);
                 webview = view;
-                view.WebviewLoaded += (s, e) => WindowReady(this, EventArgs.Empty);
             }
 
             AddChild(webview.Control);

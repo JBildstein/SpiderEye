@@ -1,5 +1,4 @@
-﻿using System;
-using SpiderEye.Configuration;
+﻿using SpiderEye.Configuration;
 
 namespace SpiderEye.UI.Windows
 {
@@ -17,7 +16,6 @@ namespace SpiderEye.UI.Windows
             : base(config)
         {
             window = new WpfWindow(config);
-            window.WindowReady += Window_WindowReady;
 
             application = new System.Windows.Application();
             application.MainWindow = window;
@@ -31,11 +29,6 @@ namespace SpiderEye.UI.Windows
         protected override void RunMainLoop()
         {
             application.Run();
-        }
-
-        private void Window_WindowReady(object sender, EventArgs e)
-        {
-            MainWindow.LoadUrl(config.StartPageUrl);
         }
     }
 }
