@@ -64,5 +64,21 @@ namespace SpiderEye.Configuration
             ContentAssembly = Assembly.GetEntryAssembly();
             ForceWindowsLegacyWebview = false;
         }
+
+        internal AppConfiguration CopyWithWindow(WindowConfiguration windowConfiguration)
+        {
+            if (windowConfiguration == null) { throw new ArgumentNullException(nameof(windowConfiguration)); }
+
+            return new AppConfiguration
+            {
+                EnableScriptInterface = EnableScriptInterface,
+                StartPageUrl = StartPageUrl,
+                ExternalHost = ExternalHost,
+                ContentFolder = ContentFolder,
+                ContentAssembly = ContentAssembly,
+                ForceWindowsLegacyWebview = ForceWindowsLegacyWebview,
+                window = windowConfiguration,
+            };
+        }
     }
 }

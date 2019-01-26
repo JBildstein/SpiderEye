@@ -13,6 +13,11 @@ namespace SpiderEye
         IWindow MainWindow { get; }
 
         /// <summary>
+        /// Gets the window factory.
+        /// </summary>
+        IWindowFactory WindowFactory { get; }
+
+        /// <summary>
         /// Runs this application and shows the main window. This call blocks until the application exits.
         /// </summary>
         void Run();

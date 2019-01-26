@@ -11,13 +11,20 @@ namespace SpiderEye.UI.Linux
             get { return window; }
         }
 
+        public override IWindowFactory WindowFactory
+        {
+            get { return factory; }
+        }
+
         private readonly GtkWindow window;
+        private readonly GtkWindowFactory factory;
 
         public GtkApplication(AppConfiguration config)
             : base(config)
         {
             Init();
 
+            factory = new GtkWindowFactory(config);
             window = new GtkWindow(config);
             window.Closed += Window_Closed;
         }

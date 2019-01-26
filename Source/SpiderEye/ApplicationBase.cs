@@ -9,6 +9,8 @@ namespace SpiderEye
     {
         public abstract IWindow MainWindow { get; }
 
+        public abstract IWindowFactory WindowFactory { get; }
+
         protected readonly AppConfiguration config;
 
         public ApplicationBase(AppConfiguration config)

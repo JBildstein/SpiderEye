@@ -12,12 +12,20 @@ namespace SpiderEye.UI.Mac
             get { return window; }
         }
 
+        public override IWindowFactory WindowFactory
+        {
+            get { return factory; }
+        }
+
         private readonly IntPtr application;
         private readonly CocoaWindow window;
+        private readonly CocoaWindowFactory factory;
 
         public CocoaApplication(AppConfiguration config)
             : base(config)
         {
+            factory = new CocoaWindowFactory(config);
+
             application = AppKit.Call("NSApplication", "sharedApplication");
             ObjC.Call(application, "setActivationPolicy:", IntPtr.Zero);
 
