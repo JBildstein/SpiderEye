@@ -3,9 +3,9 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using SpiderEye.Bridge;
 using SpiderEye.Configuration;
 using SpiderEye.Content;
-using SpiderEye.Scripting;
 using SpiderEye.Tools;
 using SpiderEye.UI.Linux.Interop;
 using SpiderEye.UI.Linux.Native;
@@ -18,24 +18,22 @@ namespace SpiderEye.UI.Linux
         public event EventHandler CloseRequested;
         public event EventHandler<string> TitleChanged;
 
-        public ScriptHandler ScriptHandler { get; }
-
         public readonly IntPtr Handle;
 
         private readonly IContentProvider contentProvider;
         private readonly AppConfiguration config;
+        private readonly WebviewBridge bridge;
         private readonly IntPtr manager;
         private readonly string customHost;
 
-        public GtkWebview(IContentProvider contentProvider, AppConfiguration config)
+        public GtkWebview(AppConfiguration config, IContentProvider contentProvider, WebviewBridge bridge)
         {
-            this.contentProvider = contentProvider ?? throw new ArgumentNullException(nameof(contentProvider));
             this.config = config ?? throw new ArgumentNullException(nameof(config));
+            this.contentProvider = contentProvider ?? throw new ArgumentNullException(nameof(contentProvider));
+            this.bridge = bridge ?? throw new ArgumentNullException(nameof(bridge));
 
             if (config.EnableScriptInterface)
             {
-                ScriptHandler = new ScriptHandler(this);
-
                 manager = WebKit.Manager.Create();
                 GLib.ConnectSignal(manager, "script-message-received::external", (ScriptDelegate)ScriptCallback, IntPtr.Zero);
 
@@ -172,7 +170,7 @@ namespace SpiderEye.UI.Linux
             // gets automatically disposed by parent window
         }
 
-        private unsafe void ScriptCallback(IntPtr manager, IntPtr jsResult, IntPtr userdata)
+        private async void ScriptCallback(IntPtr manager, IntPtr jsResult, IntPtr userdata)
         {
             IntPtr value = WebKit.JavaScript.GetValue(jsResult);
             if (WebKit.JavaScript.IsValueString(value))
@@ -183,8 +181,10 @@ namespace SpiderEye.UI.Linux
                     bytes = WebKit.JavaScript.GetStringBytes(value);
                     IntPtr bytesPtr = GLib.GetBytesDataPointer(bytes, out UIntPtr length);
 
-                    string result = Encoding.UTF8.GetString((byte*)bytesPtr, (int)length);
-                    ScriptHandler.HandleScriptCall(result);
+                    string result;
+                    unsafe { result = Encoding.UTF8.GetString((byte*)bytesPtr, (int)length); }
+
+                    await bridge.HandleScriptCall(result);
                 }
                 finally { if (bytes != IntPtr.Zero) { GLib.UnrefBytes(bytes); } }
             }

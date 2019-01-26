@@ -1,6 +1,6 @@
 ﻿using SpiderEye.Json;
 
-namespace SpiderEye.Scripting.Models
+namespace SpiderEye.Bridge.Models
 {
     internal class InvokeInfoModel
     {

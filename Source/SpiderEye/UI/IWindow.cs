@@ -1,4 +1,5 @@
 using System;
+using SpiderEye.Bridge;
 
 namespace SpiderEye.UI
 {
@@ -16,6 +17,11 @@ namespace SpiderEye.UI
         /// Gets or sets the window title.
         /// </summary>
         string Title { get; set; }
+
+        /// <summary>
+        /// Gets a bridge to the webview.
+        /// </summary>
+        IWebviewBridge Bridge { get; }
 
         /// <summary>
         /// Shows this window.

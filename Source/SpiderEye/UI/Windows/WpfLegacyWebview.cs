@@ -2,8 +2,8 @@
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Navigation;
+using SpiderEye.Bridge;
 using SpiderEye.Configuration;
-using SpiderEye.Scripting;
 using SpiderEye.Tools;
 using SpiderEye.UI.Windows.Internal;
 
@@ -12,8 +12,6 @@ namespace SpiderEye.UI.Windows
     internal class WpfLegacyWebview : IWebview, IWpfWebview
     {
         public event EventHandler PageLoaded;
-
-        public ScriptHandler ScriptHandler { get; }
 
         public object Control
         {
@@ -24,9 +22,10 @@ namespace SpiderEye.UI.Windows
         private readonly ScriptInterface scriptInterface;
         private readonly string hostAddress;
 
-        public WpfLegacyWebview(AppConfiguration config, string hostAddress)
+        public WpfLegacyWebview(AppConfiguration config, string hostAddress, WebviewBridge scriptingApi)
         {
             if (config == null) { throw new ArgumentNullException(nameof(config)); }
+            if (scriptingApi == null) { throw new ArgumentNullException(nameof(scriptingApi)); }
 
             this.hostAddress = hostAddress ?? throw new ArgumentNullException(nameof(hostAddress));
 
@@ -34,8 +33,7 @@ namespace SpiderEye.UI.Windows
 
             if (config.EnableScriptInterface)
             {
-                ScriptHandler = new ScriptHandler(this);
-                scriptInterface = new ScriptInterface(ScriptHandler);
+                scriptInterface = new ScriptInterface(scriptingApi);
                 webview.ObjectForScripting = scriptInterface;
                 webview.LoadCompleted += Webview_LoadCompleted;
             }

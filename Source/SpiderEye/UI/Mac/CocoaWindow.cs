@@ -1,4 +1,5 @@
 ﻿using System;
+using SpiderEye.Bridge;
 using SpiderEye.Configuration;
 using SpiderEye.Content;
 using SpiderEye.UI.Mac.Interop;
@@ -20,13 +21,21 @@ namespace SpiderEye.UI.Mac
             set { NSString.Use(value ?? string.Empty, nsTitle => ObjC.Call(Handle, "setTitle:", nsTitle)); }
         }
 
+        public IWebviewBridge Bridge
+        {
+            get { return bridge; }
+        }
+
         public readonly IntPtr Handle;
 
         private readonly AppConfiguration config;
         private readonly CocoaWebview webview;
+        private readonly WebviewBridge bridge;
 
-        public CocoaWindow(AppConfiguration config)
+        public CocoaWindow(AppConfiguration config, IWindowFactory windowFactory)
         {
+            if (windowFactory == null) { throw new ArgumentNullException(nameof(windowFactory)); }
+
             this.config = config ?? throw new ArgumentNullException(nameof(config));
 
             Handle = AppKit.Call("NSWindow", "alloc");
@@ -48,13 +57,16 @@ namespace SpiderEye.UI.Mac
             ObjC.Call(Handle, "setBackgroundColor:", bgColor);
 
             var contentProvider = new EmbeddedFileProvider(config.ContentAssembly, config.ContentFolder);
-            webview = new CocoaWebview(contentProvider, config);
+            bridge = new WebviewBridge();
+            webview = new CocoaWebview(config, contentProvider, bridge);
             ObjC.Call(Handle, "setContentView:", webview.Handle);
+
+            if (config.EnableScriptInterface) { bridge.Init(this, webview, windowFactory); }
 
             if (config.Window.UseBrowserTitle)
             {
                 webview.TitleChanged += Webview_TitleChanged;
-                if (config.EnableScriptInterface) { webview.ScriptHandler.TitleChanged += Webview_TitleChanged; }
+                bridge.TitleChanged += Webview_TitleChanged;
             }
         }
 

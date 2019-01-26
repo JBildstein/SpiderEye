@@ -15,7 +15,7 @@ namespace SpiderEye.UI.Linux
 
         public IWindow CreateWindow(WindowConfiguration config)
         {
-            return new GtkWindow(appConfig.CopyWithWindow(config));
+            return new GtkWindow(appConfig.CopyWithWindow(config), this);
         }
 
         public IMessageBox CreateMessageBox()

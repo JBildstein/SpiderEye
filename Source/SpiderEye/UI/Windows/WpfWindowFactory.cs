@@ -15,7 +15,7 @@ namespace SpiderEye.UI.Windows
 
         public IWindow CreateWindow(WindowConfiguration config)
         {
-            return new WpfWindow(appConfig.CopyWithWindow(config));
+            return new WpfWindow(appConfig.CopyWithWindow(config), this);
         }
 
         public IMessageBox CreateMessageBox()

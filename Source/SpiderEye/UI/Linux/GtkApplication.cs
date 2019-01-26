@@ -6,27 +6,18 @@ namespace SpiderEye.UI.Linux
 {
     internal class GtkApplication : ApplicationBase
     {
-        public override IWindow MainWindow
-        {
-            get { return window; }
-        }
-
-        public override IWindowFactory WindowFactory
-        {
-            get { return factory; }
-        }
-
-        private readonly GtkWindow window;
-        private readonly GtkWindowFactory factory;
+        public override IWindow MainWindow { get; }
+        public override IWindowFactory Factory { get; }
 
         public GtkApplication(AppConfiguration config)
             : base(config)
         {
             Init();
 
-            factory = new GtkWindowFactory(config);
-            window = new GtkWindow(config);
+            Factory = new GtkWindowFactory(config);
+            var window = new GtkWindow(config, Factory);
             window.Closed += Window_Closed;
+            MainWindow = window;
         }
 
         public override void Exit()

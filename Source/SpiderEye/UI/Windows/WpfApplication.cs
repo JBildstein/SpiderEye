@@ -4,25 +4,17 @@ namespace SpiderEye.UI.Windows
 {
     internal class WpfApplication : ApplicationBase
     {
-        public override IWindow MainWindow
-        {
-            get { return window; }
-        }
-
-        public override IWindowFactory WindowFactory
-        {
-            get { return factory; }
-        }
+        public override IWindow MainWindow { get; }
+        public override IWindowFactory Factory { get; }
 
         private readonly System.Windows.Application application;
-        private readonly WpfWindow window;
-        private readonly WpfWindowFactory factory;
 
         public WpfApplication(AppConfiguration config)
             : base(config)
         {
-            factory = new WpfWindowFactory(config);
-            window = new WpfWindow(config);
+            Factory = new WpfWindowFactory(config);
+            var window = new WpfWindow(config, Factory);
+            MainWindow = window;
 
             application = new System.Windows.Application();
             application.MainWindow = window;

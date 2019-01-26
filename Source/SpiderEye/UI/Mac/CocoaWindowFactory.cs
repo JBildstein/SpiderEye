@@ -15,7 +15,7 @@ namespace SpiderEye.UI.Mac
 
         public IWindow CreateWindow(WindowConfiguration config)
         {
-            return new CocoaWindow(appConfig.CopyWithWindow(config));
+            return new CocoaWindow(appConfig.CopyWithWindow(config), this);
         }
 
         public IMessageBox CreateMessageBox()

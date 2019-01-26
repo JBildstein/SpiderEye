@@ -3,6 +3,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
+using SpiderEye.Bridge;
 using SpiderEye.Configuration;
 using SpiderEye.Content;
 using SpiderEye.UI.Windows.Interop;
@@ -23,13 +24,21 @@ namespace SpiderEye.UI.Windows
             set { ResizeMode = value ? ResizeMode.CanResize : ResizeMode.NoResize; }
         }
 
+        public IWebviewBridge Bridge
+        {
+            get { return bridge; }
+        }
+
         private readonly ContentServer server;
+        private readonly WebviewBridge bridge;
         private IWpfWebview webview;
 
-        public WpfWindow(AppConfiguration config)
+        public WpfWindow(AppConfiguration config, IWindowFactory windowFactory)
         {
             if (config == null) { throw new ArgumentNullException(nameof(config)); }
+            if (windowFactory == null) { throw new ArgumentNullException(nameof(windowFactory)); }
 
+            bridge = new WebviewBridge();
             var contentProvider = new EmbeddedFileProvider(config.ContentAssembly, config.ContentFolder);
             if (config.ForceWindowsLegacyWebview || UseLegacy())
             {
@@ -42,12 +51,12 @@ namespace SpiderEye.UI.Windows
                 }
                 else { hostAddress = config.ExternalHost; }
 
-                webview = new WpfLegacyWebview(config, hostAddress);
+                webview = new WpfLegacyWebview(config, hostAddress, bridge);
             }
             else
             {
                 var helper = new WindowInteropHelper(this);
-                var view = new WpfWebview(helper.EnsureHandle(), contentProvider, config);
+                var view = new WpfWebview(config, helper.EnsureHandle(), contentProvider, bridge);
                 webview = view;
             }
 
@@ -62,9 +71,11 @@ namespace SpiderEye.UI.Windows
             if (string.IsNullOrWhiteSpace(backgroundColor)) { backgroundColor = "#FFFFFF"; }
             Background = new BrushConverter().ConvertFrom(backgroundColor) as SolidColorBrush;
 
-            if (config.Window.UseBrowserTitle && config.EnableScriptInterface)
+            if (config.EnableScriptInterface) { bridge.Init(this, webview, windowFactory); }
+
+            if (config.Window.UseBrowserTitle)
             {
-                webview.ScriptHandler.TitleChanged += (s, e) => Title = e ?? config.Window.Title;
+                bridge.TitleChanged += (s, e) => Title = e ?? config.Window.Title;
             }
         }
 

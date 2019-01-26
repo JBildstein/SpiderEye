@@ -3,7 +3,7 @@
 using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
-using SpiderEye.Scripting;
+using SpiderEye.Bridge;
 
 namespace SpiderEye.UI.Windows.Internal
 {
@@ -16,20 +16,20 @@ namespace SpiderEye.UI.Windows.Internal
     [EditorBrowsable(EditorBrowsableState.Never)]
     public class ScriptInterface
     {
-        private readonly ScriptHandler handler;
+        private readonly WebviewBridge bridge;
 
-        internal ScriptInterface(ScriptHandler handler)
+        internal ScriptInterface(WebviewBridge bridge)
         {
-            this.handler = handler ?? throw new ArgumentNullException(nameof(handler));
+            this.bridge = bridge ?? throw new ArgumentNullException(nameof(bridge));
         }
 
         /// <summary>
         /// Script invoke hook.
         /// </summary>
         /// <param name="data">The sent data.</param>
-        public void notify(string data)
+        public async void notify(string data)
         {
-            handler.HandleScriptCall(data);
+            await bridge.HandleScriptCall(data);
         }
     }
 }

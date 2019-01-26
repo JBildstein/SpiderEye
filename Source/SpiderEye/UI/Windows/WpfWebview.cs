@@ -3,9 +3,9 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using global::Windows.Web.UI;
+using SpiderEye.Bridge;
 using SpiderEye.Configuration;
 using SpiderEye.Content;
-using SpiderEye.Scripting;
 using SpiderEye.Tools;
 using SpiderEye.UI.Windows.Interop;
 using Windows.Web.UI.Interop;
@@ -19,32 +19,26 @@ namespace SpiderEye.UI.Windows
     {
         public event EventHandler PageLoaded;
 
-        public ScriptHandler ScriptHandler { get; }
-
         public object Control
         {
             get { return this; }
         }
 
         private readonly AppConfiguration config;
+        private readonly WebviewBridge bridge;
         private readonly EdgeUriToStreamResolver streamResolver;
 
         private WebViewControl webview;
 
-        public WpfWebview(IntPtr window, IContentProvider contentProvider, AppConfiguration config)
+        public WpfWebview(AppConfiguration config, IntPtr window, IContentProvider contentProvider, WebviewBridge bridge)
         {
             if (contentProvider == null) { throw new ArgumentNullException(nameof(contentProvider)); }
 
             this.config = config ?? throw new ArgumentNullException(nameof(config));
-
+            this.bridge = bridge ?? throw new ArgumentNullException(nameof(bridge));
             streamResolver = new EdgeUriToStreamResolver(contentProvider);
 
             SizeChanged += (s, e) => UpdateSize(e.NewSize);
-
-            if (config.EnableScriptInterface)
-            {
-                ScriptHandler = new ScriptHandler(this);
-            }
 
             Init(window);
         }
@@ -103,9 +97,9 @@ namespace SpiderEye.UI.Windows
             }
         }
 
-        private void Webview_ScriptNotify(IWebViewControl sender, WebViewControlScriptNotifyEventArgs e)
+        private async void Webview_ScriptNotify(IWebViewControl sender, WebViewControlScriptNotifyEventArgs e)
         {
-            ScriptHandler.HandleScriptCall(e.Value);
+            await bridge.HandleScriptCall(e.Value);
         }
 
         private void Webview_NavigationCompleted(object sender, WebViewControlNavigationCompletedEventArgs e)

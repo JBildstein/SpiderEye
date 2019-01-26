@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using SpiderEye.Bridge;
 using SpiderEye.Configuration;
 using SpiderEye.Content;
-using SpiderEye.Scripting;
 using SpiderEye.Tools;
 using SpiderEye.UI.Mac.Interop;
 using SpiderEye.UI.Mac.Native;
@@ -15,19 +15,18 @@ namespace SpiderEye.UI.Mac
         public event EventHandler PageLoaded;
         public event EventHandler<string> TitleChanged;
 
-        public ScriptHandler ScriptHandler { get; }
-
         public readonly IntPtr Handle;
 
         private readonly IContentProvider contentProvider;
         private readonly AppConfiguration config;
+        private readonly WebviewBridge bridge;
+        private readonly string customHost;
 
-        private string customHost;
-
-        public CocoaWebview(IContentProvider contentProvider, AppConfiguration config)
+        public CocoaWebview(AppConfiguration config, IContentProvider contentProvider, WebviewBridge bridge)
         {
-            this.contentProvider = contentProvider ?? throw new ArgumentNullException(nameof(contentProvider));
             this.config = config ?? throw new ArgumentNullException(nameof(config));
+            this.contentProvider = contentProvider ?? throw new ArgumentNullException(nameof(contentProvider));
+            this.bridge = bridge ?? throw new ArgumentNullException(nameof(bridge));
 
             IntPtr configuration = WebKit.Call("WKWebViewConfiguration", "new");
             IntPtr manager = WebKit.Call(configuration, "userContentController");
@@ -36,12 +35,10 @@ namespace SpiderEye.UI.Mac
             IntPtr preferences = ObjC.Call(configuration, "preferences");
             NSString.Use("developerExtrasEnabled", nsString => ObjC.Call(preferences, "setValue:forKey:", new IntPtr(1), nsString));
 
-            CreateSchemeHandler(configuration);
+            customHost = CreateSchemeHandler(configuration);
 
             if (config.EnableScriptInterface)
             {
-                ScriptHandler = new ScriptHandler(this);
-
                 NSString.Use("external", nsString => ObjC.Call(manager, "addScriptMessageHandler:name:", callbackClass, nsString));
 
                 IntPtr script = WebKit.Call("WKUserScript", "alloc");
@@ -175,12 +172,13 @@ namespace SpiderEye.UI.Mac
             return ObjC.Call(callbackClass, "new");
         }
 
-        private void CreateSchemeHandler(IntPtr configuration)
+        private string CreateSchemeHandler(IntPtr configuration)
         {
+            string host = null;
             if (string.IsNullOrWhiteSpace(config.ExternalHost))
             {
                 const string scheme = "spidereye";
-                customHost = UriTools.GetRandomResourceUrl(scheme);
+                host = UriTools.GetRandomResourceUrl(scheme);
 
                 IntPtr handlerClass = ObjC.AllocateClassPair(ObjC.GetClass("NSObject"), "SchemeHandler", IntPtr.Zero);
                 ObjC.AddProtocol(handlerClass, ObjC.GetProtocol("WKURLSchemeHandler"));
@@ -202,16 +200,18 @@ namespace SpiderEye.UI.Mac
                 IntPtr handler = ObjC.Call(handlerClass, "new");
                 NSString.Use(scheme, nsString => ObjC.Call(configuration, "setURLSchemeHandler:forURLScheme:", handler, nsString));
             }
+
+            return host;
         }
 
-        private void ScriptCallback(IntPtr self, IntPtr op, IntPtr notification, IntPtr message)
+        private async void ScriptCallback(IntPtr self, IntPtr op, IntPtr notification, IntPtr message)
         {
             IntPtr body = ObjC.Call(message, "body");
             IntPtr isString = ObjC.Call(body, "isKindOfClass:", Foundation.GetClass("NSString"));
             if (isString != IntPtr.Zero)
             {
                 string data = NSString.GetString(body);
-                ScriptHandler.HandleScriptCall(data);
+                await bridge.HandleScriptCall(data);
             }
         }
 

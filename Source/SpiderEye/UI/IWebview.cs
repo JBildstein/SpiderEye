@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using SpiderEye.Scripting;
 
 namespace SpiderEye.UI
 {
@@ -13,11 +12,6 @@ namespace SpiderEye.UI
         /// Fires once the content in this webview has loaded.
         /// </summary>
         event EventHandler PageLoaded;
-
-        /// <summary>
-        /// Gets the script handler.
-        /// </summary>
-        ScriptHandler ScriptHandler { get; }
 
         /// <summary>
         /// Loads the given URL.

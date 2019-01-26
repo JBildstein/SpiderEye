@@ -7,24 +7,15 @@ namespace SpiderEye.UI.Mac
 {
     internal class CocoaApplication : ApplicationBase
     {
-        public override IWindow MainWindow
-        {
-            get { return window; }
-        }
-
-        public override IWindowFactory WindowFactory
-        {
-            get { return factory; }
-        }
+        public override IWindow MainWindow { get; }
+        public override IWindowFactory Factory { get; }
 
         private readonly IntPtr application;
-        private readonly CocoaWindow window;
-        private readonly CocoaWindowFactory factory;
 
         public CocoaApplication(AppConfiguration config)
             : base(config)
         {
-            factory = new CocoaWindowFactory(config);
+            Factory = new CocoaWindowFactory(config);
 
             application = AppKit.Call("NSApplication", "sharedApplication");
             ObjC.Call(application, "setActivationPolicy:", IntPtr.Zero);
@@ -43,7 +34,7 @@ namespace SpiderEye.UI.Mac
             IntPtr appDelegate = ObjC.Call(appDelegateClass, "new");
             ObjC.Call(application, "setDelegate:", appDelegate);
 
-            window = new CocoaWindow(config);
+            MainWindow = new CocoaWindow(config, Factory);
         }
 
         public override void Exit()

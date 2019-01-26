@@ -1,6 +1,5 @@
 ﻿using System;
 using SpiderEye.Configuration;
-using SpiderEye.Scripting.Api;
 using SpiderEye.UI;
 
 namespace SpiderEye
@@ -9,7 +8,7 @@ namespace SpiderEye
     {
         public abstract IWindow MainWindow { get; }
 
-        public abstract IWindowFactory WindowFactory { get; }
+        public abstract IWindowFactory Factory { get; }
 
         protected readonly AppConfiguration config;
 
@@ -27,8 +26,6 @@ namespace SpiderEye
         {
             try
             {
-                ApiResolver.InitApi();
-
                 MainWindow.LoadUrl(config.StartPageUrl);
                 if (showWindow) { MainWindow.Show(); }
 

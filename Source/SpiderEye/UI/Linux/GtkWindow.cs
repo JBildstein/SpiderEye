@@ -1,4 +1,5 @@
 using System;
+using SpiderEye.Bridge;
 using SpiderEye.Configuration;
 using SpiderEye.Content;
 using SpiderEye.UI.Linux.Interop;
@@ -33,16 +34,25 @@ namespace SpiderEye.UI.Linux
             }
         }
 
+        public IWebviewBridge Bridge
+        {
+            get { return bridge; }
+        }
+
         private readonly IntPtr window;
         private readonly AppConfiguration config;
         private readonly GtkWebview webview;
+        private readonly WebviewBridge bridge;
 
-        public GtkWindow(AppConfiguration config)
+        public GtkWindow(AppConfiguration config, IWindowFactory windowFactory)
         {
+            if (windowFactory == null) { throw new ArgumentNullException(nameof(windowFactory)); }
+
             this.config = config ?? throw new ArgumentNullException(nameof(config));
 
             var contentProvider = new EmbeddedFileProvider(config.ContentAssembly, config.ContentFolder);
-            webview = new GtkWebview(contentProvider, config);
+            bridge = new WebviewBridge();
+            webview = new GtkWebview(config, contentProvider, bridge);
             window = Gtk.Window.Create(GtkWindowType.Toplevel);
 
             Title = config.Window.Title;
@@ -61,10 +71,12 @@ namespace SpiderEye.UI.Linux
 
             webview.CloseRequested += Webview_CloseRequested;
 
+            if (config.EnableScriptInterface) { bridge.Init(this, webview, windowFactory); }
+
             if (config.Window.UseBrowserTitle)
             {
                 webview.TitleChanged += Webview_TitleChanged;
-                if (config.EnableScriptInterface) { webview.ScriptHandler.TitleChanged += Webview_TitleChanged; }
+                bridge.TitleChanged += Webview_TitleChanged;
             }
         }
 
