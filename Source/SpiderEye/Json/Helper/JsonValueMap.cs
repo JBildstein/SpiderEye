@@ -8,6 +8,7 @@ namespace SpiderEye.Json
     {
         public string Name { get; }
         public Type ValueType { get; }
+        public Type UnderlyingType { get; }
         public Func<object, object> Getter { get; }
         public Action<object, object> Setter { get; }
         public JsonValueType JsonType { get; }
@@ -38,6 +39,11 @@ namespace SpiderEye.Json
             ValueType = valueType;
             CanBeNull = !valueType.IsValueType || Nullable.GetUnderlyingType(valueType) != null;
             JsonType = JsonTools.GetJsonType(valueType);
+
+            if (JsonType == JsonValueType.Enum)
+            {
+                JsonType |= JsonValueType.String | JsonValueType.Int;
+            }
 
             if (CanBeNull) { JsonType |= JsonValueType.Null; }
 

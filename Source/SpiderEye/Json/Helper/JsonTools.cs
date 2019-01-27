@@ -32,6 +32,8 @@ namespace SpiderEye.Json
 
             if (TypeToJsonMap.TryGetValue(type, out JsonValueType result)) { return result; }
 
+            if (type.IsEnum) { return JsonValueType.Enum; }
+
             if (type.IsArray) { return JsonValueType.Array; }
 
             if (type.IsGenericType)
@@ -88,20 +90,8 @@ namespace SpiderEye.Json
 
         public static bool IsJsonValue(JsonValueType type)
         {
-            const JsonValueType values = JsonValueType.Bool
-                | JsonValueType.Float
-                | JsonValueType.Int
-                | JsonValueType.Null
-                | JsonValueType.String
-                | JsonValueType.DateTime;
-
-            return (values & type) == type;
-        }
-
-        public static bool IsJsonNumber(JsonValueType type)
-        {
-            const JsonValueType values = JsonValueType.Float | JsonValueType.Int | JsonValueType.Null;
-            return (values & type) == type;
+            const JsonValueType values = JsonValueType.Object | JsonValueType.Array;
+            return (values & type) == 0;
         }
     }
 }

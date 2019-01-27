@@ -83,9 +83,13 @@ namespace SpiderEye.Json
                 builder.Append("]");
                 queue.Pop();
             }
+            else if (typeMap.JsonType.HasFlag(JsonValueType.Enum))
+            {
+                WriteStringValue(value.ToString(), builder);
+            }
             else
             {
-                switch (typeMap.JsonType & ~JsonValueType.Null)
+                switch (typeMap.JsonType)
                 {
                     case JsonValueType.String:
                         WriteStringValue(value.ToString(), builder);

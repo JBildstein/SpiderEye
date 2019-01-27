@@ -13,5 +13,6 @@ namespace SpiderEye.Json
         Bool = 1 << 5,
         Null = 1 << 6,
         DateTime = 1 << 7,
+        Enum = 1 << 8,
     }
 }

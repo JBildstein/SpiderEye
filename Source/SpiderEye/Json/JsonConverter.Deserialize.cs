@@ -168,7 +168,12 @@ namespace SpiderEye.Json
                 case '"':
                     CheckIsString(typeMap.JsonType);
                     string resultString = ParseString(json, false);
-                    if (typeMap.JsonType.HasFlag(JsonValueType.DateTime))
+                    if (typeMap.JsonType.HasFlag(JsonValueType.Enum))
+                    {
+                        var type = Nullable.GetUnderlyingType(typeMap.Type) ?? typeMap.Type;
+                        result = Enum.Parse(type, resultString, true);
+                    }
+                    else if (typeMap.JsonType.HasFlag(JsonValueType.DateTime))
                     {
                         result = DateTime.ParseExact(
                             resultString,
@@ -215,7 +220,6 @@ namespace SpiderEye.Json
                 default:
                     throw new FormatException($"Invalid character in value \"{json.GetDisplayValue()}\" at index {json.Index}");
             }
-
 
             return result;
         }
@@ -376,6 +380,8 @@ namespace SpiderEye.Json
         private object ParseNumber(JsonData json, JsonTypeMap typeMap)
         {
             string stringValue = GetNumberString(json, out bool isFloat);
+            var type = Nullable.GetUnderlyingType(typeMap.Type) ?? typeMap.Type;
+
             object value;
             if (isFloat)
             {
@@ -390,7 +396,11 @@ namespace SpiderEye.Json
             else
             {
                 long result = long.Parse(stringValue, NumberStyles.Integer, CultureInfo.InvariantCulture);
-                if (typeMap.JsonType.HasFlag(JsonValueType.DateTime))
+                if (typeMap.JsonType.HasFlag(JsonValueType.Enum))
+                {
+                    return Enum.ToObject(type, result);
+                }
+                else if (typeMap.JsonType.HasFlag(JsonValueType.DateTime))
                 {
                     // interpret value as Unix milliseconds
                     return DateTimeOffset.FromUnixTimeMilliseconds(result).DateTime;
@@ -398,7 +408,6 @@ namespace SpiderEye.Json
                 else { value = result; }
             }
 
-            var type = Nullable.GetUnderlyingType(typeMap.Type) ?? typeMap.Type;
             return Convert.ChangeType(value, type);
         }
 
@@ -610,7 +619,12 @@ namespace SpiderEye.Json
 
         private void CheckIsString(JsonValueType type)
         {
-            if (!type.HasFlag(JsonValueType.String) && !type.HasFlag(JsonValueType.DateTime))
+            const JsonValueType values = JsonValueType.String
+                | JsonValueType.Null
+                | JsonValueType.DateTime
+                | JsonValueType.Enum;
+
+            if ((values & type) != type)
             {
                 ThrowWrongJsonTypeError("string", type);
             }
@@ -618,7 +632,13 @@ namespace SpiderEye.Json
 
         private void CheckIsNumber(JsonValueType type)
         {
-            if (!JsonTools.IsJsonNumber(type) && !type.HasFlag(JsonValueType.DateTime))
+            const JsonValueType values = JsonValueType.Float
+                | JsonValueType.Int
+                | JsonValueType.Null
+                | JsonValueType.DateTime
+                | JsonValueType.Enum;
+
+            if ((values & type) != type)
             {
                 ThrowWrongJsonTypeError("number", type);
             }
