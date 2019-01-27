@@ -10,6 +10,11 @@ namespace SpiderEye.UI.Linux.Dialogs
         public string FileName { get; set; }
         public bool Multiselect { get; set; }
         public ICollection<FileFilter> FileFilters { get; }
+        public string[] SelectedFiles
+        {
+            get;
+            private set;
+        }
 
         public DialogResult Show()
         {

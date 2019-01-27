@@ -3,21 +3,32 @@
     "target": "es5",
     "module": "commonjs",
     "lib": [ "es6", "dom" ],
-    "declaration": true,
+    "declaration": false,
     "sourceMap": true,
-    "outDir": "./dist",
-    "removeComments": true,
+    "outDir": "./bin",
     "downlevelIteration": true,
     "strict": true,
     "noImplicitAny": true,
     "noUnusedLocals": true,
     "noImplicitReturns": true,
+    "noUnusedParameters": false,
+    "strictNullChecks": false,
     "noFallthroughCasesInSwitch": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "baseUrl": ".",
+    "paths": {
+      "@se": [ "src/index" ],
+      "@se/*": [ "src/*" ]
+    }
   },
+  "include": [
+    "src/**/*"
+  ],
   "exclude": [
     "node_modules",
-    "dist",
-    "**/webpack.config.ts"
+    "bin",
+    "dts",
+    "lib",
+    "es"
   ]
 }

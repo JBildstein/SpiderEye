@@ -9,5 +9,6 @@ namespace SpiderEye.Bridge.Models
         public bool HasResult { get; set; }
         public string Error { get; set; }
         public bool Success { get; set; }
+        public bool NoSubscriber { get; set; }
     }
 }

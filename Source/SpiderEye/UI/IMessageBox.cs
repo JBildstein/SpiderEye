@@ -18,6 +18,6 @@
         /// <summary>
         /// Gets or sets the displayed buttons.
         /// </summary>
-        MessageBoxButton Buttons { get; set; }
+        MessageBoxButtons Buttons { get; set; }
     }
 }

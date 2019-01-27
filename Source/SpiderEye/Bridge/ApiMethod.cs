@@ -29,7 +29,7 @@ namespace SpiderEye.Bridge
             HasParameter = ParameterType != null;
 
             ReturnType = info.ReturnType;
-            if (ReturnType.GetGenericTypeDefinition() == typeof(Task<>))
+            if (ReturnType.IsGenericType && ReturnType.GetGenericTypeDefinition() == typeof(Task<>))
             {
                 var prop = ReturnType.GetProperty("Result");
                 getTaskResult = (task) => prop.GetValue(task, null);

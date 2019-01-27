@@ -16,7 +16,12 @@ What's the name supposed to mean? Simple: what kind of view does a spiders eye h
 
 ## Installation
 
-Use NuGet to install the SpiderEye package: `Bildstein.SpiderEye` [![NuGet](https://img.shields.io/nuget/v/Bildstein.SpiderEye.svg)](https://www.nuget.org/packages/Bildstein.SpiderEye/)
+| Type | Package Manager | Name | Version |
+| ----- | ----- | ----- | ----- |
+| Host | NuGet | `Bildstein.SpiderEye` | [![NuGet](https://img.shields.io/nuget/v/Bildstein.SpiderEye.svg)](https://www.nuget.org/packages/Bildstein.SpiderEye/) |
+| Client | npm | `spidereye` | [![npm](https://img.shields.io/npm/v/spidereye.svg)](https://www.npmjs.com/package/spidereye) |
+
+The client package is not required but you'll need it if you intend to communicate between host and webview.
 
 ## Getting Started
 
@@ -30,12 +35,12 @@ A SpiderEye app can be created from a normal .Net Core console app. Only a few s
     <!-- For Windows we need full .Net 4.6.2+, for Linux and macOS .Net Core 2.x -->
     <TargetFrameworks>net462;netcoreapp2.2</TargetFrameworks>
     <!-- This is needed if you wan to create a standalone app -->
-    <RuntimeIdentifiers>win;linux;osx</RuntimeIdentifiers>
+    <RuntimeIdentifiers>win;linux-x64;osx.10.13-x64</RuntimeIdentifiers>
   </PropertyGroup>
 
   <ItemGroup>
     <!-- Reference to the SpiderEye NuGet package -->
-    <PackageReference Include="Bildstein.SpiderEye" Version="1.0.0-alpha.3" />
+    <PackageReference Include="Bildstein.SpiderEye" Version="1.0.0-alpha.4" />
   </ItemGroup>
 
   <ItemGroup>
@@ -108,7 +113,7 @@ SpiderEyeExample/
 Then to publish that project, you can use the dotnet CLI like this (assuming a standalone publish):\
 Windows: `dotnet publish -c Release -f net462 -r win -o ./bin/Publish/Windows`\
 Linux: `dotnet publish -c Release -f netcoreapp2.2 -r linux-x64 -o ./bin/Publish/Linux`\
-macOS: `dotnet publish -c Release -f netcoreapp2.2 -r osx-64 -o ./bin/Publish/Mac`
+macOS: `dotnet publish -c Release -f netcoreapp2.2 -r osx.10.13-x64 -o ./bin/Publish/Mac`
 
 Further examples can be found in the `Examples` folder
 
@@ -117,6 +122,8 @@ Further examples can be found in the `Examples` folder
 The WebViewControl based on Edge does not allow localhost addresses for security reasons. More info [here](https://msdn.microsoft.com/en-us/library/windows/apps/hh780593.aspx).
 To get around that restriction for development (e.g. to use the Angular dev server or similar), call this in the command line:\
 `checknetisolation LoopbackExempt -a -n=Microsoft.Win32WebViewHost_cw5n1h2txyewy`
+
+**Note**: this is really only for development, a published app doesn't need it because everything is served from the embedded resources.
 
 ## Development
 

@@ -7,7 +7,7 @@ namespace SpiderEye.UI.Windows.Dialogs
     {
         public string Title { get; set; }
         public string Message { get; set; }
-        public MessageBoxButton Buttons { get; set; }
+        public MessageBoxButtons Buttons { get; set; }
 
         public DialogResult Show()
         {
@@ -42,21 +42,21 @@ namespace SpiderEye.UI.Windows.Dialogs
             return MapResult(result);
         }
 
-        private System.Windows.MessageBoxButton MapButtons(MessageBoxButton buttons)
+        private MessageBoxButton MapButtons(MessageBoxButtons buttons)
         {
             switch (buttons)
             {
-                case MessageBoxButton.Ok:
-                    return System.Windows.MessageBoxButton.OK;
-                case MessageBoxButton.OkCancel:
-                    return System.Windows.MessageBoxButton.OKCancel;
-                case MessageBoxButton.YesNo:
-                    return System.Windows.MessageBoxButton.YesNo;
-                case MessageBoxButton.YesNoCancel:
-                    return System.Windows.MessageBoxButton.YesNoCancel;
+                case MessageBoxButtons.Ok:
+                    return MessageBoxButton.OK;
+                case MessageBoxButtons.OkCancel:
+                    return MessageBoxButton.OKCancel;
+                case MessageBoxButtons.YesNo:
+                    return MessageBoxButton.YesNo;
+                case MessageBoxButtons.YesNoCancel:
+                    return MessageBoxButton.YesNoCancel;
 
                 default:
-                    return System.Windows.MessageBoxButton.OK;
+                    return MessageBoxButton.OK;
             }
         }
 

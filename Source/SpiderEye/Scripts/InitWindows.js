@@ -1,4 +1,4 @@
-﻿window._spidereye = new SpiderEyeInterface(function (e) { window.external.notify(e); });
+﻿window._spidereye = new SpiderEyeBridge(function (e) { window.external.notify(e); });
 window._spidereye.updateTitle(document.title);
 
 if (typeof MutationObserver !== 'undefined') {

@@ -40,11 +40,17 @@ namespace SpiderEye.UI.Windows.Dialogs
             bool? result = dialog.ShowDialog(window);
             FileName = dialog.FileName;
 
+            BeforeReturn(dialog);
+
             if (result == null) { return DialogResult.None; }
             return result.Value ? DialogResult.Ok : DialogResult.Cancel;
         }
 
         protected abstract FileDialog GetDialog();
+
+        protected virtual void BeforeReturn(FileDialog dialog)
+        {
+        }
 
         private string GetFileFilter(IEnumerable<FileFilter> filters)
         {

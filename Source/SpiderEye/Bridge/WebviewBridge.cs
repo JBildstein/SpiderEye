@@ -47,21 +47,21 @@ namespace SpiderEye.Bridge
         {
             string script = GetInvokeScript(id, data);
             string resultJson = webview.ExecuteScript(script);
-            ResolveEventResult(resultJson);
+            ResolveEventResult(id, resultJson);
         }
 
         public async Task InvokeAsync(string id, object data)
         {
             string script = GetInvokeScript(id, data);
             string resultJson = await webview.ExecuteScriptAsync(script);
-            ResolveEventResult(resultJson);
+            ResolveEventResult(id, resultJson);
         }
 
         public T Invoke<T>(string id, object data)
         {
             string script = GetInvokeScript(id, data);
             string resultJson = webview.ExecuteScript(script);
-            var result = ResolveEventResult(resultJson);
+            var result = ResolveEventResult(id, resultJson);
             return ResolveInvokeResult<T>(result);
         }
 
@@ -69,7 +69,7 @@ namespace SpiderEye.Bridge
         {
             string script = GetInvokeScript(id, data);
             string resultJson = await webview.ExecuteScriptAsync(script);
-            var result = ResolveEventResult(resultJson);
+            var result = ResolveEventResult(id, resultJson);
             return ResolveInvokeResult<T>(result);
         }
 
@@ -104,9 +104,11 @@ namespace SpiderEye.Bridge
             return $"window._spidereye._sendEvent({id}, {dataJson})";
         }
 
-        private EventResultModel ResolveEventResult(string resultJson)
+        private EventResultModel ResolveEventResult(string id, string resultJson)
         {
             var result = JsonConvert.Deserialize<EventResultModel>(resultJson);
+
+            if (result.NoSubscriber) { throw new InvalidOperationException($"Event with ID \"{id}\" does not exist."); }
 
             // TODO: include error info from result
             if (!result.Success) { throw new ScriptException(); }
@@ -182,6 +184,7 @@ namespace SpiderEye.Bridge
 
         private void InitApi()
         {
+            AddApiObject(new BrowserWindow(window, windowFactory));
             AddApiObject(new Dialog(window, windowFactory));
 
             lock (GlobalHandlerLock)

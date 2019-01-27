@@ -21,11 +21,11 @@ namespace SpiderEye.UI
         /// </summary>
         /// <param name="name">The filter name.</param>
         /// <param name="filters">The file filters.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="name"/> or <paramref name="filters"/> is null.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is null.</exception>
         public FileFilter(string name, params string[] filters)
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
-            Filters = filters ?? throw new ArgumentNullException(nameof(filters));
+            Filters = filters ?? new string[0];
         }
     }
 }

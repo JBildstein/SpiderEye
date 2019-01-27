@@ -1,4 +1,4 @@
-﻿function SpiderEyeInterface(exfn) {
+﻿function SpiderEyeBridge(exfn) {
     this.updateTitle = function (title) {
         exfn(JSON.stringify({
             type: "title",
@@ -62,7 +62,7 @@
             try { result = callback(value); }
             catch (e) { error = e; }
         } else {
-            return "{ \"noSubscriber\": true }";
+            return "{ \"success\": false, \"noSubscriber\": true }";
         }
 
         return Json.stringify({

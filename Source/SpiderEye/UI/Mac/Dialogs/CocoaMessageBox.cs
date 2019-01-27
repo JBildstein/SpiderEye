@@ -7,7 +7,7 @@ namespace SpiderEye.UI.Mac.Dialogs
         public string Title { get; set; }
         public string Message { get; set; }
 
-        public MessageBoxButton Buttons { get; set; }
+        public MessageBoxButtons Buttons { get; set; }
 
         public DialogResult Show()
         {
