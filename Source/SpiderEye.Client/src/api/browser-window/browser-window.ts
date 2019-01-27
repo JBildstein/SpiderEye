@@ -3,7 +3,7 @@ import {
     EmptyCallback,
     ErrorCallback,
     BrowserWindowConfig,
-} from "@se";
+} from "../../index";
 
 export class BrowserWindow {
 

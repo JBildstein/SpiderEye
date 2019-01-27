@@ -1,4 +1,4 @@
-import { FileFilter } from "@se";
+import { FileFilter } from "../../index";
 
 export interface OpenFileDialogConfig {
     title: string;

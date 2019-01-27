@@ -4,7 +4,7 @@ import {
     ValueCallback,
     ErrorCallback,
     FileFilter,
-} from "@se";
+} from "../../index";
 import { SaveFileDialogConfig } from "./save-file-dialog-config";
 
 export class SaveFileDialog {

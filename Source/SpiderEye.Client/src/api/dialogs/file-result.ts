@@ -1,4 +1,4 @@
-import { DialogResult } from "@se";
+import { DialogResult } from "./index";
 
 export interface FileResult {
     dialogResult: DialogResult;

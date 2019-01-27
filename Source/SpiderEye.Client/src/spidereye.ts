@@ -1,4 +1,4 @@
-import { ApiCallback, EventCallback } from "@se";
+import { ApiCallback, EventCallback } from "./index";
 
 export class SpiderEye {
 

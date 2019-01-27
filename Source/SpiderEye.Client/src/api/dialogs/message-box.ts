@@ -5,7 +5,7 @@ import {
     ValueCallback,
     ErrorCallback,
     MessageBoxConfig,
-} from "@se";
+} from "../../index";
 
 export class MessageBox {
 

@@ -14,12 +14,7 @@
     "noUnusedParameters": false,
     "strictNullChecks": false,
     "noFallthroughCasesInSwitch": true,
-    "esModuleInterop": true,
-    "baseUrl": ".",
-    "paths": {
-      "@se": [ "src/index" ],
-      "@se/*": [ "src/*" ]
-    }
+    "esModuleInterop": true
   },
   "include": [
     "src/**/*"

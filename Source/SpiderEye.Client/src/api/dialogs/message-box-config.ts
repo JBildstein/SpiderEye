@@ -1,4 +1,4 @@
-import { MessageBoxButtons } from "@se";
+import { MessageBoxButtons } from "./index";
 
 export interface MessageBoxConfig {
     title: string;
