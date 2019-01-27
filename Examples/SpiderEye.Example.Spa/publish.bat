@@ -29,7 +29,7 @@ IF %ERRORLEVEL% NEQ 0 (
 )
 
 ECHO Publishing for Mac...
-CALL dotnet publish -c Release -f netcoreapp2.2 -r osx-x64 -o ./bin/Publish/Mac > NUL
+CALL dotnet publish -c Release -f netcoreapp2.2 -r osx.10.13-x64 -o ./bin/Publish/Mac > NUL
 IF %ERRORLEVEL% NEQ 0 (
   ECHO Publish failed
   EXIT /B 1

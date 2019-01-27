@@ -3,7 +3,7 @@
     <TypeScriptCompileBlocked>True</TypeScriptCompileBlocked>
     <OutputType>WinExe</OutputType>
     <TargetFrameworks>netcoreapp2.2;net462</TargetFrameworks>
-    <RuntimeIdentifiers>win;linux;osx</RuntimeIdentifiers>
+    <RuntimeIdentifiers>win;linux-x64;osx.10.13-x64</RuntimeIdentifiers>
   </PropertyGroup>
 
   <ItemGroup>
