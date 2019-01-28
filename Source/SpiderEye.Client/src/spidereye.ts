@@ -6,6 +6,28 @@ export class SpiderEye {
         return window._spidereye != null;
     }
 
+    public static onReady(callback: () => void): void {
+        if (callback == null) {
+            throw new Error("No callback provided");
+        }
+
+        if (SpiderEye.isReady) {
+            callback();
+        } else {
+            window.addEventListener("spidereye-ready", callback);
+        }
+    }
+
+    public static onReadyAsync(): Promise<void> {
+        return new Promise(resolve => {
+            if (SpiderEye.isReady) {
+                resolve();
+            } else {
+                window.addEventListener("spidereye-ready", () => resolve());
+            }
+        });
+    }
+
     public static invokeApi<T = any, U = any>(id: string, parameters: T, callback: ApiCallback<U>): void {
         SpiderEye.checkBridgeReady();
         window._spidereye.invokeApi<T, U>(id, parameters, callback);
