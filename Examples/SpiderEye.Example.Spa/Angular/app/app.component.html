@@ -2,3 +2,32 @@
 <h1>Hello World</h1>
 
 <p>Angular within SpiderEye works!!!</p>
+
+<div>
+    <h3>Open a MessageBox</h3>
+    <button (click)="openMessageBox()">Open</button><br />
+    <label>Result:</label><span>{{messageBoxResult}}</span>
+</div>
+
+<div>
+    <h3>Open a SaveFileDialog</h3>
+    <button (click)="openSaveFileDialog()">Open</button><br />
+    <div *ngIf="saveFileResult != null">
+        <label>Result:</label><span>{{saveFileResult.dialogResult}}</span><br />
+        <label>File:</label><span>{{saveFileResult.file}}</span>
+    </div>
+</div>
+
+<div>
+    <h3>Open a OpenFileDialog</h3>
+    <button (click)="openOpenFileDialog()">Open</button>
+    <div *ngIf="openFileResult != null">
+        <label>Result:</label><span>{{openFileResult.dialogResult}}</span><br />
+        <label>File:</label><span>{{openFileResult.file}}</span>
+    </div>
+</div>
+
+<div>
+    <h3>Open a Window</h3>
+    <button (click)="openWindow()">Open</button>
+</div>
