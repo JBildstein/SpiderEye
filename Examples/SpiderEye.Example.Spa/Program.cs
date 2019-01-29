@@ -26,7 +26,7 @@ namespace SpiderEye.Example.Spa
         {
             // the port number is defined in the angular.json file (under "architect"->"serve"->"options"->"port")
             // note that you have to run the angular dev server first (npm run watch)
-            config.ExternalHost = "http://localhost:55000";
+            config.ExternalHost = "http://localhost:65000";
         }
     }
 }
