@@ -14,6 +14,16 @@ namespace SpiderEye.UI
         event EventHandler PageLoaded;
 
         /// <summary>
+        /// Fires before the window gets closed.
+        /// </summary>
+        event EventHandler Closing;
+
+        /// <summary>
+        /// Fires after the window has closed.
+        /// </summary>
+        event EventHandler Closed;
+
+        /// <summary>
         /// Gets or sets the window title.
         /// </summary>
         string Title { get; set; }

@@ -15,6 +15,7 @@ namespace SpiderEye.UI.Linux
             remove { webview.PageLoaded -= value; }
         }
 
+        public event EventHandler Closing;
         public event EventHandler Closed;
 
         public IWebview Webview

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Interop;
@@ -17,6 +18,21 @@ namespace SpiderEye.UI.Windows
             add { webview.PageLoaded += value; }
             remove { webview.PageLoaded -= value; }
         }
+
+        event EventHandler IWindow.Closing
+        {
+            add { ClosingBackingEvent += value; }
+            remove { ClosingBackingEvent -= value; }
+        }
+
+        event EventHandler IWindow.Closed
+        {
+            add { ClosedBackingEvent += value; }
+            remove { ClosedBackingEvent -= value; }
+        }
+
+        private event EventHandler ClosingBackingEvent;
+        private event EventHandler ClosedBackingEvent;
 
         public bool CanResize
         {
@@ -109,6 +125,18 @@ namespace SpiderEye.UI.Windows
                 default:
                     throw new ArgumentException($"Invalid window state of \"{state}\"", nameof(state));
             }
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            ClosingBackingEvent?.Invoke(this, EventArgs.Empty);
+            base.OnClosing(e);
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            ClosedBackingEvent?.Invoke(this, EventArgs.Empty);
+            base.OnClosed(e);
         }
 
         private bool UseLegacy()

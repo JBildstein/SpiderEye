@@ -15,6 +15,9 @@ namespace SpiderEye.UI.Mac
             remove { webview.PageLoaded -= value; }
         }
 
+        public event EventHandler Closing;
+        public event EventHandler Closed;
+
         public string Title
         {
             get { return NSString.GetString(ObjC.Call(Handle, "title")); }
