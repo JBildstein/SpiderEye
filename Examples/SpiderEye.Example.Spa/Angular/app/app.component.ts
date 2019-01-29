@@ -58,7 +58,7 @@ export class AppComponent implements OnInit {
     }
 
     openWindow() {
-        var window = new BrowserWindow({
+        var browserWindow = new BrowserWindow({
             title: "Hello World",
             backgroundColor: "#FFFFFF",
             canResize: true,
@@ -68,6 +68,6 @@ export class AppComponent implements OnInit {
             url: "/index.html"
         });
 
-        window.show();
+        browserWindow.show();
     }
 }
