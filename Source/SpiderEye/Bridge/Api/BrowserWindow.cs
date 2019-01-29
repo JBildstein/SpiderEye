@@ -16,6 +16,8 @@ namespace SpiderEye.Bridge.Api
         {
             this.parent = parent ?? throw new ArgumentNullException(nameof(parent));
             this.windowFactory = windowFactory ?? throw new ArgumentNullException(nameof(windowFactory));
+
+            parent.Closing += Parent_Closing;
         }
 
         public void Show(BrowserWindowConfigModel config)
@@ -26,6 +28,14 @@ namespace SpiderEye.Bridge.Api
             windows.Add(window);
 
             // TODO: somehow send events from this window back to webview
+        }
+
+        private void Parent_Closing(object sender, EventArgs e)
+        {
+            foreach (var window in windows)
+            {
+                window.Close();
+            }
         }
     }
 }
