@@ -1,6 +1,7 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows.Interop;
 using System.Windows.Threading;
 using global::Windows.Web.UI;
 using SpiderEye.Bridge;
@@ -15,7 +16,7 @@ using Size = System.Windows.Size;
 
 namespace SpiderEye.UI.Windows
 {
-    internal class WpfWebview : FrameworkElement, IWebview, IWpfWebview
+    internal class WpfWebview : HwndHost, IWebview, IWpfWebview
     {
         public event EventHandler PageLoaded;
 
@@ -28,9 +29,10 @@ namespace SpiderEye.UI.Windows
         private readonly WebviewBridge bridge;
         private readonly EdgeUriToStreamResolver streamResolver;
 
+        private IntPtr window;
         private WebViewControl webview;
 
-        public WpfWebview(AppConfiguration config, IntPtr window, IContentProvider contentProvider, WebviewBridge bridge)
+        public WpfWebview(AppConfiguration config, IntPtr parentWindow, IContentProvider contentProvider, WebviewBridge bridge)
         {
             if (contentProvider == null) { throw new ArgumentNullException(nameof(contentProvider)); }
 
@@ -40,7 +42,7 @@ namespace SpiderEye.UI.Windows
 
             SizeChanged += (s, e) => UpdateSize(e.NewSize);
 
-            Init(window);
+            Init(parentWindow);
         }
 
         public void NavigateToFile(string url)
@@ -67,16 +69,32 @@ namespace SpiderEye.UI.Windows
             return await webview.InvokeScriptAsync("eval", new string[] { script });
         }
 
-        public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            webview?.Close();
-            webview = null;
+            if (disposing)
+            {
+                webview?.Close();
+                webview = null;
+            }
         }
 
-        private void Init(IntPtr window)
+        protected override HandleRef BuildWindowCore(HandleRef hwndParent)
+        {
+            return new HandleRef(null, window);
+        }
+
+        protected override void DestroyWindowCore(HandleRef hwnd)
+        {
+            Native.DestroyWindow(hwnd.Handle);
+            Native.CheckLastError();
+        }
+
+        private void Init(IntPtr parentWindow)
         {
             Native.EnableMouseInPointer(true);
             Native.CheckLastError();
+
+            window = Native.CreateBrowserWindow(parentWindow);
 
             var process = new WebViewControlProcess();
             var bounds = new Rect(0, 0, RenderSize.Width, RenderSize.Height);
