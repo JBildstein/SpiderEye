@@ -68,6 +68,7 @@ namespace SpiderEye.UI.Linux
             Gtk.Widget.ContainerAdd(window, scroller);
             Gtk.Widget.ContainerAdd(scroller, webview.Handle);
 
+            GLib.ConnectSignal(window, "delete-event", (DeleteCallbackDelegate)DeleteCallback, IntPtr.Zero);
             GLib.ConnectSignal(window, "destroy", (DestroyCallbackDelegate)DestroyCallback, IntPtr.Zero);
 
             webview.CloseRequested += Webview_CloseRequested;
@@ -125,7 +126,13 @@ namespace SpiderEye.UI.Linux
             Gtk.Widget.Destroy(window);
         }
 
-        private void DestroyCallback(IntPtr widget, IntPtr arg)
+        private bool DeleteCallback(IntPtr widget, IntPtr eventData, IntPtr userdata)
+        {
+            Closing?.Invoke(this, EventArgs.Empty);
+            return false;
+        }
+
+        private void DestroyCallback(IntPtr widget, IntPtr userdata)
         {
             Closed?.Invoke(this, EventArgs.Empty);
         }
