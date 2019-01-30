@@ -52,8 +52,6 @@ namespace SpiderEye.UI.Windows.Dialogs
                     return MessageBoxButton.OKCancel;
                 case MessageBoxButtons.YesNo:
                     return MessageBoxButton.YesNo;
-                case MessageBoxButtons.YesNoCancel:
-                    return MessageBoxButton.YesNoCancel;
 
                 default:
                     return MessageBoxButton.OK;

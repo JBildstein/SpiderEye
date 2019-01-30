@@ -10,6 +10,5 @@ namespace SpiderEye.UI
         Ok,
         OkCancel,
         YesNo,
-        YesNoCancel,
     }
 }
