@@ -42,25 +42,6 @@ namespace SpiderEye.UI.Linux
                     WebKit.Manager.RegisterScriptMessageHandler(manager, name);
                 }
 
-                using (GLibString scriptText = Resources.GetInitScript("Unix"))
-                {
-                    IntPtr script = IntPtr.Zero;
-
-                    try
-                    {
-                        script = WebKit.Manager.CreateScript(
-                            manager,
-                            scriptText,
-                            WebKitInjectedFrames.AllFrames,
-                            WebKitInjectionTime.DocumentStart,
-                            IntPtr.Zero,
-                            IntPtr.Zero);
-
-                        WebKit.Manager.AddScript(manager, script);
-                    }
-                    finally { WebKit.Manager.UnrefScript(script); }
-                }
-
                 Handle = WebKit.CreateWithUserContentManager(manager);
             }
             else { Handle = WebKit.Create(); }
@@ -259,6 +240,9 @@ namespace SpiderEye.UI.Linux
         {
             if (type == WebKitLoadEvent.Finished)
             {
+                string initScript = Resources.GetInitScript("Unix");
+                ExecuteScript(initScript);
+
                 PageLoaded?.Invoke(this, EventArgs.Empty);
             }
         }
