@@ -66,6 +66,9 @@ namespace SpiderEye.UI.Linux
                     WebKit.Context.RegisterUriScheme(context, gscheme, UriSchemeCallback, IntPtr.Zero, IntPtr.Zero);
                 }
             }
+
+            var bgColor = new GdkColor(config.Window.BackgroundColor);
+            WebKit.SetBackgroundColor(Handle, ref bgColor);
         }
 
         public void NavigateToFile(string url)
