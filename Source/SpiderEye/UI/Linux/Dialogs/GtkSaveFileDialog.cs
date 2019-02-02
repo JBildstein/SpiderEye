@@ -1,24 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using SpiderEye.UI.Linux.Interop;
+using SpiderEye.UI.Linux.Native;
 
 namespace SpiderEye.UI.Linux.Dialogs
 {
-    internal class GtkSaveFileDialog : ISaveFileDialog
+    internal class GtkSaveFileDialog : GtkFileDialog, ISaveFileDialog
     {
-        public string Title { get; set; }
-        public string InitialDirectory { get; set; }
-        public string FileName { get; set; }
         public bool OverwritePrompt { get; set; }
-        public ICollection<FileFilter> FileFilters { get; }
 
-        public DialogResult Show()
+        protected override GtkFileChooserAction Type
         {
-            throw new NotImplementedException();
+            get { return GtkFileChooserAction.Save; }
         }
 
-        public DialogResult Show(IWindow parent)
+        protected override void BeforeShow(IntPtr dialog)
         {
-            throw new NotImplementedException();
+            Gtk.Dialog.SetOverwriteConfirmation(dialog, OverwritePrompt);
         }
     }
 }

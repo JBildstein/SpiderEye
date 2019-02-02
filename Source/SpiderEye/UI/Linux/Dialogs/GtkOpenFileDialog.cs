@@ -1,29 +1,55 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using SpiderEye.UI.Linux.Interop;
+using SpiderEye.UI.Linux.Native;
 
 namespace SpiderEye.UI.Linux.Dialogs
 {
-    internal class GtkOpenFileDialog : IOpenFileDialog
+    internal class GtkOpenFileDialog : GtkFileDialog, IOpenFileDialog
     {
-        public string Title { get; set; }
-        public string InitialDirectory { get; set; }
-        public string FileName { get; set; }
         public bool Multiselect { get; set; }
-        public ICollection<FileFilter> FileFilters { get; }
+
         public string[] SelectedFiles
         {
             get;
             private set;
         }
 
-        public DialogResult Show()
+        protected override GtkFileChooserAction Type
         {
-            throw new NotImplementedException();
+            get { return GtkFileChooserAction.Open; }
         }
 
-        public DialogResult Show(IWindow parent)
+        protected override void BeforeShow(IntPtr dialog)
         {
-            throw new NotImplementedException();
+            Gtk.Dialog.SetAllowMultiple(dialog, Multiselect);
+        }
+
+        protected override unsafe void BeforeReturn(IntPtr dialog)
+        {
+            var ptr = Gtk.Dialog.GetSelectedFiles(dialog);
+            var result = new List<string>();
+            if (ptr != IntPtr.Zero)
+            {
+                try
+                {
+                    var list = Marshal.PtrToStructure<GSList>(ptr);
+                    while (true)
+                    {
+                        using (var value = new GLibString(list.Data))
+                        {
+                            result.Add(value.ToString());
+                        }
+
+                        if (list.Next == null) { break; }
+                        list = *list.Next;
+                    }
+                }
+                finally { GLib.FreeSList(ptr); }
+            }
+
+            SelectedFiles = result.ToArray();
         }
     }
 }

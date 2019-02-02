@@ -28,6 +28,9 @@ namespace SpiderEye.UI.Linux.Native
         [DllImport(GLibNativeDll, EntryPoint = "g_error_free", CallingConvention = CallingConvention.Cdecl)]
         public static extern void FreeError(IntPtr error);
 
+        [DllImport(GLibNativeDll, EntryPoint = "g_slist_free", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void FreeSList(IntPtr slist);
+
         [DllImport(GObjectNativeDll, EntryPoint = "g_file_error_quark", CallingConvention = CallingConvention.Cdecl)]
         public static extern uint GetFileErrorQuark();
 
@@ -40,11 +43,22 @@ namespace SpiderEye.UI.Linux.Native
         [DllImport(GLibNativeDll, EntryPoint = "g_bytes_get_data", CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr GetBytesDataPointer(IntPtr bytes, out UIntPtr size);
 
+        [DllImport(GObjectNativeDll, EntryPoint = "g_object_set", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void SetProperty(IntPtr obj, IntPtr propertyName, IntPtr value, IntPtr terminator);
+
         public static void ConnectSignal(IntPtr instance, string signalName, Delegate handler, IntPtr data)
         {
             using (GLibString gname = signalName)
             {
                 ConnectSignalData(instance, gname, handler, data, IntPtr.Zero, 0);
+            }
+        }
+
+        public static void SetProperty(IntPtr obj, string propertyName, IntPtr value)
+        {
+            using (GLibString gname = propertyName)
+            {
+                SetProperty(obj, gname, value, IntPtr.Zero);
             }
         }
     }

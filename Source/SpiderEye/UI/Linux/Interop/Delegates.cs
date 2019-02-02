@@ -5,6 +5,7 @@ namespace SpiderEye.UI.Linux.Interop
     internal delegate void GAsyncReadyDelegate(IntPtr gobject, IntPtr result, IntPtr userdata);
     internal delegate void WebKitUriSchemeRequestDelegate(IntPtr request, IntPtr userdata);
     internal delegate void DestroyCallbackDelegate(IntPtr widget, IntPtr userdata);
+    internal delegate bool DeleteCallbackDelegate(IntPtr widget, IntPtr eventData, IntPtr userdata);
     internal delegate void WebviewDelegate(IntPtr webview, IntPtr userdata);
     internal delegate void ScriptDelegate(IntPtr manager, IntPtr jsResult, IntPtr userdata);
     internal delegate void PageLoadDelegate(IntPtr webview, WebKitLoadEvent type, IntPtr userdata);

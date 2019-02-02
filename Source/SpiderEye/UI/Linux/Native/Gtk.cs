@@ -86,6 +86,71 @@ namespace SpiderEye.UI.Linux.Native
             public static extern void Resize(IntPtr window, int width, int height);
         }
 
+        public static class Dialog
+        {
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_message_dialog_new", CallingConvention = CallingConvention.Cdecl)]
+            public static extern IntPtr CreateMessageDialog(IntPtr parent, GtkDialogFlags flags, GtkMessageType type, GtkButtonsType buttons, IntPtr message_format);
+
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_file_chooser_native_new", CallingConvention = CallingConvention.Cdecl)]
+            public static extern IntPtr CreateNativeFileDialog(IntPtr title, IntPtr parent, GtkFileChooserAction action, IntPtr acceptLabel, IntPtr cancelLabel);
+
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_file_chooser_dialog_new", CallingConvention = CallingConvention.Cdecl)]
+            public static extern IntPtr CreateFileDialog(
+                IntPtr title,
+                IntPtr parent,
+                GtkFileChooserAction action,
+                IntPtr firstButtonText,
+                GtkResponseType firstButtonResponse,
+                IntPtr secondButtonText,
+                GtkResponseType secondButtonResponse,
+                IntPtr terminator);
+
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_dialog_run", CallingConvention = CallingConvention.Cdecl)]
+            public static extern GtkResponseType Run(IntPtr dialog);
+
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_native_dialog_run", CallingConvention = CallingConvention.Cdecl)]
+            public static extern GtkResponseType RunNative(IntPtr dialog);
+
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_file_chooser_set_do_overwrite_confirmation", CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetOverwriteConfirmation(IntPtr chooser, bool enable);
+
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_file_chooser_set_create_folders", CallingConvention = CallingConvention.Cdecl)]
+            public static extern bool SetCanCreateFolder(IntPtr dialog, bool enable);
+
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_file_chooser_set_select_multiple", CallingConvention = CallingConvention.Cdecl)]
+            public static extern bool SetAllowMultiple(IntPtr dialog, bool enable);
+
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_file_chooser_set_current_name", CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetCurrentName(IntPtr chooser, IntPtr name);
+
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_file_chooser_get_filename", CallingConvention = CallingConvention.Cdecl)]
+            public static extern IntPtr GetFileName(IntPtr chooser);
+
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_file_chooser_set_filename", CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetFileName(IntPtr dialog, IntPtr fileName);
+
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_file_chooser_set_current_folder", CallingConvention = CallingConvention.Cdecl)]
+            public static extern bool SetCurrentFolder(IntPtr dialog, IntPtr folder);
+
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_file_chooser_add_filter", CallingConvention = CallingConvention.Cdecl)]
+            public static extern bool AddFileFilter(IntPtr dialog, IntPtr filter);
+
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_file_chooser_get_filenames", CallingConvention = CallingConvention.Cdecl)]
+            public static extern IntPtr GetSelectedFiles(IntPtr dialog);
+
+            public static class FileFilter
+            {
+                [DllImport(GtkNativeDll, EntryPoint = "gtk_file_filter_new", CallingConvention = CallingConvention.Cdecl)]
+                public static extern IntPtr Create();
+
+                [DllImport(GtkNativeDll, EntryPoint = "gtk_file_filter_set_name", CallingConvention = CallingConvention.Cdecl)]
+                public static extern void SetName(IntPtr filter, IntPtr name);
+
+                [DllImport(GtkNativeDll, EntryPoint = "gtk_file_filter_add_pattern", CallingConvention = CallingConvention.Cdecl)]
+                public static extern void AddPattern(IntPtr filter, IntPtr pattern);
+            }
+        }
+
         public static class Css
         {
             [DllImport(GtkNativeDll, EntryPoint = "gtk_css_provider_new", CallingConvention = CallingConvention.Cdecl)]
@@ -102,6 +167,25 @@ namespace SpiderEye.UI.Linux.Native
 
             [DllImport(GtkNativeDll, EntryPoint = "gtk_style_context_add_provider", CallingConvention = CallingConvention.Cdecl)]
             public static extern void AddProvider(IntPtr context, IntPtr provider, GtkStyleProviderPriority priority);
+        }
+
+        public static class Version
+        {
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_get_major_version", CallingConvention = CallingConvention.Cdecl)]
+            public static extern uint Major();
+
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_get_minor_version", CallingConvention = CallingConvention.Cdecl)]
+            public static extern uint Minor();
+
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_get_micro_version", CallingConvention = CallingConvention.Cdecl)]
+            public static extern uint Micro();
+
+            public static bool IsAtLeast(int major, int minor, int micro)
+            {
+                return Major() >= major
+                    && Minor() >= minor
+                    && Micro() >= micro;
+            }
         }
 
         [DllImport(GtkNativeDll, EntryPoint = "gtk_init_check", CallingConvention = CallingConvention.Cdecl)]
