@@ -117,6 +117,7 @@ namespace SpiderEye.UI.Linux
 
                             GLib.UnrefBytes(bytes);
                         }
+                        else { taskResult.TrySetResult(null); }
                     }
                     else
                     {
@@ -126,9 +127,11 @@ namespace SpiderEye.UI.Linux
                             string errorMessage = GLibString.FromPointer(error.Message);
                             taskResult.TrySetException(new Exception($"Script execution failed with: \"{errorMessage}\""));
                         }
+                        catch (Exception ex) { taskResult.TrySetException(ex); }
                         finally { GLib.FreeError(errorPtr); }
                     }
                 }
+                catch (Exception ex) { taskResult.TrySetException(ex); }
                 finally
                 {
                     if (jsResult != IntPtr.Zero)
