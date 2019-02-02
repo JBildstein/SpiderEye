@@ -8,4 +8,6 @@ namespace SpiderEye.UI.Mac.Interop
     internal delegate void LoadFinishedDelegate(IntPtr self, IntPtr op, IntPtr view, IntPtr navigation);
     internal delegate void SchemeHandlerDelegate(IntPtr self, IntPtr op, IntPtr view, IntPtr schemeTask);
     internal delegate void ObserveValueDelegate(IntPtr self, IntPtr op, IntPtr keyPath, IntPtr obj, IntPtr change, IntPtr context);
+    internal delegate byte WindowShouldCloseDelegate(IntPtr self, IntPtr op, IntPtr window);
+    internal delegate void NotificationDelegate(IntPtr self, IntPtr op, IntPtr notification);
 }

@@ -71,6 +71,8 @@ namespace SpiderEye.UI.Mac
                 webview.TitleChanged += Webview_TitleChanged;
                 bridge.TitleChanged += Webview_TitleChanged;
             }
+
+            SetWindowDelegate(Handle);
         }
 
         public void Show()
@@ -120,6 +122,40 @@ namespace SpiderEye.UI.Mac
         private void Webview_TitleChanged(object sender, string title)
         {
             Title = title ?? config.Window.Title;
+        }
+
+        private void SetWindowDelegate(IntPtr window)
+        {
+            IntPtr windowDelegateClass = ObjC.AllocateClassPair(ObjC.GetClass("NSObject"), "WindowDelegate", IntPtr.Zero);
+            ObjC.AddProtocol(windowDelegateClass, ObjC.GetProtocol("NSWindowDelegate"));
+
+            ObjC.AddMethod(
+                windowDelegateClass,
+                ObjC.RegisterName("windowShouldClose:"),
+                (WindowShouldCloseDelegate)WindowShouldCloseCallback,
+                "c@:@");
+
+            ObjC.AddMethod(
+                windowDelegateClass,
+                ObjC.RegisterName("windowWillClose:"),
+                (NotificationDelegate)WindowWillCloseCallback,
+                "v@:@");
+
+            ObjC.RegisterClassPair(windowDelegateClass);
+
+            IntPtr windowDelegate = ObjC.Call(windowDelegateClass, "new");
+            ObjC.Call(window, "setDelegate:", windowDelegate);
+        }
+
+        private byte WindowShouldCloseCallback(IntPtr self, IntPtr op, IntPtr window)
+        {
+            Closing?.Invoke(this, EventArgs.Empty);
+            return 1;
+        }
+
+        private void WindowWillCloseCallback(IntPtr self, IntPtr op, IntPtr notification)
+        {
+            Closed?.Invoke(this, EventArgs.Empty);
         }
     }
 }
