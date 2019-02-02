@@ -25,12 +25,12 @@ namespace SpiderEye.UI.Linux
 
         public string Title
         {
-            get { return GLibString.FromPointer(Gtk.Window.GetTitle(window)); }
+            get { return GLibString.FromPointer(Gtk.Window.GetTitle(Handle)); }
             set
             {
                 using (GLibString str = value)
                 {
-                    Gtk.Window.SetTitle(window, str);
+                    Gtk.Window.SetTitle(Handle, str);
                 }
             }
         }
@@ -40,7 +40,8 @@ namespace SpiderEye.UI.Linux
             get { return bridge; }
         }
 
-        private readonly IntPtr window;
+        public readonly IntPtr Handle;
+
         private readonly AppConfiguration config;
         private readonly GtkWebview webview;
         private readonly WebviewBridge bridge;
@@ -54,22 +55,22 @@ namespace SpiderEye.UI.Linux
             var contentProvider = new EmbeddedFileProvider(config.ContentAssembly, config.ContentFolder);
             bridge = new WebviewBridge();
             webview = new GtkWebview(config, contentProvider, bridge);
-            window = Gtk.Window.Create(GtkWindowType.Toplevel);
+            Handle = Gtk.Window.Create(GtkWindowType.Toplevel);
 
             Title = config.Window.Title;
-            Gtk.Window.SetResizable(window, config.Window.CanResize);
-            Gtk.Window.SetDefaultSize(window, config.Window.Width, config.Window.Height);
+            Gtk.Window.SetResizable(Handle, config.Window.CanResize);
+            Gtk.Window.SetDefaultSize(Handle, config.Window.Width, config.Window.Height);
 
             string backgroundColor = config.Window.BackgroundColor;
             if (string.IsNullOrWhiteSpace(backgroundColor)) { backgroundColor = "#FFFFFF"; }
             SetBackgroundColor(backgroundColor);
 
             IntPtr scroller = Gtk.Window.CreateScrolled(IntPtr.Zero, IntPtr.Zero);
-            Gtk.Widget.ContainerAdd(window, scroller);
+            Gtk.Widget.ContainerAdd(Handle, scroller);
             Gtk.Widget.ContainerAdd(scroller, webview.Handle);
 
-            GLib.ConnectSignal(window, "delete-event", (DeleteCallbackDelegate)DeleteCallback, IntPtr.Zero);
-            GLib.ConnectSignal(window, "destroy", (DestroyCallbackDelegate)DestroyCallback, IntPtr.Zero);
+            GLib.ConnectSignal(Handle, "delete-event", (DeleteCallbackDelegate)DeleteCallback, IntPtr.Zero);
+            GLib.ConnectSignal(Handle, "destroy", (DestroyCallbackDelegate)DestroyCallback, IntPtr.Zero);
 
             webview.CloseRequested += Webview_CloseRequested;
 
@@ -84,13 +85,13 @@ namespace SpiderEye.UI.Linux
 
         public void Show()
         {
-            Gtk.Widget.ShowAll(window);
-            Gtk.Window.Present(window);
+            Gtk.Widget.ShowAll(Handle);
+            Gtk.Window.Present(Handle);
         }
 
         public void Close()
         {
-            Gtk.Window.Close(window);
+            Gtk.Window.Close(Handle);
         }
 
         public void SetWindowState(WindowState state)
@@ -98,16 +99,16 @@ namespace SpiderEye.UI.Linux
             switch (state)
             {
                 case WindowState.Normal:
-                    Gtk.Window.Unmaximize(window);
-                    Gtk.Window.Unminimize(window);
+                    Gtk.Window.Unmaximize(Handle);
+                    Gtk.Window.Unminimize(Handle);
                     break;
 
                 case WindowState.Maximized:
-                    Gtk.Window.Maximize(window);
+                    Gtk.Window.Maximize(Handle);
                     break;
 
                 case WindowState.Minimized:
-                    Gtk.Window.Minimize(window);
+                    Gtk.Window.Minimize(Handle);
                     break;
 
                 default:
@@ -123,7 +124,7 @@ namespace SpiderEye.UI.Linux
         public void Dispose()
         {
             webview.Dispose();
-            Gtk.Widget.Destroy(window);
+            Gtk.Widget.Destroy(Handle);
         }
 
         private bool DeleteCallback(IntPtr widget, IntPtr eventData, IntPtr userdata)
@@ -160,7 +161,7 @@ namespace SpiderEye.UI.Linux
                     Gtk.Css.LoadData(provider, css, new IntPtr(-1), IntPtr.Zero);
                 }
 
-                IntPtr context = Gtk.StyleContext.Get(window);
+                IntPtr context = Gtk.StyleContext.Get(Handle);
                 Gtk.StyleContext.AddProvider(context, provider, GtkStyleProviderPriority.Application);
             }
             finally { if (provider != IntPtr.Zero) { GLib.UnrefObject(provider); } }
