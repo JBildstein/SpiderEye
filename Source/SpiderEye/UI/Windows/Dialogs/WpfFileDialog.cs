@@ -13,7 +13,7 @@ namespace SpiderEye.UI.Windows.Dialogs
         public string FileName { get; set; }
         public ICollection<FileFilter> FileFilters { get; }
 
-        public WpfFileDialog()
+        protected WpfFileDialog()
         {
             FileFilters = new List<FileFilter>();
         }

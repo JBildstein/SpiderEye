@@ -15,7 +15,7 @@ namespace SpiderEye.UI.Linux.Dialogs
 
         protected abstract GtkFileChooserAction Type { get; }
 
-        public GtkFileDialog()
+        protected GtkFileDialog()
         {
             FileFilters = new List<FileFilter>();
         }
