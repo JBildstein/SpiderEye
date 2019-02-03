@@ -25,6 +25,8 @@ namespace SpiderEye.UI.Mac
         private readonly WebviewBridge bridge;
         private readonly string customHost;
 
+        private readonly bool enableDevTools = false;
+
         public CocoaWebview(AppConfiguration config, IContentProvider contentProvider, WebviewBridge bridge)
         {
             this.config = config ?? throw new ArgumentNullException(nameof(config));
@@ -36,9 +38,6 @@ namespace SpiderEye.UI.Mac
             IntPtr configuration = WebKit.Call("WKWebViewConfiguration", "new");
             IntPtr manager = ObjC.Call(configuration, "userContentController");
             IntPtr callbackClass = CreateCallbackClass();
-
-            IntPtr preferences = ObjC.Call(configuration, "preferences");
-            ObjC.Call(preferences, "setValue:forKey:", new IntPtr(1), NSString.Create("developerExtrasEnabled"));
 
             customHost = CreateSchemeHandler(configuration);
 
@@ -68,6 +67,12 @@ namespace SpiderEye.UI.Mac
             if (config.Window.UseBrowserTitle)
             {
                 ObjC.Call(Handle, "addObserver:forKeyPath:options:context:", callbackClass, NSString.Create("title"), IntPtr.Zero, IntPtr.Zero);
+            }
+
+            if (enableDevTools)
+            {
+                var preferences = ObjC.Call(configuration, "preferences");
+                ObjC.Call(preferences, "setValue:forKey:", new IntPtr(1), NSString.Create("developerExtrasEnabled"));
             }
         }
 

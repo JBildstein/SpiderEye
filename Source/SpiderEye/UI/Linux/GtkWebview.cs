@@ -26,6 +26,8 @@ namespace SpiderEye.UI.Linux
         private readonly IntPtr manager;
         private readonly string customHost;
 
+        private readonly bool enableDevTools = false;
+
         public GtkWebview(AppConfiguration config, IContentProvider contentProvider, WebviewBridge bridge)
         {
             this.config = config ?? throw new ArgumentNullException(nameof(config));
@@ -69,6 +71,14 @@ namespace SpiderEye.UI.Linux
 
             var bgColor = new GdkColor(config.Window.BackgroundColor);
             WebKit.SetBackgroundColor(Handle, ref bgColor);
+
+            if (enableDevTools)
+            {
+                var settings = WebKit.Settings.Get(Handle);
+                WebKit.Settings.SetEnableDeveloperExtras(settings, true);
+                var inspector = WebKit.Inspector.Get(Handle);
+                WebKit.Inspector.Show(inspector);
+            }
         }
 
         public void NavigateToFile(string url)
