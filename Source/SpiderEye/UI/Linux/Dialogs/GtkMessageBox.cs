@@ -40,7 +40,7 @@ namespace SpiderEye.UI.Linux.Dialogs
                     GLib.SetProperty(dialog, "title", title);
                     GLib.SetProperty(dialog, "text", message);
 
-                    var result = (GtkResponseType)Gtk.Dialog.Run(dialog);
+                    var result = Gtk.Dialog.Run(dialog);
                     return MapResult(result);
                 }
             }
