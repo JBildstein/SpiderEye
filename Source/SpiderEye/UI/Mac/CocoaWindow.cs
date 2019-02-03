@@ -22,7 +22,7 @@ namespace SpiderEye.UI.Mac
         public string Title
         {
             get { return NSString.GetString(ObjC.Call(Handle, "title")); }
-            set { NSString.Use(value ?? string.Empty, nsTitle => ObjC.Call(Handle, "setTitle:", nsTitle)); }
+            set { ObjC.Call(Handle, "setTitle:", NSString.Create(value ?? string.Empty)); }
         }
 
         public IWebviewBridge Bridge

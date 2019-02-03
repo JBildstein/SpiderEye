@@ -35,19 +35,16 @@ namespace SpiderEye.UI.Mac.Dialogs
 
             if (!string.IsNullOrWhiteSpace(InitialDirectory))
             {
-                NSString.Use(InitialDirectory, nsdir =>
-                {
-                    var url = Foundation.Call("NSURL", "fileURLWithPath:", nsdir);
-                    ObjC.Call(dialog.Handle, "setDirectoryURL:", url);
-                });
+                var url = Foundation.Call("NSURL", "fileURLWithPath:", NSString.Create(InitialDirectory));
+                ObjC.Call(dialog.Handle, "setDirectoryURL:", url);
             }
 
             if (!string.IsNullOrWhiteSpace(FileName))
             {
-                NSString.Use(FileName, nsname => ObjC.Call(dialog.Handle, "setNameFieldStringValue:", nsname));
+                ObjC.Call(dialog.Handle, "setNameFieldStringValue:", NSString.Create(FileName));
             }
 
-            NSString.Use(Title, nstitle => ObjC.Call(dialog.Handle, "setTitle:", nstitle));
+            ObjC.Call(dialog.Handle, "setTitle:", NSString.Create(Title));
             ObjC.Call(dialog.Handle, "setCanCreateDirectories:", true);
             SetFileFilters(dialog.Handle, FileFilters);
 

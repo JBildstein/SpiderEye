@@ -38,20 +38,20 @@ namespace SpiderEye.UI.Mac
             IntPtr callbackClass = CreateCallbackClass();
 
             IntPtr preferences = ObjC.Call(configuration, "preferences");
-            NSString.Use("developerExtrasEnabled", nsString => ObjC.Call(preferences, "setValue:forKey:", new IntPtr(1), nsString));
+            ObjC.Call(preferences, "setValue:forKey:", new IntPtr(1), NSString.Create("developerExtrasEnabled"));
 
             customHost = CreateSchemeHandler(configuration);
 
             if (config.EnableScriptInterface)
             {
-                NSString.Use("external", nsString => ObjC.Call(manager, "addScriptMessageHandler:name:", callbackClass, nsString));
-
+                ObjC.Call(manager, "addScriptMessageHandler:name:", callbackClass, NSString.Create("external"));
                 IntPtr script = WebKit.Call("WKUserScript", "alloc");
-                NSString.Use(Resources.GetInitScript("Unix"), nsString =>
-                {
-                    ObjC.Call(script, "initWithSource:injectionTime:forMainFrameOnly:", nsString, IntPtr.Zero, IntPtr.Zero);
-                });
-
+                ObjC.Call(
+                    script,
+                    "initWithSource:injectionTime:forMainFrameOnly:",
+                    NSString.Create(Resources.GetInitScript("Unix")),
+                    IntPtr.Zero,
+                    IntPtr.Zero);
                 ObjC.Call(manager, "addUserScript:", script);
             }
 
@@ -63,14 +63,11 @@ namespace SpiderEye.UI.Mac
             ObjC.Call(Handle, "setBackgroundColor:", bgColor);
 
             IntPtr boolValue = Foundation.Call("NSNumber", "numberWithBool:", 0);
-            NSString.Use("drawsBackground", nsString => ObjC.Call(Handle, "setValue:forKey:", boolValue, nsString));
+            ObjC.Call(Handle, "setValue:forKey:", boolValue, NSString.Create("drawsBackground"));
 
             if (config.Window.UseBrowserTitle)
             {
-                NSString.Use("title", nsString =>
-                {
-                    ObjC.Call(Handle, "addObserver:forKeyPath:options:context:", callbackClass, nsString, IntPtr.Zero, IntPtr.Zero);
-                });
+                ObjC.Call(Handle, "addObserver:forKeyPath:options:context:", callbackClass, NSString.Create("title"), IntPtr.Zero, IntPtr.Zero);
             }
         }
 
@@ -81,12 +78,9 @@ namespace SpiderEye.UI.Mac
             if (customHost != null) { url = UriTools.Combine(customHost, url).ToString(); }
             else { url = UriTools.Combine(config.ExternalHost, url).ToString(); }
 
-            NSString.Use(url, nsUrlString =>
-            {
-                IntPtr nsUrl = Foundation.Call("NSURL", "URLWithString:", nsUrlString);
-                IntPtr request = Foundation.Call("NSURLRequest", "requestWithURL:", nsUrl);
-                ObjC.Call(Handle, "loadRequest:", request);
-            });
+            IntPtr nsUrl = Foundation.Call("NSURL", "URLWithString:", NSString.Create(url));
+            IntPtr request = Foundation.Call("NSURLRequest", "requestWithURL:", nsUrl);
+            ObjC.Call(Handle, "loadRequest:", request);
         }
 
         public string ExecuteScript(string script)
@@ -119,14 +113,11 @@ namespace SpiderEye.UI.Mac
             }
 
             block = new NSBlock((ScriptEvalCallbackDelegate)Callback);
-            NSString.Use(script, nsString =>
-            {
-                ObjC.Call(
-                    Handle,
-                    "evaluateJavaScript:completionHandler:",
-                    nsString,
-                    block.Handle);
-            });
+            ObjC.Call(
+                Handle,
+                "evaluateJavaScript:completionHandler:",
+                NSString.Create(script),
+                block.Handle);
 
             return taskResult.Task;
         }
@@ -191,7 +182,7 @@ namespace SpiderEye.UI.Mac
                 ObjC.RegisterClassPair(handlerClass);
 
                 IntPtr handler = ObjC.Call(handlerClass, "new");
-                NSString.Use(scheme, nsString => ObjC.Call(configuration, "setURLSchemeHandler:forURLScheme:", handler, nsString));
+                ObjC.Call(configuration, "setURLSchemeHandler:forURLScheme:", handler, NSString.Create(scheme));
             }
 
             return host;
@@ -293,20 +284,22 @@ namespace SpiderEye.UI.Mac
         private void FinishUriSchemeCallback(IntPtr url, IntPtr schemeTask, IntPtr data, long contentLength, Uri uri)
         {
             IntPtr response = Foundation.Call("NSURLResponse", "alloc");
-            NSString.Use(MimeTypes.FindForUri(uri), nsString =>
-            {
-                ObjC.Call(
-                    response,
-                    "initWithURL:MIMEType:expectedContentLength:textEncodingName:",
-                    url,
-                    nsString,
-                    new IntPtr(contentLength),
-                    IntPtr.Zero);
-            });
+            ObjC.Call(
+                response,
+                "initWithURL:MIMEType:expectedContentLength:textEncodingName:",
+                url,
+                NSString.Create(MimeTypes.FindForUri(uri)),
+                new IntPtr(contentLength),
+                IntPtr.Zero);
 
             ObjC.Call(schemeTask, "didReceiveResponse:", response);
 
-            IntPtr nsData = Foundation.Call("NSData", "dataWithBytesNoCopy:length:freeWhenDone:", data, new IntPtr(contentLength), IntPtr.Zero);
+            IntPtr nsData = Foundation.Call(
+                "NSData",
+                "dataWithBytesNoCopy:length:freeWhenDone:",
+                data,
+                new IntPtr(contentLength),
+                IntPtr.Zero);
             ObjC.Call(schemeTask, "didReceiveData:", nsData);
 
             ObjC.Call(schemeTask, "didFinish");
@@ -314,12 +307,12 @@ namespace SpiderEye.UI.Mac
 
         private void FinishUriSchemeCallbackWithError(IntPtr schemeTask, int errorCode)
         {
-            IntPtr error = IntPtr.Zero;
-            NSString.Use("com.bildstein.spidereye", domain =>
-            {
-                error = Foundation.Call("NSError", "errorWithDomain:code:userInfo:", domain, new IntPtr(errorCode), IntPtr.Zero);
-            });
-
+            var error = Foundation.Call(
+                "NSError",
+                "errorWithDomain:code:userInfo:",
+                NSString.Create("com.bildstein.spidereye"),
+                new IntPtr(errorCode),
+                IntPtr.Zero);
             ObjC.Call(schemeTask, "didFailWithError:", error);
         }
     }

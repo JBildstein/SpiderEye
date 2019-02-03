@@ -27,8 +27,8 @@ namespace SpiderEye.UI.Mac.Dialogs
             using (var alert = NSDialog.CreateAlert())
             {
                 ObjC.Call(alert.Handle, "setShowsHelp:", IntPtr.Zero);
-                NSString.Use(Title, nstitle => ObjC.Call(alert.Handle, "setMessageText:", nstitle));
-                NSString.Use(Message, nsmsg => ObjC.Call(alert.Handle, "setInformativeText:", nsmsg));
+                ObjC.Call(alert.Handle, "setMessageText:", NSString.Create(Title));
+                ObjC.Call(alert.Handle, "setInformativeText:", NSString.Create(Message));
                 AddButtons(alert.Handle, Buttons);
 
                 return (DialogResult)alert.Run(window);
@@ -58,11 +58,8 @@ namespace SpiderEye.UI.Mac.Dialogs
 
         private void AddButton(IntPtr alert, string title, DialogResult result)
         {
-            NSString.Use(title, nstitle =>
-            {
-                IntPtr button = ObjC.Call(alert, "addButtonWithTitle:", nstitle);
-                ObjC.Call(button, "setTag:", new IntPtr((int)result));
-            });
+            IntPtr button = ObjC.Call(alert, "addButtonWithTitle:", NSString.Create(title));
+            ObjC.Call(button, "setTag:", new IntPtr((int)result));
         }
     }
 }
