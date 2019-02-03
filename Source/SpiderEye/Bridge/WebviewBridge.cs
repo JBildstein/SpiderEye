@@ -86,12 +86,12 @@ namespace SpiderEye.Bridge
                 else if (info.Type == "api")
                 {
                     var result = await ResolveCall(info.Id, info.Parameters);
-                    EndApiCall(info, result);
+                    await EndApiCall(info, result);
                 }
                 else if (info.CallbackId != null)
                 {
                     string message = $"Invalid invoke type \"{info.Type ?? "<null>"}\".";
-                    EndApiCall(info, ApiResultModel.FromError(message));
+                    await EndApiCall(info, ApiResultModel.FromError(message));
                 }
             }
         }
@@ -122,10 +122,10 @@ namespace SpiderEye.Bridge
             else { return JsonConvert.Deserialize<T>(result.Result); }
         }
 
-        private void EndApiCall(InvokeInfoModel info, ApiResultModel result)
+        private async Task EndApiCall(InvokeInfoModel info, ApiResultModel result)
         {
             string resultJson = JsonConvert.Serialize(result);
-            webview.ExecuteScript($"window._spidereye._endApiCall({info.CallbackId}, {resultJson})");
+            await webview.ExecuteScriptAsync($"window._spidereye._endApiCall({info.CallbackId}, {resultJson})");
         }
 
         private async Task<ApiResultModel> ResolveCall(string id, string parameters)
