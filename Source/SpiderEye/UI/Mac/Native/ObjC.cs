@@ -48,7 +48,13 @@ namespace SpiderEye.UI.Mac.Native
         public static extern IntPtr SendMessage(IntPtr self, IntPtr op, IntPtr a, UIntPtr b);
 
         [DllImport(ObjCLib, EntryPoint = "objc_msgSend")]
+        public static extern IntPtr SendMessage(IntPtr self, IntPtr op, IntPtr[] a, IntPtr b);
+
+        [DllImport(ObjCLib, EntryPoint = "objc_msgSend")]
         public static extern IntPtr SendMessage(IntPtr self, IntPtr op, int value);
+
+        [DllImport(ObjCLib, EntryPoint = "objc_msgSend")]
+        public static extern IntPtr SendMessage(IntPtr self, IntPtr op, [MarshalAs(UnmanagedType.Bool)] byte a);
 
         [DllImport(ObjCLib, EntryPoint = "objc_msgSend")]
         public static extern IntPtr SendMessage(IntPtr self, IntPtr op, double a, double b, double c, double d);
@@ -73,6 +79,11 @@ namespace SpiderEye.UI.Mac.Native
         public static IntPtr Call(IntPtr id, string sel, int a)
         {
             return SendMessage(id, RegisterName(sel), a);
+        }
+
+        public static IntPtr Call(IntPtr id, string sel, bool a)
+        {
+            return SendMessage(id, RegisterName(sel), a ? 1 : 0);
         }
 
         public static IntPtr Call(IntPtr id, string sel, IntPtr a, IntPtr b)

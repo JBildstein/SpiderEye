@@ -1,29 +1,43 @@
 ﻿using System;
-using System.Collections.Generic;
+using SpiderEye.UI.Mac.Interop;
+using SpiderEye.UI.Mac.Native;
 
 namespace SpiderEye.UI.Mac.Dialogs
 {
-    internal class CocoaOpenFileDialog : IOpenFileDialog
+    internal class CocoaOpenFileDialog : CocoaFileDialog, IOpenFileDialog
     {
-        public string Title { get; set; }
-        public string InitialDirectory { get; set; }
-        public string FileName { get; set; }
         public bool Multiselect { get; set; }
-        public ICollection<FileFilter> FileFilters { get; }
+
         public string[] SelectedFiles
         {
             get;
             private set;
         }
 
-        public DialogResult Show()
+        protected override NSDialog CreateDialog()
         {
-            throw new NotImplementedException();
+            var panel = NSDialog.CreateOpenPanel();
+
+            ObjC.Call(panel.Handle, "setCanChooseFiles:", true);
+            ObjC.Call(panel.Handle, "setCanChooseDirectories:", false);
+            ObjC.Call(panel.Handle, "setAllowsMultipleSelection:", Multiselect);
+
+            return panel;
         }
 
-        public DialogResult Show(IWindow parent)
+
+        protected override void BeforeReturn(NSDialog dialog)
         {
-            throw new NotImplementedException();
+            var urls = ObjC.Call(dialog.Handle, "URLs");
+            int count = ObjC.Call(urls, "count").ToInt32();
+            string[] result = new string[count];
+            for (int i = 0; i < count; i++)
+            {
+                var url = ObjC.Call(urls, "objectAtIndex:", new IntPtr(i));
+                result[i] = NSString.GetString(ObjC.Call(url, "path"));
+            }
+
+            SelectedFiles = result;
         }
     }
 }

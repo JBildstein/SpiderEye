@@ -17,7 +17,7 @@ namespace SpiderEye.UI.Mac
         {
             Factory = new CocoaWindowFactory(config);
 
-            application = AppKit.Call("NSApplication", "sharedApplication");
+            application = GetApp();
             ObjC.Call(application, "setActivationPolicy:", IntPtr.Zero);
 
             IntPtr appDelegateClass = ObjC.AllocateClassPair(ObjC.GetClass("NSObject"), "AppDelegate", IntPtr.Zero);
@@ -35,6 +35,11 @@ namespace SpiderEye.UI.Mac
             ObjC.Call(application, "setDelegate:", appDelegate);
 
             MainWindow = new CocoaWindow(config, Factory);
+        }
+
+        public static IntPtr GetApp()
+        {
+            return AppKit.Call("NSApplication", "sharedApplication");
         }
 
         public override void Exit()

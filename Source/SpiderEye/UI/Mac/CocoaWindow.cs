@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using SpiderEye.Bridge;
 using SpiderEye.Configuration;
 using SpiderEye.Content;
@@ -31,6 +32,8 @@ namespace SpiderEye.UI.Mac
 
         public readonly IntPtr Handle;
 
+        private static int count = 0;
+
         private readonly AppConfiguration config;
         private readonly CocoaWebview webview;
         private readonly WebviewBridge bridge;
@@ -41,6 +44,7 @@ namespace SpiderEye.UI.Mac
 
             this.config = config ?? throw new ArgumentNullException(nameof(config));
 
+            Interlocked.Increment(ref count);
             Handle = AppKit.Call("NSWindow", "alloc");
 
             var style = NSWindowStyleMask.Titled | NSWindowStyleMask.Closable | NSWindowStyleMask.Miniaturizable;
@@ -126,7 +130,7 @@ namespace SpiderEye.UI.Mac
 
         private void SetWindowDelegate(IntPtr window)
         {
-            IntPtr windowDelegateClass = ObjC.AllocateClassPair(ObjC.GetClass("NSObject"), "WindowDelegate", IntPtr.Zero);
+            IntPtr windowDelegateClass = ObjC.AllocateClassPair(ObjC.GetClass("NSObject"), "WindowDelegate" + count, IntPtr.Zero);
             ObjC.AddProtocol(windowDelegateClass, ObjC.GetProtocol("NSWindowDelegate"));
 
             ObjC.AddMethod(
@@ -155,6 +159,9 @@ namespace SpiderEye.UI.Mac
 
         private void WindowWillCloseCallback(IntPtr self, IntPtr op, IntPtr notification)
         {
+            webview.TitleChanged -= Webview_TitleChanged;
+            bridge.TitleChanged -= Webview_TitleChanged;
+
             Closed?.Invoke(this, EventArgs.Empty);
         }
     }

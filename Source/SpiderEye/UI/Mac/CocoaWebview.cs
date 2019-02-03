@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using SpiderEye.Bridge;
 using SpiderEye.Configuration;
@@ -17,6 +18,8 @@ namespace SpiderEye.UI.Mac
 
         public readonly IntPtr Handle;
 
+        private static int count = 0;
+
         private readonly IContentProvider contentProvider;
         private readonly AppConfiguration config;
         private readonly WebviewBridge bridge;
@@ -28,8 +31,10 @@ namespace SpiderEye.UI.Mac
             this.contentProvider = contentProvider ?? throw new ArgumentNullException(nameof(contentProvider));
             this.bridge = bridge ?? throw new ArgumentNullException(nameof(bridge));
 
+            Interlocked.Increment(ref count);
+
             IntPtr configuration = WebKit.Call("WKWebViewConfiguration", "new");
-            IntPtr manager = WebKit.Call(configuration, "userContentController");
+            IntPtr manager = ObjC.Call(configuration, "userContentController");
             IntPtr callbackClass = CreateCallbackClass();
 
             IntPtr preferences = ObjC.Call(configuration, "preferences");
@@ -86,19 +91,7 @@ namespace SpiderEye.UI.Mac
 
         public string ExecuteScript(string script)
         {
-            var task = ExecuteScriptAsync(script);
-
-            IntPtr loop = Foundation.Call("NSRunLoop", "currentRunLoop");
-            IntPtr mode = Foundation.Call(loop, "currentMode");
-            IntPtr date = Foundation.Call("NSDate", "distantFuture");
-
-            // main loop would deadlock without this
-            while (!task.IsCompleted)
-            {
-                ObjC.Call(loop, "runMode:beforeDate:", mode, date);
-            }
-
-            return task.Result;
+            return NSRunLoop.WaitForTask(ExecuteScriptAsync(script));
         }
 
         public Task<string> ExecuteScriptAsync(string script)
@@ -125,7 +118,7 @@ namespace SpiderEye.UI.Mac
                 finally { block.Dispose(); }
             }
 
-            block = NSBlock.Create<ScriptEvalCallbackDelegate>(Callback);
+            block = new NSBlock((ScriptEvalCallbackDelegate)Callback);
             NSString.Use(script, nsString =>
             {
                 ObjC.Call(
@@ -145,7 +138,7 @@ namespace SpiderEye.UI.Mac
 
         private IntPtr CreateCallbackClass()
         {
-            IntPtr callbackClass = ObjC.AllocateClassPair(ObjC.GetClass("NSObject"), "CallbackClass", IntPtr.Zero);
+            IntPtr callbackClass = ObjC.AllocateClassPair(ObjC.GetClass("NSObject"), "CallbackClass" + count, IntPtr.Zero);
             ObjC.AddProtocol(callbackClass, ObjC.GetProtocol("WKNavigationDelegate"));
             ObjC.AddProtocol(callbackClass, ObjC.GetProtocol("WKScriptMessageHandler"));
 
@@ -180,7 +173,7 @@ namespace SpiderEye.UI.Mac
                 const string scheme = "spidereye";
                 host = UriTools.GetRandomResourceUrl(scheme);
 
-                IntPtr handlerClass = ObjC.AllocateClassPair(ObjC.GetClass("NSObject"), "SchemeHandler", IntPtr.Zero);
+                IntPtr handlerClass = ObjC.AllocateClassPair(ObjC.GetClass("NSObject"), "SchemeHandler" + count, IntPtr.Zero);
                 ObjC.AddProtocol(handlerClass, ObjC.GetProtocol("WKURLSchemeHandler"));
 
                 ObjC.AddMethod(

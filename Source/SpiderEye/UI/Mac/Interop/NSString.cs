@@ -6,19 +6,23 @@ namespace SpiderEye.UI.Mac.Interop
 {
     internal static class NSString
     {
-        public static unsafe void Use(string value, Action<IntPtr> callback)
+        public static void Use(string value, Action<IntPtr> callback)
         {
-            if (value == null) { return; }
+            IntPtr nsString = Create(value);
+            callback(nsString);
+        }
+
+        public static unsafe IntPtr Create(string value)
+        {
+            if (value == null) { return IntPtr.Zero; }
 
             fixed (char* ptr = value)
             {
-                IntPtr nsString = ObjC.SendMessage(
+                return ObjC.SendMessage(
                     ObjC.GetClass("NSString"),
                     ObjC.RegisterName("stringWithCharacters:length:"),
                     (IntPtr)ptr,
                     new UIntPtr((uint)value.Length));
-
-                callback(nsString);
             }
         }
 

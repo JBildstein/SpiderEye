@@ -1,24 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using SpiderEye.UI.Mac.Interop;
 
 namespace SpiderEye.UI.Mac.Dialogs
 {
-    internal class CocoaSaveFileDialog : ISaveFileDialog
+    internal class CocoaSaveFileDialog : CocoaFileDialog, ISaveFileDialog
     {
-        public string Title { get; set; }
-        public string InitialDirectory { get; set; }
-        public string FileName { get; set; }
         public bool OverwritePrompt { get; set; }
-        public ICollection<FileFilter> FileFilters { get; }
 
-        public DialogResult Show()
+        protected override NSDialog CreateDialog()
         {
-            throw new NotImplementedException();
-        }
-
-        public DialogResult Show(IWindow parent)
-        {
-            throw new NotImplementedException();
+            // TODO: can't disable overwrite prompt on macOS
+            return NSDialog.CreateSavePanel();
         }
     }
 }

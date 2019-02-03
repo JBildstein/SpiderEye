@@ -14,10 +14,5 @@ namespace SpiderEye.UI.Mac.Native
         {
             return ObjC.SendMessage(GetClass(id), ObjC.RegisterName(sel));
         }
-
-        public static IntPtr Call(IntPtr id, string sel)
-        {
-            return ObjC.SendMessage(id, ObjC.RegisterName(sel));
-        }
     }
 }

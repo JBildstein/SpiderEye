@@ -7,21 +7,19 @@ namespace SpiderEye.UI.Mac.Interop
     internal sealed class NSBlock : IDisposable
     {
         public readonly IntPtr Handle;
+        private readonly Delegate callback;
 
-        private NSBlock(IntPtr handle)
+        public unsafe NSBlock(Delegate callback)
         {
-            Handle = handle;
-        }
+            this.callback = callback ?? throw new ArgumentNullException(nameof(callback));
 
-        public static unsafe NSBlock Create<T>(T @delegate)
-        {
             var blp = (BlockLiteral*)Marshal.AllocHGlobal(sizeof(BlockLiteral));
             var bdp = (BlockDescriptor*)Marshal.AllocHGlobal(sizeof(BlockDescriptor));
 
             blp->Isa = ObjC.GetClass("__NSStackBlock");
             blp->Flags = 0;
             blp->Reserved = 0;
-            blp->Invoke = Marshal.GetFunctionPointerForDelegate(@delegate);
+            blp->Invoke = Marshal.GetFunctionPointerForDelegate(callback);
             blp->Descriptor = bdp;
 
             bdp->Reserved = IntPtr.Zero;
@@ -29,7 +27,7 @@ namespace SpiderEye.UI.Mac.Interop
             bdp->CopyHelper = IntPtr.Zero;
             bdp->DisposeHelper = IntPtr.Zero;
 
-            return new NSBlock((IntPtr)blp);
+            Handle = (IntPtr)blp;
         }
 
         public unsafe void Dispose()
