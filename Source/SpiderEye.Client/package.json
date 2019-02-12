@@ -1,6 +1,6 @@
 {
   "name": "spidereye",
-  "version": "1.0.0-alpha.6",
+  "version": "1.0.0-alpha.7",
   "description": "Client library for .Net SpiderEye apps",
   "repository": "github:JBildstein/SpiderEye",
   "author": "Johannes Bildstein",
