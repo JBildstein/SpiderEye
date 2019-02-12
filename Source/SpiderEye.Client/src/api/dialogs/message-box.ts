@@ -34,7 +34,7 @@ export class MessageBox {
     }
 
     private static showBase(config: MessageBoxConfig, callback: ApiCallback<DialogResult>): void {
-        window._spidereye.invokeApi<MessageBoxConfig, DialogResult>("Dialog.showMessageBox", config, callback);
+        window._spidereye.invokeApi<DialogResult, MessageBoxConfig>("Dialog.showMessageBox", config, callback);
     }
 
     public title: string;

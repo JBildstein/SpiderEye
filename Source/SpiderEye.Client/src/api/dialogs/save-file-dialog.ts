@@ -48,6 +48,6 @@ export class SaveFileDialog {
             overwritePrompt: this.overwritePrompt,
         };
 
-        window._spidereye.invokeApi<SaveFileDialogConfig, FileResult>("Dialog.showSaveFileDialog", config, callback);
+        window._spidereye.invokeApi<FileResult, SaveFileDialogConfig>("Dialog.showSaveFileDialog", config, callback);
     }
 }

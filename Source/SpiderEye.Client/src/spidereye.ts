@@ -1,4 +1,4 @@
-import { ApiCallback, EventCallback } from "./index";
+import { ApiCallback, EventCallback, ApiResult } from "./index";
 
 export class SpiderEye {
 
@@ -28,14 +28,14 @@ export class SpiderEye {
         });
     }
 
-    public static invokeApi<T = any, U = any>(id: string, parameters: T, callback: ApiCallback<U>): void {
+    public static invokeApi<TResult = any, TParam = any>(id: string, parameters: TParam, callback: ApiCallback<TResult>): void {
         SpiderEye.checkBridgeReady();
-        window._spidereye.invokeApi<T, U>(id, parameters, callback);
+        window._spidereye.invokeApi<TResult, TParam>(id, parameters, callback);
     }
 
-    public static addEventHandler<T = any, U = void>(name: string, callback: EventCallback<T, U>): void {
+    public static addEventHandler<TResult = any, TParam = any>(name: string, callback: EventCallback<TResult, TParam>): void {
         SpiderEye.checkBridgeReady();
-        window._spidereye.addEventHandler<T, U>(name, callback);
+        window._spidereye.addEventHandler<TResult, TParam>(name, callback);
     }
 
     public static removeEventHandler(name: string): void {
