@@ -33,6 +33,12 @@ export class SpiderEye {
         window._spidereye.invokeApi<TResult, TParam>(id, parameters, callback);
     }
 
+    public static invokeApiAsync<TResult = any, TParam = any>(id: string, parameters: TParam): Promise<ApiResult<TResult>> {
+        return new Promise(resolve => {
+            SpiderEye.invokeApi<TResult, TParam>(id, parameters, result => resolve(result));
+        });
+    }
+
     public static addEventHandler<TResult = any, TParam = any>(name: string, callback: EventCallback<TResult, TParam>): void {
         SpiderEye.checkBridgeReady();
         window._spidereye.addEventHandler<TResult, TParam>(name, callback);
