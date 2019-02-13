@@ -37,6 +37,11 @@ namespace SpiderEye
             }
         }
 
+        public void AddGlobalHandler(object handler)
+        {
+            MainWindow.Bridge.AddGlobalHandler(handler);
+        }
+
         public abstract void Exit();
 
         protected abstract void RunMainLoop();

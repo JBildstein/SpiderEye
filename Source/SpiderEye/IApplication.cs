@@ -32,5 +32,11 @@ namespace SpiderEye
         /// Closes this application and allows <see cref="Run()"/> to return.
         /// </summary>
         void Exit();
+
+        /// <summary>
+        /// Adds a custom handler to be called from any webview of the application.
+        /// </summary>
+        /// <param name="handler">The handler instance.</param>
+        void AddGlobalHandler(object handler);
     }
 }
