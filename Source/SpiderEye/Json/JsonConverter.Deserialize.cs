@@ -175,9 +175,8 @@ namespace SpiderEye.Json
                     }
                     else if (typeMap.JsonType.HasFlag(JsonValueType.DateTime))
                     {
-                        result = DateTime.ParseExact(
+                        result = DateTime.Parse(
                             resultString,
-                            "o",
                             CultureInfo.InvariantCulture,
                             DateTimeStyles.AssumeUniversal)
                             .ToUniversalTime();
