@@ -11,7 +11,7 @@ namespace SpiderEye.UI.Windows
 {
     internal class WpfLegacyWebview : IWebview, IWpfWebview
     {
-        public event EventHandler PageLoaded;
+        public event PageLoadEventHandler PageLoaded;
 
         public object Control
         {
@@ -19,14 +19,15 @@ namespace SpiderEye.UI.Windows
         }
 
         private readonly WebBrowser webview;
+        private readonly AppConfiguration config;
         private readonly ScriptInterface scriptInterface;
         private readonly string hostAddress;
 
         public WpfLegacyWebview(AppConfiguration config, string hostAddress, WebviewBridge scriptingApi)
         {
-            if (config == null) { throw new ArgumentNullException(nameof(config)); }
             if (scriptingApi == null) { throw new ArgumentNullException(nameof(scriptingApi)); }
 
+            this.config = config ?? throw new ArgumentNullException(nameof(config));
             this.hostAddress = hostAddress ?? throw new ArgumentNullException(nameof(hostAddress));
 
             webview = new WebBrowser();
@@ -35,8 +36,9 @@ namespace SpiderEye.UI.Windows
             {
                 scriptInterface = new ScriptInterface(scriptingApi);
                 webview.ObjectForScripting = scriptInterface;
-                webview.LoadCompleted += Webview_LoadCompleted;
             }
+
+            webview.LoadCompleted += Webview_LoadCompleted;
         }
 
         public void NavigateToFile(string url)
@@ -63,10 +65,14 @@ namespace SpiderEye.UI.Windows
 
         private void Webview_LoadCompleted(object sender, NavigationEventArgs e)
         {
-            string initScript = Resources.GetInitScript("Windows");
-            ExecuteScript(initScript);
+            if (config.EnableScriptInterface)
+            {
+                string initScript = Resources.GetInitScript("Windows");
+                ExecuteScript(initScript);
+            }
 
-            PageLoaded?.Invoke(this, EventArgs.Empty);
+            // TODO: figure out how to get success state
+            PageLoaded?.Invoke(this, PageLoadEventArgs.Successful);
         }
     }
 }

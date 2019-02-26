@@ -11,7 +11,7 @@ namespace SpiderEye.UI
         /// <summary>
         /// Fires once the content in this webview has loaded.
         /// </summary>
-        event EventHandler PageLoaded;
+        event PageLoadEventHandler PageLoaded;
 
         /// <summary>
         /// Loads the given URL.

@@ -11,12 +11,12 @@ namespace SpiderEye.UI
         /// <summary>
         /// Fires once the content in the webview has loaded.
         /// </summary>
-        event EventHandler PageLoaded;
+        event PageLoadEventHandler PageLoaded;
 
         /// <summary>
         /// Fires before the window gets closed.
         /// </summary>
-        event EventHandler Closing;
+        event CancelableEventHandler Closing;
 
         /// <summary>
         /// Fires after the window has closed.

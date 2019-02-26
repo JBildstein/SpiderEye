@@ -18,7 +18,7 @@ namespace SpiderEye.UI.Windows
 {
     internal class WpfWebview : HwndHost, IWebview, IWpfWebview
     {
-        public event EventHandler PageLoaded;
+        public event PageLoadEventHandler PageLoaded;
 
         public object Control
         {
@@ -108,11 +108,12 @@ namespace SpiderEye.UI.Windows
             if (config.EnableScriptInterface)
             {
                 webview.ScriptNotify += Webview_ScriptNotify;
-                webview.NavigationCompleted += Webview_NavigationCompleted;
 
                 // TODO: needs Win10 1809 - 10.0.17763.0
                 // webview.AddInitializeScript(initScript);
             }
+
+            webview.NavigationCompleted += Webview_NavigationCompleted;
         }
 
         private async void Webview_ScriptNotify(IWebViewControl sender, WebViewControlScriptNotifyEventArgs e)
@@ -122,10 +123,13 @@ namespace SpiderEye.UI.Windows
 
         private void Webview_NavigationCompleted(object sender, WebViewControlNavigationCompletedEventArgs e)
         {
-            string initScript = SpiderEye.Resources.GetInitScript("Windows");
-            ExecuteScript(initScript);
+            if (e.IsSuccess && config.EnableScriptInterface)
+            {
+                string initScript = SpiderEye.Resources.GetInitScript("Windows");
+                ExecuteScript(initScript);
+            }
 
-            PageLoaded?.Invoke(this, EventArgs.Empty);
+            PageLoaded?.Invoke(this, PageLoadEventArgs.GetFor(e.IsSuccess));
         }
 
         private void UpdateSize(Size size)

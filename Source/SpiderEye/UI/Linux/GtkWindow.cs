@@ -9,13 +9,13 @@ namespace SpiderEye.UI.Linux
 {
     internal class GtkWindow : IWindow
     {
-        public event EventHandler PageLoaded
+        public event PageLoadEventHandler PageLoaded
         {
             add { webview.PageLoaded += value; }
             remove { webview.PageLoaded -= value; }
         }
 
-        public event EventHandler Closing;
+        public event CancelableEventHandler Closing;
         public event EventHandler Closed;
 
         public IWebview Webview
@@ -129,8 +129,10 @@ namespace SpiderEye.UI.Linux
 
         private bool DeleteCallback(IntPtr widget, IntPtr eventData, IntPtr userdata)
         {
-            Closing?.Invoke(this, EventArgs.Empty);
-            return false;
+            var args = new CancelableEventArgs();
+            Closing?.Invoke(this, args);
+
+            return args.Cancel;
         }
 
         private void DestroyCallback(IntPtr widget, IntPtr userdata)

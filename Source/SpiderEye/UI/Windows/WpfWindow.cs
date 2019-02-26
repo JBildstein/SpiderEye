@@ -13,13 +13,13 @@ namespace SpiderEye.UI.Windows
 {
     internal class WpfWindow : Window, IWindow
     {
-        public event EventHandler PageLoaded
+        public event PageLoadEventHandler PageLoaded
         {
             add { webview.PageLoaded += value; }
             remove { webview.PageLoaded -= value; }
         }
 
-        event EventHandler IWindow.Closing
+        event CancelableEventHandler IWindow.Closing
         {
             add { ClosingBackingEvent += value; }
             remove { ClosingBackingEvent -= value; }
@@ -31,7 +31,7 @@ namespace SpiderEye.UI.Windows
             remove { ClosedBackingEvent -= value; }
         }
 
-        private event EventHandler ClosingBackingEvent;
+        private event CancelableEventHandler ClosingBackingEvent;
         private event EventHandler ClosedBackingEvent;
 
         public bool CanResize
@@ -129,7 +129,10 @@ namespace SpiderEye.UI.Windows
 
         protected override void OnClosing(CancelEventArgs e)
         {
-            ClosingBackingEvent?.Invoke(this, EventArgs.Empty);
+            var args = new CancelableEventArgs();
+            ClosingBackingEvent?.Invoke(this, args);
+            e.Cancel = args.Cancel;
+
             base.OnClosing(e);
         }
 

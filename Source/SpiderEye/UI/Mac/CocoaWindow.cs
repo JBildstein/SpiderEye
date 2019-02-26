@@ -10,13 +10,13 @@ namespace SpiderEye.UI.Mac
 {
     internal class CocoaWindow : IWindow
     {
-        public event EventHandler PageLoaded
+        public event PageLoadEventHandler PageLoaded
         {
             add { webview.PageLoaded += value; }
             remove { webview.PageLoaded -= value; }
         }
 
-        public event EventHandler Closing;
+        public event CancelableEventHandler Closing;
         public event EventHandler Closed;
 
         public string Title
@@ -153,8 +153,10 @@ namespace SpiderEye.UI.Mac
 
         private byte WindowShouldCloseCallback(IntPtr self, IntPtr op, IntPtr window)
         {
-            Closing?.Invoke(this, EventArgs.Empty);
-            return 1;
+            var args = new CancelableEventArgs();
+            Closing?.Invoke(this, args);
+
+            return args.Cancel ? (byte)0 : (byte)1;
         }
 
         private void WindowWillCloseCallback(IntPtr self, IntPtr op, IntPtr notification)

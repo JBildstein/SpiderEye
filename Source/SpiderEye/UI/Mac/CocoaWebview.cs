@@ -13,7 +13,7 @@ namespace SpiderEye.UI.Mac
 {
     internal class CocoaWebview : IWebview
     {
-        public event EventHandler PageLoaded;
+        public event PageLoadEventHandler PageLoaded;
         public event EventHandler<string> TitleChanged;
 
         public readonly IntPtr Handle;
@@ -143,6 +143,12 @@ namespace SpiderEye.UI.Mac
                 ObjC.RegisterName("webView:didFinishNavigation:"),
                 (LoadFinishedDelegate)LoadCallback,
                 "v@:@@");
+
+            ObjC.AddMethod(
+                callbackClass,
+                ObjC.RegisterName("webView:didFailNavigation:withError:"),
+                (LoadFailedDelegate)LoadFailedCallback,
+                "v@:@@@");
 
             ObjC.AddMethod(
                 callbackClass,
@@ -281,9 +287,14 @@ namespace SpiderEye.UI.Mac
             }
         }
 
+        private void LoadFailedCallback(IntPtr self, IntPtr op, IntPtr view, IntPtr navigation, IntPtr error)
+        {
+            PageLoaded?.Invoke(this, PageLoadEventArgs.Failed);
+        }
+
         private void LoadCallback(IntPtr self, IntPtr op, IntPtr view, IntPtr navigation)
         {
-            PageLoaded?.Invoke(this, EventArgs.Empty);
+            PageLoaded?.Invoke(this, PageLoadEventArgs.Successful);
         }
 
         private void FinishUriSchemeCallback(IntPtr url, IntPtr schemeTask, IntPtr data, long contentLength, Uri uri)

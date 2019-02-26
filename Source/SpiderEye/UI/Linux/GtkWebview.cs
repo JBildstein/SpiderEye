@@ -14,7 +14,7 @@ namespace SpiderEye.UI.Linux
 {
     internal class GtkWebview : IWebview
     {
-        public event EventHandler PageLoaded;
+        public event PageLoadEventHandler PageLoaded;
         public event EventHandler CloseRequested;
         public event EventHandler<string> TitleChanged;
 
@@ -27,6 +27,8 @@ namespace SpiderEye.UI.Linux
         private readonly string customHost;
 
         private readonly bool enableDevTools = false;
+
+        private bool loadEventHandled = false;
 
         public GtkWebview(AppConfiguration config, IContentProvider contentProvider, WebviewBridge bridge)
         {
@@ -48,6 +50,7 @@ namespace SpiderEye.UI.Linux
             }
             else { Handle = WebKit.Create(); }
 
+            GLib.ConnectSignal(Handle, "load-failed", (PageLoadFailedDelegate)LoadFailedCallback, IntPtr.Zero);
             GLib.ConnectSignal(Handle, "load-changed", (PageLoadDelegate)LoadCallback, IntPtr.Zero);
             GLib.ConnectSignal(Handle, "context-menu", (ContextMenuRequestDelegate)ContextMenuCallback, IntPtr.Zero);
             GLib.ConnectSignal(Handle, "close", (WebviewDelegate)CloseCallback, IntPtr.Zero);
@@ -252,14 +255,29 @@ namespace SpiderEye.UI.Linux
             catch { FinishUriSchemeCallbackWithError(request); }
         }
 
+        private bool LoadFailedCallback(IntPtr webview, WebKitLoadEvent type, IntPtr failingUrl, IntPtr error, IntPtr userdata)
+        {
+            // this event is called when there is an error, immediately afterwards the LoadCallback is called with state Finished.
+            // to indicate that there was an error and the PageLoaded event has been invoked, the loadEventHandled variable is set to true.
+            loadEventHandled = true;
+            PageLoaded?.Invoke(this, PageLoadEventArgs.Failed);
+
+            return false;
+        }
+
         private void LoadCallback(IntPtr webview, WebKitLoadEvent type, IntPtr userdata)
         {
-            if (type == WebKitLoadEvent.Finished)
+            if (type == WebKitLoadEvent.Started) { loadEventHandled = false; }
+            else if (type == WebKitLoadEvent.Finished && !loadEventHandled)
             {
-                string initScript = Resources.GetInitScript("Unix");
-                ExecuteScript(initScript);
+                if (config.EnableScriptInterface)
+                {
+                    string initScript = Resources.GetInitScript("Unix");
+                    ExecuteScript(initScript);
+                }
 
-                PageLoaded?.Invoke(this, EventArgs.Empty);
+                loadEventHandled = true;
+                PageLoaded?.Invoke(this, PageLoadEventArgs.Successful);
             }
         }
 
