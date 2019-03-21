@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using SpiderEye.Json.TestModels;
 using Xunit;
+
 namespace SpiderEye.Json
 {
     public partial class JsonConverterTests
