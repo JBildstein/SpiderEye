@@ -50,6 +50,12 @@ namespace SpiderEye.UI
         void SetWindowState(WindowState state);
 
         /// <summary>
+        /// Sets the icon for this window.
+        /// </summary>
+        /// <param name="icon">The icon for this window.</param>
+        void SetIcon(WindowIcon icon);
+
+        /// <summary>
         /// Loads the given URL.
         /// </summary>
         /// <param name="url">The URL to load.</param>

@@ -118,6 +118,11 @@ namespace SpiderEye.UI.Mac
             }
         }
 
+        public void SetIcon(WindowIcon icon)
+        {
+            // windows on macOS don't have icons
+        }
+
         public void Dispose()
         {
             // will be released automatically

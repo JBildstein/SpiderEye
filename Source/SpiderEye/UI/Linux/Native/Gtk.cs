@@ -84,6 +84,12 @@ namespace SpiderEye.UI.Linux.Native
 
             [DllImport(GtkNativeDll, EntryPoint = "gtk_window_resize", CallingConvention = CallingConvention.Cdecl)]
             public static extern void Resize(IntPtr window, int width, int height);
+
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_window_set_icon", CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetIcon(IntPtr window, IntPtr icon);
+
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_window_set_icon_list", CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetIconList(IntPtr window, IntPtr list);
         }
 
         public static class Dialog

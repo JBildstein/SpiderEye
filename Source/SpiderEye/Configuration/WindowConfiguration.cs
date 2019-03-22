@@ -1,4 +1,6 @@
-﻿namespace SpiderEye.Configuration
+﻿using SpiderEye.UI;
+
+namespace SpiderEye.Configuration
 {
     /// <summary>
     /// Window configuration.
@@ -36,6 +38,11 @@
         public bool UseBrowserTitle { get; set; }
 
         /// <summary>
+        /// Gets or sets the default window icon. Default is null.
+        /// </summary>
+        public WindowIcon Icon { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="WindowConfiguration"/> class.
         /// </summary>
         public WindowConfiguration()
@@ -46,6 +53,7 @@
             BackgroundColor = "#FFFFFF";
             CanResize = true;
             UseBrowserTitle = true;
+            Icon = null;
         }
     }
 }

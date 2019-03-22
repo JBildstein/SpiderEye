@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.InteropServices;
 using SpiderEye.Bridge;
 using SpiderEye.Configuration;
 using SpiderEye.Content;
@@ -81,6 +82,8 @@ namespace SpiderEye.UI.Linux
                 webview.TitleChanged += Webview_TitleChanged;
                 bridge.TitleChanged += Webview_TitleChanged;
             }
+
+            SetIcon(config.Window.Icon);
         }
 
         public void Show()
@@ -113,6 +116,48 @@ namespace SpiderEye.UI.Linux
 
                 default:
                     throw new ArgumentException($"Invalid window state of \"{state}\"", nameof(state));
+            }
+        }
+
+        public unsafe void SetIcon(WindowIcon icon)
+        {
+            if (icon == null || icon.Icons.Count == 0)
+            {
+                Gtk.Window.SetIcon(Handle, IntPtr.Zero);
+            }
+            else
+            {
+                IntPtr iconList = IntPtr.Zero;
+                var icons = new IntPtr[icon.Icons.Count];
+
+                try
+                {
+                    for (int i = 0; i < icons.Length; i++)
+                    {
+                        IntPtr iconStream = IntPtr.Zero;
+                        try
+                        {
+                            byte[] data = icon.Icons[i];
+                            fixed (byte* iconDataPtr = data)
+                            {
+                                iconStream = GLib.CreateStreamFromData((IntPtr)iconDataPtr, data.Length, IntPtr.Zero);
+                                icons[i] = Gdk.Pixbuf.NewFromStream(iconStream, IntPtr.Zero, IntPtr.Zero);
+                                iconList = GLib.ListPrepend(iconList, icons[i]);
+                            }
+                        }
+                        finally { if (iconStream != IntPtr.Zero) { GLib.UnrefObject(iconStream); } }
+                    }
+
+                    Gtk.Window.SetIconList(Handle, iconList);
+                }
+                finally
+                {
+                    if (iconList != IntPtr.Zero) { GLib.FreeList(iconList); }
+                    foreach (var item in icons)
+                    {
+                        if (item != IntPtr.Zero) { GLib.UnrefObject(item); }
+                    }
+                }
             }
         }
 

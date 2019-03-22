@@ -4,6 +4,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using SpiderEye.Bridge;
 using SpiderEye.Configuration;
 using SpiderEye.Content;
@@ -93,6 +94,8 @@ namespace SpiderEye.UI.Windows
             {
                 bridge.TitleChanged += (s, e) => Title = e ?? config.Window.Title;
             }
+
+            SetIcon(config.Window.Icon);
         }
 
         public void Dispose()
@@ -124,6 +127,18 @@ namespace SpiderEye.UI.Windows
 
                 default:
                     throw new ArgumentException($"Invalid window state of \"{state}\"", nameof(state));
+            }
+        }
+
+        public void SetIcon(WindowIcon icon)
+        {
+            if (icon == null || icon.Icons.Count == 0) { Icon = null; }
+            else
+            {
+                using (var stream = new MemoryStream(icon.Icons[0]))
+                {
+                    Icon = BitmapFrame.Create(stream);
+                }
             }
         }
 
