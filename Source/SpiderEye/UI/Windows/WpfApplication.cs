@@ -1,33 +1,39 @@
-﻿using SpiderEye.Configuration;
-
-namespace SpiderEye.UI.Windows
+﻿namespace SpiderEye.UI.Windows
 {
-    internal class WpfApplication : ApplicationBase
+    internal class WpfApplication : IApplication
     {
-        public override IWindow MainWindow { get; }
-        public override IWindowFactory Factory { get; }
+        public bool ExitWithLastWindow
+        {
+            get { return exitWithLastWindow; }
+            set
+            {
+                exitWithLastWindow = value;
+                application.ShutdownMode = value ?
+                    ShutdownMode.OnLastWindowClose :
+                    ShutdownMode.OnExplicitShutdown;
+            }
+        }
+
+        public IUiFactory Factory { get; }
 
         private readonly System.Windows.Application application;
+        private bool exitWithLastWindow = true;
 
-        public WpfApplication(AppConfiguration config)
-            : base(config)
+        public WpfApplication()
         {
-            Factory = new WpfWindowFactory(config);
-            var window = new WpfWindow(config, Factory);
-            MainWindow = window;
-
+            Factory = new WpfUiFactory();
             application = new System.Windows.Application();
-            application.MainWindow = window;
+            application.ShutdownMode = ShutdownMode.OnLastWindowClose;
         }
 
-        public override void Exit()
-        {
-            application.Shutdown();
-        }
-
-        protected override void RunMainLoop()
+        public void Run()
         {
             application.Run();
+        }
+
+        public void Exit()
+        {
+            application.Shutdown();
         }
     }
 }

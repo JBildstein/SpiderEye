@@ -1,21 +1,18 @@
 ﻿using System;
-using SpiderEye.Configuration;
 using SpiderEye.UI.Windows.Dialogs;
 
 namespace SpiderEye.UI.Windows
 {
-    internal class WpfWindowFactory : IWindowFactory
+    internal class WpfUiFactory : IUiFactory
     {
-        private readonly AppConfiguration appConfig;
-
-        public WpfWindowFactory(AppConfiguration appConfig)
-        {
-            this.appConfig = appConfig ?? throw new ArgumentNullException(nameof(appConfig));
-        }
-
         public IWindow CreateWindow(WindowConfiguration config)
         {
-            return new WpfWindow(appConfig.CopyWithWindow(config), this);
+            return new WpfWindow(config, this);
+        }
+
+        public IStatusIcon CreateStatusIcon()
+        {
+            throw new NotImplementedException();
         }
 
         public IMessageBox CreateMessageBox()

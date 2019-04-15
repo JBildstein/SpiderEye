@@ -5,38 +5,27 @@ namespace SpiderEye
     /// <summary>
     /// Represents an application.
     /// </summary>
-    public interface IApplication
+    internal interface IApplication
     {
         /// <summary>
-        /// Gets the main window.
+        /// Gets or sets a value indicating whether the application should exit once the last window is closed.
+        /// Default is true.
         /// </summary>
-        IWindow MainWindow { get; }
+        bool ExitWithLastWindow { get; set; }
 
         /// <summary>
-        /// Gets the window factory.
+        /// Gets the UI factory.
         /// </summary>
-        IWindowFactory Factory { get; }
+        IUiFactory Factory { get; }
 
         /// <summary>
-        /// Runs this application and shows the main window. This call blocks until the application exits.
+        /// Starts the main loop and blocks until the application exits.
         /// </summary>
         void Run();
 
         /// <summary>
-        /// Runs this application and optionally shows the main window. This call blocks until the application exits.
-        /// </summary>
-        /// <param name="showWindow">True to show the main window automatically; False to do it yourself.</param>
-        void Run(bool showWindow);
-
-        /// <summary>
-        /// Closes this application and allows <see cref="Run()"/> to return.
+        /// Exits the main loop and allows it to return.
         /// </summary>
         void Exit();
-
-        /// <summary>
-        /// Adds a custom handler to be called from any webview of the application.
-        /// </summary>
-        /// <param name="handler">The handler instance.</param>
-        void AddGlobalHandler(object handler);
     }
 }

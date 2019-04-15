@@ -6,9 +6,9 @@ using System.Reflection;
 namespace SpiderEye.UI
 {
     /// <summary>
-    /// Represents an icon for a window with one or more resolutions.
+    /// Represents an icon with one or more resolutions.
     /// </summary>
-    public class WindowIcon
+    public class Icon
     {
         internal readonly List<byte[]> Icons = new List<byte[]>();
 

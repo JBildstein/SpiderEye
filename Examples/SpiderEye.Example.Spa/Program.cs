@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-using SpiderEye.Configuration;
+using SpiderEye.UI;
 
 namespace SpiderEye.Example.Spa
 {
@@ -9,8 +9,8 @@ namespace SpiderEye.Example.Spa
         [STAThread]
         public static void Main(string[] args)
         {
-            // this creates a new app configuration with default values
-            var config = new AppConfiguration();
+            // this creates a new configuration with default values
+            var config = new WindowConfiguration();
 
             // this relates to the path defined in the .csproj file
             config.ContentFolder = "Angular\\dist";
@@ -18,11 +18,12 @@ namespace SpiderEye.Example.Spa
             // this is only called in Debug mode:
             SetDevServer(config);
 
-            Application.Run(config);
+            // runs the application and opens a window with the given page loaded
+            Application.Run(config, "index.html");
         }
 
         [Conditional("DEBUG")]
-        private static void SetDevServer(AppConfiguration config)
+        private static void SetDevServer(WindowConfiguration config)
         {
             // the port number is defined in the angular.json file (under "architect"->"serve"->"options"->"port")
             // note that you have to run the angular dev server first (npm run watch)

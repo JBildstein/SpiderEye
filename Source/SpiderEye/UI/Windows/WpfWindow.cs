@@ -6,7 +6,6 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using SpiderEye.Bridge;
-using SpiderEye.Configuration;
 using SpiderEye.Content;
 using SpiderEye.UI.Windows.Interop;
 
@@ -50,7 +49,7 @@ namespace SpiderEye.UI.Windows
         private readonly WebviewBridge bridge;
         private IWpfWebview webview;
 
-        public WpfWindow(AppConfiguration config, IWindowFactory windowFactory)
+        public WpfWindow(WindowConfiguration config, IWindowFactory windowFactory)
         {
             if (config == null) { throw new ArgumentNullException(nameof(config)); }
             if (windowFactory == null) { throw new ArgumentNullException(nameof(windowFactory)); }
@@ -79,23 +78,23 @@ namespace SpiderEye.UI.Windows
 
             AddChild(webview.Control);
 
-            Title = config.Window.Title;
-            Width = config.Window.Width;
-            Height = config.Window.Height;
-            CanResize = config.Window.CanResize;
+            Title = config.Title;
+            Width = config.Width;
+            Height = config.Height;
+            CanResize = config.CanResize;
 
-            string backgroundColor = config.Window.BackgroundColor;
+            string backgroundColor = config.BackgroundColor;
             if (string.IsNullOrWhiteSpace(backgroundColor)) { backgroundColor = "#FFFFFF"; }
             Background = new BrushConverter().ConvertFrom(backgroundColor) as SolidColorBrush;
 
             if (config.EnableScriptInterface) { bridge.Init(this, webview, windowFactory); }
 
-            if (config.Window.UseBrowserTitle)
+            if (config.UseBrowserTitle)
             {
-                bridge.TitleChanged += (s, e) => Title = e ?? config.Window.Title;
+                bridge.TitleChanged += (s, e) => Title = e ?? config.Title;
             }
 
-            SetIcon(config.Window.Icon);
+            SetIcon(config.Icon);
         }
 
         public void Dispose()

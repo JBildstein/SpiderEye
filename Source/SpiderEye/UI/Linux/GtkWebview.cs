@@ -4,7 +4,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using SpiderEye.Bridge;
-using SpiderEye.Configuration;
 using SpiderEye.Content;
 using SpiderEye.Tools;
 using SpiderEye.UI.Linux.Interop;
@@ -21,7 +20,7 @@ namespace SpiderEye.UI.Linux
         public readonly IntPtr Handle;
 
         private readonly IContentProvider contentProvider;
-        private readonly AppConfiguration config;
+        private readonly WindowConfiguration config;
         private readonly WebviewBridge bridge;
         private readonly IntPtr manager;
         private readonly string customHost;
@@ -30,7 +29,7 @@ namespace SpiderEye.UI.Linux
 
         private bool loadEventHandled = false;
 
-        public GtkWebview(AppConfiguration config, IContentProvider contentProvider, WebviewBridge bridge)
+        public GtkWebview(WindowConfiguration config, IContentProvider contentProvider, WebviewBridge bridge)
         {
             this.config = config ?? throw new ArgumentNullException(nameof(config));
             this.contentProvider = contentProvider ?? throw new ArgumentNullException(nameof(contentProvider));
@@ -55,7 +54,7 @@ namespace SpiderEye.UI.Linux
             GLib.ConnectSignal(Handle, "context-menu", (ContextMenuRequestDelegate)ContextMenuCallback, IntPtr.Zero);
             GLib.ConnectSignal(Handle, "close", (WebviewDelegate)CloseCallback, IntPtr.Zero);
 
-            if (config.Window.UseBrowserTitle)
+            if (config.UseBrowserTitle)
             {
                 GLib.ConnectSignal(Handle, "notify::title", (WebviewDelegate)TitleChangeCallback, IntPtr.Zero);
             }
@@ -72,7 +71,7 @@ namespace SpiderEye.UI.Linux
                 }
             }
 
-            var bgColor = new GdkColor(config.Window.BackgroundColor);
+            var bgColor = new GdkColor(config.BackgroundColor);
             WebKit.SetBackgroundColor(Handle, ref bgColor);
 
             if (enableDevTools)

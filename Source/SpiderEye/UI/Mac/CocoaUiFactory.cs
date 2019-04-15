@@ -1,21 +1,18 @@
 ﻿using System;
-using SpiderEye.Configuration;
 using SpiderEye.UI.Mac.Dialogs;
 
 namespace SpiderEye.UI.Mac
 {
-    internal class CocoaWindowFactory : IWindowFactory
+    internal class CocoaUiFactory : IUiFactory
     {
-        private readonly AppConfiguration appConfig;
-
-        public CocoaWindowFactory(AppConfiguration appConfig)
-        {
-            this.appConfig = appConfig ?? throw new ArgumentNullException(nameof(appConfig));
-        }
-
         public IWindow CreateWindow(WindowConfiguration config)
         {
-            return new CocoaWindow(appConfig.CopyWithWindow(config), this);
+            return new CocoaWindow(config, this);
+        }
+
+        public IStatusIcon CreateStatusIcon()
+        {
+            throw new NotImplementedException();
         }
 
         public IMessageBox CreateMessageBox()

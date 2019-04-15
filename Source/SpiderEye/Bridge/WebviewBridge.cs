@@ -13,6 +13,7 @@ namespace SpiderEye.Bridge
     {
         public event EventHandler<string> TitleChanged;
 
+        private static event EventHandler<object> GlobalEventHandlerUpdate;
         private static readonly object GlobalHandlerLock = new object();
         private static readonly List<object> GlobalHandler = new List<object>();
 
@@ -21,9 +22,18 @@ namespace SpiderEye.Bridge
 
         private IWindow window;
         private IWebview webview;
-        private IWindowFactory windowFactory;
+        private IUiFactory windowFactory;
 
-        public void Init(IWindow window, IWebview webview, IWindowFactory windowFactory)
+        public static void AddGlobalHandlerStatic(object handler)
+        {
+            lock (GlobalHandlerLock)
+            {
+                GlobalHandler.Add(handler);
+                GlobalEventHandlerUpdate?.Invoke(null, handler);
+            }
+        }
+
+        public void Init(IWindow window, IWebview webview, IUiFactory windowFactory)
         {
             this.window = window ?? throw new ArgumentNullException(nameof(window));
             this.webview = webview ?? throw new ArgumentNullException(nameof(webview));
@@ -39,8 +49,7 @@ namespace SpiderEye.Bridge
 
         public void AddGlobalHandler(object handler)
         {
-            AddHandler(handler);
-            lock (GlobalHandlerLock) { GlobalHandler.Add(handler); }
+            AddGlobalHandlerStatic(handler);
         }
 
         public void Invoke(string id, object data)
@@ -157,9 +166,11 @@ namespace SpiderEye.Bridge
             else { return ApiResultModel.FromError($"Unknown API call \"{id}\"."); }
         }
 
-        private void AddApiObject(object instance)
+        private void AddApiObject(object handler)
         {
-            Type type = instance.GetType();
+            if (handler == null) { throw new ArgumentNullException(nameof(handler)); }
+
+            Type type = handler.GetType();
             string rootName = type.Name;
             if (!apiRootNames.Add(rootName))
             {
@@ -170,7 +181,7 @@ namespace SpiderEye.Bridge
             {
                 if (method.GetParameters().Length > 1) { continue; }
 
-                var info = new ApiMethod(instance, method);
+                var info = new ApiMethod(handler, method);
                 string fullName = $"{rootName}.{info.Name}";
 
                 if (apiMethods.ContainsKey(fullName))
@@ -189,6 +200,8 @@ namespace SpiderEye.Bridge
 
             lock (GlobalHandlerLock)
             {
+                GlobalEventHandlerUpdate += (s, e) => AddApiObject(e);
+
                 foreach (object handler in GlobalHandler)
                 {
                     AddApiObject(handler);

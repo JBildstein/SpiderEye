@@ -7,9 +7,9 @@ namespace SpiderEye.Bridge.Api
     internal class Dialog
     {
         private readonly IWindow parent;
-        private readonly IWindowFactory windowFactory;
+        private readonly IUiFactory windowFactory;
 
-        public Dialog(IWindow parent, IWindowFactory windowFactory)
+        public Dialog(IWindow parent, IUiFactory windowFactory)
         {
             this.parent = parent ?? throw new ArgumentNullException(nameof(parent));
             this.windowFactory = windowFactory ?? throw new ArgumentNullException(nameof(windowFactory));

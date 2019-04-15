@@ -1,33 +1,30 @@
 ﻿using System;
-using SpiderEye.Configuration;
 using SpiderEye.UI.Linux.Native;
 
 namespace SpiderEye.UI.Linux
 {
-    internal class GtkApplication : ApplicationBase
+    internal class GtkApplication : IApplication
     {
-        public override IWindow MainWindow { get; }
-        public override IWindowFactory Factory { get; }
+        public bool ExitWithLastWindow { get; set; }
+        public IUiFactory Factory { get; }
 
-        public GtkApplication(AppConfiguration config)
-            : base(config)
+        public GtkApplication()
         {
             Init();
 
-            Factory = new GtkWindowFactory(config);
-            var window = new GtkWindow(config, Factory);
-            window.Closed += Window_Closed;
-            MainWindow = window;
+            ExitWithLastWindow = true;
+            Factory = new GtkUiFactory();
+            GtkWindow.LastWindowClosed += (s, e) => { if (ExitWithLastWindow) { Exit(); } };
         }
 
-        public override void Exit()
-        {
-            Gtk.Quit();
-        }
-
-        protected override void RunMainLoop()
+        public void Run()
         {
             Gtk.Main();
+        }
+
+        public void Exit()
+        {
+            Gtk.Quit();
         }
 
         private static void Init()

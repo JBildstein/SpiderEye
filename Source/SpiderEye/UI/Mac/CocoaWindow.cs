@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using SpiderEye.Bridge;
-using SpiderEye.Configuration;
 using SpiderEye.Content;
 using SpiderEye.UI.Mac.Interop;
 using SpiderEye.UI.Mac.Native;
@@ -34,11 +33,11 @@ namespace SpiderEye.UI.Mac
 
         private static int count = 0;
 
-        private readonly AppConfiguration config;
+        private readonly WindowConfiguration config;
         private readonly CocoaWebview webview;
         private readonly WebviewBridge bridge;
 
-        public CocoaWindow(AppConfiguration config, IWindowFactory windowFactory)
+        public CocoaWindow(WindowConfiguration config, IUiFactory windowFactory)
         {
             if (windowFactory == null) { throw new ArgumentNullException(nameof(windowFactory)); }
 
@@ -48,19 +47,19 @@ namespace SpiderEye.UI.Mac
             Handle = AppKit.Call("NSWindow", "alloc");
 
             var style = NSWindowStyleMask.Titled | NSWindowStyleMask.Closable | NSWindowStyleMask.Miniaturizable;
-            if (config.Window.CanResize) { style |= NSWindowStyleMask.Resizable; }
+            if (config.CanResize) { style |= NSWindowStyleMask.Resizable; }
 
             ObjC.SendMessage(
                 Handle,
                 ObjC.RegisterName("initWithContentRect:styleMask:backing:defer:"),
-                new CGRect(0, 0, config.Window.Width, config.Window.Height),
+                new CGRect(0, 0, config.Width, config.Height),
                 (int)style,
                 2,
                 0);
 
-            Title = config.Window.Title;
+            Title = config.Title;
 
-            IntPtr bgColor = NSColor.FromHex(config.Window.BackgroundColor);
+            IntPtr bgColor = NSColor.FromHex(config.BackgroundColor);
             ObjC.Call(Handle, "setBackgroundColor:", bgColor);
 
             var contentProvider = new EmbeddedFileProvider(config.ContentAssembly, config.ContentFolder);
@@ -70,7 +69,7 @@ namespace SpiderEye.UI.Mac
 
             if (config.EnableScriptInterface) { bridge.Init(this, webview, windowFactory); }
 
-            if (config.Window.UseBrowserTitle)
+            if (config.UseBrowserTitle)
             {
                 webview.TitleChanged += Webview_TitleChanged;
                 bridge.TitleChanged += Webview_TitleChanged;
@@ -118,7 +117,7 @@ namespace SpiderEye.UI.Mac
             }
         }
 
-        public void SetIcon(WindowIcon icon)
+        public void SetIcon(Icon icon)
         {
             // windows on macOS don't have icons
         }
@@ -130,7 +129,7 @@ namespace SpiderEye.UI.Mac
 
         private void Webview_TitleChanged(object sender, string title)
         {
-            Title = title ?? config.Window.Title;
+            Title = title ?? config.Title;
         }
 
         private void SetWindowDelegate(IntPtr window)

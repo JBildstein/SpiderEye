@@ -1,12 +1,11 @@
 ﻿using System;
-using SpiderEye.Configuration;
 
 namespace SpiderEye.UI
 {
     /// <summary>
-    /// Provides methods to create windows and dialogs.
+    /// Provides methods to various UI elements like windows and dialogs.
     /// </summary>
-    public interface IWindowFactory
+    public interface IUiFactory
     {
         /// <summary>
         /// Creates a new window.
@@ -15,6 +14,12 @@ namespace SpiderEye.UI
         /// <returns>The created window.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="config"/> is null.</exception>
         IWindow CreateWindow(WindowConfiguration config);
+
+        /// <summary>
+        /// Creates a new status icon.
+        /// </summary>
+        /// <returns>The created status icon.</returns>
+        IStatusIcon CreateStatusIcon();
 
         /// <summary>
         /// Creates a new message box.

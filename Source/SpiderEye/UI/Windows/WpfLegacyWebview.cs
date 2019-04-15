@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Navigation;
 using SpiderEye.Bridge;
-using SpiderEye.Configuration;
 using SpiderEye.Tools;
 using SpiderEye.UI.Windows.Internal;
 
@@ -19,11 +18,11 @@ namespace SpiderEye.UI.Windows
         }
 
         private readonly WebBrowser webview;
-        private readonly AppConfiguration config;
+        private readonly WindowConfiguration config;
         private readonly ScriptInterface scriptInterface;
         private readonly string hostAddress;
 
-        public WpfLegacyWebview(AppConfiguration config, string hostAddress, WebviewBridge scriptingApi)
+        public WpfLegacyWebview(WindowConfiguration config, string hostAddress, WebviewBridge scriptingApi)
         {
             if (scriptingApi == null) { throw new ArgumentNullException(nameof(scriptingApi)); }
 

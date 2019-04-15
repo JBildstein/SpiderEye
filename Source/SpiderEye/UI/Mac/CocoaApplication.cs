@@ -1,21 +1,20 @@
 using System;
-using SpiderEye.Configuration;
 using SpiderEye.UI.Mac.Interop;
 using SpiderEye.UI.Mac.Native;
 
 namespace SpiderEye.UI.Mac
 {
-    internal class CocoaApplication : ApplicationBase
+    internal class CocoaApplication : IApplication
     {
-        public override IWindow MainWindow { get; }
-        public override IWindowFactory Factory { get; }
+        public bool ExitWithLastWindow { get; set; }
+        public IUiFactory Factory { get; }
 
         private readonly IntPtr application;
 
-        public CocoaApplication(AppConfiguration config)
-            : base(config)
+        public CocoaApplication()
         {
-            Factory = new CocoaWindowFactory(config);
+            Factory = new CocoaUiFactory();
+            ExitWithLastWindow = true;
 
             application = GetApp();
             ObjC.Call(application, "setActivationPolicy:", IntPtr.Zero);
@@ -33,8 +32,6 @@ namespace SpiderEye.UI.Mac
 
             IntPtr appDelegate = ObjC.Call(appDelegateClass, "new");
             ObjC.Call(application, "setDelegate:", appDelegate);
-
-            MainWindow = new CocoaWindow(config, Factory);
         }
 
         public static IntPtr GetApp()
@@ -42,20 +39,20 @@ namespace SpiderEye.UI.Mac
             return AppKit.Call("NSApplication", "sharedApplication");
         }
 
-        public override void Exit()
-        {
-            ObjC.Call(application, "stop");
-        }
-
-        protected override void RunMainLoop()
+        public void Run()
         {
             ObjC.Call(application, "activateIgnoringOtherApps:", 1);
             ObjC.Call(application, "run");
         }
 
+        public void Exit()
+        {
+            ObjC.Call(application, "stop");
+        }
+
         private byte ShouldTerminateCallback(IntPtr self, IntPtr op, IntPtr notification)
         {
-            return 1;
+            return (byte)(ExitWithLastWindow ? 1 : 0);
         }
     }
 }

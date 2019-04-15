@@ -16,8 +16,17 @@ namespace SpiderEye.UI.Linux.Native
             [DllImport(GtkNativeDll, EntryPoint = "gtk_widget_show_all", CallingConvention = CallingConvention.Cdecl)]
             public static extern void ShowAll(IntPtr widget);
 
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_widget_show", CallingConvention = CallingConvention.Cdecl)]
+            public static extern void Show(IntPtr widget);
+
             [DllImport(GtkNativeDll, EntryPoint = "gtk_widget_destroy", CallingConvention = CallingConvention.Cdecl)]
             public static extern void Destroy(IntPtr widget);
+
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_widget_set_sensitive", CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetEnabled(IntPtr widget, bool enabled);
+
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_widget_get_sensitive", CallingConvention = CallingConvention.Cdecl)]
+            public static extern bool GetEnabled(IntPtr widget);
         }
 
         public static class Window
@@ -90,6 +99,30 @@ namespace SpiderEye.UI.Linux.Native
 
             [DllImport(GtkNativeDll, EntryPoint = "gtk_window_set_icon_list", CallingConvention = CallingConvention.Cdecl)]
             public static extern void SetIconList(IntPtr window, IntPtr list);
+        }
+
+        public static class Menu
+        {
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_menu_new", CallingConvention = CallingConvention.Cdecl)]
+            public static extern IntPtr Create();
+
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_menu_shell_append", CallingConvention = CallingConvention.Cdecl)]
+            public static extern void AddItem(IntPtr menu_shell, IntPtr child);
+
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_separator_menu_item_new", CallingConvention = CallingConvention.Cdecl)]
+            public static extern IntPtr CreateSeparatorItem();
+
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_menu_item_new_with_label", CallingConvention = CallingConvention.Cdecl)]
+            public static extern IntPtr CreateLabelItem(IntPtr label);
+
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_menu_item_set_submenu", CallingConvention = CallingConvention.Cdecl)]
+            public static extern void AddSubmenu(IntPtr menu_item, IntPtr submenu);
+
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_menu_item_get_label", CallingConvention = CallingConvention.Cdecl)]
+            public static extern IntPtr GetMenuItemLabel(IntPtr menu_item);
+
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_menu_item_set_label", CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetMenuItemLabel(IntPtr menu_item, IntPtr label);
         }
 
         public static class Dialog

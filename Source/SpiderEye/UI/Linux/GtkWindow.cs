@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
+using System.Threading;
 using SpiderEye.Bridge;
-using SpiderEye.Configuration;
 using SpiderEye.Content;
 using SpiderEye.UI.Linux.Interop;
 using SpiderEye.UI.Linux.Native;
@@ -10,6 +10,8 @@ namespace SpiderEye.UI.Linux
 {
     internal class GtkWindow : IWindow
     {
+        public static event EventHandler LastWindowClosed;
+
         public event PageLoadEventHandler PageLoaded
         {
             add { webview.PageLoaded += value; }
@@ -43,11 +45,13 @@ namespace SpiderEye.UI.Linux
 
         public readonly IntPtr Handle;
 
-        private readonly AppConfiguration config;
+        private static int windowCount = 0;
+
+        private readonly WindowConfiguration config;
         private readonly GtkWebview webview;
         private readonly WebviewBridge bridge;
 
-        public GtkWindow(AppConfiguration config, IWindowFactory windowFactory)
+        public GtkWindow(WindowConfiguration config, IUiFactory windowFactory)
         {
             if (windowFactory == null) { throw new ArgumentNullException(nameof(windowFactory)); }
 
@@ -58,11 +62,11 @@ namespace SpiderEye.UI.Linux
             webview = new GtkWebview(config, contentProvider, bridge);
             Handle = Gtk.Window.Create(GtkWindowType.Toplevel);
 
-            Title = config.Window.Title;
-            Gtk.Window.SetResizable(Handle, config.Window.CanResize);
-            Gtk.Window.SetDefaultSize(Handle, config.Window.Width, config.Window.Height);
+            Title = config.Title;
+            Gtk.Window.SetResizable(Handle, config.CanResize);
+            Gtk.Window.SetDefaultSize(Handle, config.Width, config.Height);
 
-            string backgroundColor = config.Window.BackgroundColor;
+            string backgroundColor = config.BackgroundColor;
             if (string.IsNullOrWhiteSpace(backgroundColor)) { backgroundColor = "#FFFFFF"; }
             SetBackgroundColor(backgroundColor);
 
@@ -77,19 +81,21 @@ namespace SpiderEye.UI.Linux
 
             if (config.EnableScriptInterface) { bridge.Init(this, webview, windowFactory); }
 
-            if (config.Window.UseBrowserTitle)
+            if (config.UseBrowserTitle)
             {
                 webview.TitleChanged += Webview_TitleChanged;
                 bridge.TitleChanged += Webview_TitleChanged;
             }
 
-            SetIcon(config.Window.Icon);
+            SetIcon(config.Icon);
         }
 
         public void Show()
         {
             Gtk.Widget.ShowAll(Handle);
             Gtk.Window.Present(Handle);
+
+            Interlocked.Increment(ref windowCount);
         }
 
         public void Close()
@@ -119,7 +125,7 @@ namespace SpiderEye.UI.Linux
             }
         }
 
-        public unsafe void SetIcon(WindowIcon icon)
+        public unsafe void SetIcon(Icon icon)
         {
             if (icon == null || icon.Icons.Count == 0)
             {
@@ -182,12 +188,17 @@ namespace SpiderEye.UI.Linux
 
         private void DestroyCallback(IntPtr widget, IntPtr userdata)
         {
-            Closed?.Invoke(this, EventArgs.Empty);
+            try { Closed?.Invoke(this, EventArgs.Empty); }
+            finally
+            {
+                int count = Interlocked.Decrement(ref windowCount);
+                if (count <= 0) { LastWindowClosed?.Invoke(this, EventArgs.Empty); }
+            }
         }
 
         private void Webview_TitleChanged(object sender, string title)
         {
-            Title = title ?? config.Window.Title;
+            Title = title ?? config.Title;
         }
 
         private void Webview_CloseRequested(object sender, EventArgs e)

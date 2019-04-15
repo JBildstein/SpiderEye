@@ -7,9 +7,9 @@ namespace SpiderEye.Bridge.Api
     internal class BrowserWindow
     {
         private readonly IWindow parent;
-        private readonly IWindowFactory windowFactory;
+        private readonly IUiFactory windowFactory;
 
-        public BrowserWindow(IWindow parent, IWindowFactory windowFactory)
+        public BrowserWindow(IWindow parent, IUiFactory windowFactory)
         {
             this.parent = parent ?? throw new ArgumentNullException(nameof(parent));
             this.windowFactory = windowFactory ?? throw new ArgumentNullException(nameof(windowFactory));
@@ -17,7 +17,9 @@ namespace SpiderEye.Bridge.Api
 
         public void Show(BrowserWindowConfigModel config)
         {
-            var window = windowFactory.CreateWindow(config);
+            // TODO: BrowserWindowConfigModel cannot hold all possible information (like Icon and Assembly)
+            // TODO: transfer some configs from parent window (e.g. ExternalHost)
+            var window = windowFactory.CreateWindow(config.WindowConfig);
             window.LoadUrl(config.Url);
             window.Show();
 

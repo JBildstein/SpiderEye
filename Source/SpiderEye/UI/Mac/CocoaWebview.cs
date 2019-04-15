@@ -3,7 +3,6 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using SpiderEye.Bridge;
-using SpiderEye.Configuration;
 using SpiderEye.Content;
 using SpiderEye.Tools;
 using SpiderEye.UI.Mac.Interop;
@@ -21,13 +20,13 @@ namespace SpiderEye.UI.Mac
         private static int count = 0;
 
         private readonly IContentProvider contentProvider;
-        private readonly AppConfiguration config;
+        private readonly WindowConfiguration config;
         private readonly WebviewBridge bridge;
         private readonly string customHost;
 
         private readonly bool enableDevTools = false;
 
-        public CocoaWebview(AppConfiguration config, IContentProvider contentProvider, WebviewBridge bridge)
+        public CocoaWebview(WindowConfiguration config, IContentProvider contentProvider, WebviewBridge bridge)
         {
             this.config = config ?? throw new ArgumentNullException(nameof(config));
             this.contentProvider = contentProvider ?? throw new ArgumentNullException(nameof(contentProvider));
@@ -58,13 +57,13 @@ namespace SpiderEye.UI.Mac
             ObjC.Call(Handle, "initWithFrame:configuration:", CGRect.Zero, configuration);
             ObjC.Call(Handle, "setNavigationDelegate:", callbackClass);
 
-            IntPtr bgColor = NSColor.FromHex(config.Window.BackgroundColor);
+            IntPtr bgColor = NSColor.FromHex(config.BackgroundColor);
             ObjC.Call(Handle, "setBackgroundColor:", bgColor);
 
             IntPtr boolValue = Foundation.Call("NSNumber", "numberWithBool:", 0);
             ObjC.Call(Handle, "setValue:forKey:", boolValue, NSString.Create("drawsBackground"));
 
-            if (config.Window.UseBrowserTitle)
+            if (config.UseBrowserTitle)
             {
                 ObjC.Call(Handle, "addObserver:forKeyPath:options:context:", callbackClass, NSString.Create("title"), IntPtr.Zero, IntPtr.Zero);
             }

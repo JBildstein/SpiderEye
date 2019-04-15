@@ -5,7 +5,6 @@ using System.Windows.Interop;
 using System.Windows.Threading;
 using global::Windows.Web.UI;
 using SpiderEye.Bridge;
-using SpiderEye.Configuration;
 using SpiderEye.Content;
 using SpiderEye.Tools;
 using SpiderEye.UI.Windows.Interop;
@@ -25,14 +24,14 @@ namespace SpiderEye.UI.Windows
             get { return this; }
         }
 
-        private readonly AppConfiguration config;
+        private readonly WindowConfiguration config;
         private readonly WebviewBridge bridge;
         private readonly EdgeUriToStreamResolver streamResolver;
 
         private IntPtr window;
         private WebViewControl webview;
 
-        public WpfWebview(AppConfiguration config, IntPtr parentWindow, IContentProvider contentProvider, WebviewBridge bridge)
+        public WpfWebview(WindowConfiguration config, IntPtr parentWindow, IContentProvider contentProvider, WebviewBridge bridge)
         {
             if (contentProvider == null) { throw new ArgumentNullException(nameof(contentProvider)); }
 
@@ -103,7 +102,7 @@ namespace SpiderEye.UI.Windows
 
             UpdateSize(RenderSize);
 
-            webview.DefaultBackgroundColor = ParseColor(config.Window.BackgroundColor);
+            webview.DefaultBackgroundColor = ParseColor(config.BackgroundColor);
             webview.Settings.IsScriptNotifyAllowed = config.EnableScriptInterface;
             if (config.EnableScriptInterface)
             {

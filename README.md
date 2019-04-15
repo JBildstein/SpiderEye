@@ -11,7 +11,7 @@ What's the name supposed to mean? Simple: what kind of view does a spiders eye h
 | ----- | ----- | ----- | ----- |
 | Windows | 7, 8.x, 10 | WPF WebBrowser control | IE 9-11 (depending on OS and installed version) |
 | Windows |  10 Build 1803 | WebViewControl | Edge |
-| Linux | libwebkit2gtk-4.0 libgtk-3 | WebKit2GTK | WebKit |
+| Linux | libwebkit2gtk-4.0<br /> libgtk-3 | WebKit2GTK | WebKit |
 | macOS | 10.13+ x64 | WKWebView | WebKit |
 
 ## Installation
@@ -40,7 +40,7 @@ A SpiderEye app can be created from a normal .Net Core console app. Only a few s
 
   <ItemGroup>
     <!-- Reference to the SpiderEye NuGet package -->
-    <PackageReference Include="Bildstein.SpiderEye" Version="1.0.0-alpha.5" />
+    <PackageReference Include="Bildstein.SpiderEye" Version="1.0.0-alpha.6" />
   </ItemGroup>
 
   <ItemGroup>
@@ -57,6 +57,8 @@ The actual program now is just a matter of a bit of configuration and then start
 
 ```c-sharp
 using System;
+using SpiderEye;
+using SpiderEye.UI;
 
 namespace SpiderEyeExample
 {
@@ -67,13 +69,13 @@ namespace SpiderEyeExample
         public static void Main(string[] args)
         {
             // this creates a new app configuration with default values
-            var config = new AppConfiguration();
+            var config = new WindowConfiguration();
 
             // this relates to the path defined in the .csproj file
             config.ContentFolder = "App";
 
-            // run the application
-            Application.Run(config);
+            // runs the application and opens a window with the given page loaded
+            Application.Run(config, "index.html");
         }
     }
 }

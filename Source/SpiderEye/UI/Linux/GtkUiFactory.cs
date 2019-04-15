@@ -1,21 +1,18 @@
 ﻿using System;
-using SpiderEye.Configuration;
 using SpiderEye.UI.Linux.Dialogs;
 
 namespace SpiderEye.UI.Linux
 {
-    internal class GtkWindowFactory : IWindowFactory
+    internal class GtkUiFactory : IUiFactory
     {
-        private readonly AppConfiguration appConfig;
-
-        public GtkWindowFactory(AppConfiguration appConfig)
-        {
-            this.appConfig = appConfig ?? throw new ArgumentNullException(nameof(appConfig));
-        }
-
         public IWindow CreateWindow(WindowConfiguration config)
         {
-            return new GtkWindow(appConfig.CopyWithWindow(config), this);
+            return new GtkWindow(config, this);
+        }
+
+        public IStatusIcon CreateStatusIcon()
+        {
+            return new GtkStatusIcon();
         }
 
         public IMessageBox CreateMessageBox()
