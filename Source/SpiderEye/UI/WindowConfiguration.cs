@@ -40,7 +40,7 @@ namespace SpiderEye.UI
         /// <summary>
         /// Gets or sets the default window icon. Default is null.
         /// </summary>
-        public Icon Icon { get; set; }
+        public AppIcon Icon { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the scripting interface between browser and window is enabled. Default is true.

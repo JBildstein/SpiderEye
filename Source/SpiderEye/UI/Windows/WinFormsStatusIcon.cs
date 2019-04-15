@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 using SpiderEye.UI.Windows.Menu;
 
 namespace SpiderEye.UI.Windows
@@ -12,7 +11,7 @@ namespace SpiderEye.UI.Windows
             set { notifyIcon.Text = value; }
         }
 
-        public Icon Icon
+        public AppIcon Icon
         {
             get { return icon; }
             set
@@ -23,7 +22,7 @@ namespace SpiderEye.UI.Windows
         }
 
         private readonly NotifyIcon notifyIcon;
-        private Icon icon;
+        private AppIcon icon;
 
         public WinFormsStatusIcon()
         {
@@ -44,15 +43,15 @@ namespace SpiderEye.UI.Windows
             notifyIcon.Dispose();
         }
 
-        private void UpdateIcon(Icon icon)
+        private void UpdateIcon(AppIcon icon)
         {
-            if (icon == null || icon.Icons.Count == 0)
+            if (icon == null || icon.Icons.Length == 0)
             {
                 notifyIcon.Icon = null;
             }
             else
             {
-                using (var stream = new MemoryStream(icon.Icons[0]))
+                using (var stream = icon.GetIconDataStream(icon.DefaultIcon))
                 {
                     notifyIcon.Icon = new System.Drawing.Icon(stream);
                 }

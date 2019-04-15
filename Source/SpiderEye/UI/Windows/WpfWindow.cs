@@ -129,12 +129,12 @@ namespace SpiderEye.UI.Windows
             }
         }
 
-        public void SetIcon(Icon icon)
+        public void SetIcon(AppIcon icon)
         {
-            if (icon == null || icon.Icons.Count == 0) { Icon = null; }
+            if (icon == null || icon.Icons.Length == 0) { Icon = null; }
             else
             {
-                using (var stream = new MemoryStream(icon.Icons[0]))
+                using (var stream = icon.GetIconDataStream(icon.DefaultIcon))
                 {
                     Icon = BitmapFrame.Create(stream);
                 }

@@ -1,5 +1,4 @@
 using System;
-using System.Runtime.InteropServices;
 using System.Threading;
 using SpiderEye.Bridge;
 using SpiderEye.Content;
@@ -125,16 +124,16 @@ namespace SpiderEye.UI.Linux
             }
         }
 
-        public unsafe void SetIcon(Icon icon)
+        public unsafe void SetIcon(AppIcon icon)
         {
-            if (icon == null || icon.Icons.Count == 0)
+            if (icon == null || icon.Icons.Length == 0)
             {
                 Gtk.Window.SetIcon(Handle, IntPtr.Zero);
             }
             else
             {
                 IntPtr iconList = IntPtr.Zero;
-                var icons = new IntPtr[icon.Icons.Count];
+                var icons = new IntPtr[icon.Icons.Length];
 
                 try
                 {
@@ -143,7 +142,7 @@ namespace SpiderEye.UI.Linux
                         IntPtr iconStream = IntPtr.Zero;
                         try
                         {
-                            byte[] data = icon.Icons[i];
+                            byte[] data = icon.GetIconData(icon.Icons[i]);
                             fixed (byte* iconDataPtr = data)
                             {
                                 iconStream = GLib.CreateStreamFromData((IntPtr)iconDataPtr, data.Length, IntPtr.Zero);

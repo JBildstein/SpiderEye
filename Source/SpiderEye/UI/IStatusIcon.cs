@@ -15,7 +15,7 @@ namespace SpiderEye.UI
         /// <summary>
         /// Gets or sets the icon.
         /// </summary>
-        Icon Icon { get; set; }
+        AppIcon Icon { get; set; }
 
         /// <summary>
         /// Adds a menu to the status icon and returns it.

@@ -53,7 +53,7 @@ namespace SpiderEye.UI
         /// Sets the icon for this window.
         /// </summary>
         /// <param name="icon">The icon for this window.</param>
-        void SetIcon(Icon icon);
+        void SetIcon(AppIcon icon);
 
         /// <summary>
         /// Loads the given URL.

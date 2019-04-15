@@ -117,7 +117,7 @@ namespace SpiderEye.UI.Mac
             }
         }
 
-        public void SetIcon(Icon icon)
+        public void SetIcon(AppIcon icon)
         {
             // windows on macOS don't have icons
         }
