@@ -4,6 +4,8 @@
     <OutputType>WinExe</OutputType>
     <TargetFrameworks>netcoreapp2.2;net462</TargetFrameworks>
     <RuntimeIdentifiers>win;linux-x64;osx.10.13-x64</RuntimeIdentifiers>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Icons\icon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,5 +21,11 @@
     <EmbeddedResource Include="Angular\dist\**">
       <LogicalName>%(RelativeDir)%(Filename)%(Extension)</LogicalName>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Icons\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

@@ -3,6 +3,7 @@
     <OutputType>WinExe</OutputType>
     <TargetFrameworks>netcoreapp2.2;net462</TargetFrameworks>
     <RuntimeIdentifiers>win;linux-x64;osx.10.13-x64</RuntimeIdentifiers>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 
   <ItemGroup>

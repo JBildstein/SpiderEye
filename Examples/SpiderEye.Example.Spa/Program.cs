@@ -11,9 +11,11 @@ namespace SpiderEye.Example.Spa
         {
             // this creates a new configuration with default values
             var config = new WindowConfiguration();
+            var icon = AppIcon.FromFile("icon", "Icons");
 
             // this relates to the path defined in the .csproj file
             config.ContentFolder = "Angular\\dist";
+            config.Icon = icon;
 
             // this is only called in Debug mode:
             SetDevServer(config);
