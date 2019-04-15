@@ -30,6 +30,7 @@ namespace SpiderEye.UI.Linux
             using (GLibString icon = "applications-accessories") // TODO: set icon properly
             {
                 Handle = AppIndicator.Create(id, icon, AppIndicatorCategory.ApplicationStatus);
+                AppIndicator.SetTitle(Handle, id);
             }
         }
 
