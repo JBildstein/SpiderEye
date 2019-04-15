@@ -1,4 +1,6 @@
-﻿namespace SpiderEye.UI.Windows
+﻿using System.Windows;
+
+namespace SpiderEye.UI.Windows
 {
     internal class WpfApplication : IApplication
     {

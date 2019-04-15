@@ -47,9 +47,9 @@ namespace SpiderEye.UI.Windows
 
         private readonly ContentServer server;
         private readonly WebviewBridge bridge;
-        private IWpfWebview webview;
+        private readonly IWpfWebview webview;
 
-        public WpfWindow(WindowConfiguration config, IWindowFactory windowFactory)
+        public WpfWindow(WindowConfiguration config, IUiFactory windowFactory)
         {
             if (config == null) { throw new ArgumentNullException(nameof(config)); }
             if (windowFactory == null) { throw new ArgumentNullException(nameof(windowFactory)); }
@@ -129,7 +129,7 @@ namespace SpiderEye.UI.Windows
             }
         }
 
-        public void SetIcon(WindowIcon icon)
+        public void SetIcon(Icon icon)
         {
             if (icon == null || icon.Icons.Count == 0) { Icon = null; }
             else

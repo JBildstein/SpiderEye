@@ -1,8 +1,8 @@
 using System;
 #if NETSTANDARD2_0
 using System.Runtime.InteropServices;
-using SpiderEye.Bridge;
 #endif
+using SpiderEye.Bridge;
 using SpiderEye.UI;
 
 namespace SpiderEye
