@@ -10,9 +10,15 @@ What's the name supposed to mean? Simple: what kind of view does a spiders eye h
 | OS | Version | Webview | Browser Engine |
 | ----- | ----- | ----- | ----- |
 | Windows | 7, 8.x, 10 | WPF WebBrowser control | IE 9-11 (depending on OS and installed version) |
-| Windows |  10 Build 1803 | WebViewControl | Edge |
-| Linux | libwebkit2gtk-4.0<br /> libgtk-3 | WebKit2GTK | WebKit |
-| macOS | 10.13+ x64 | WKWebView | WebKit |
+| Windows |  10 Build 1803 or newer | WebViewControl | Edge |
+| Linux | any x64 distro where .Net Core runs | WebKit2GTK | WebKit |
+| macOS | x64 10.13 or newer  | WKWebView | WebKit |
+
+| Linux Dependencies | Used for | optional |
+| ----- | ----- | ----- |
+| libgtk-3 | Application and window handling | No |
+| libwebkit2gtk-4.0 | Webview | No |
+| libappindicator3 | Status icon | Yes |
 
 ## Installation
 
