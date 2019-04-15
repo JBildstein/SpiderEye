@@ -1,5 +1,4 @@
-﻿using System;
-using SpiderEye.UI.Windows.Dialogs;
+﻿using SpiderEye.UI.Windows.Dialogs;
 
 namespace SpiderEye.UI.Windows
 {
@@ -12,7 +11,7 @@ namespace SpiderEye.UI.Windows
 
         public IStatusIcon CreateStatusIcon()
         {
-            throw new NotImplementedException();
+            return new WinFormsStatusIcon();
         }
 
         public IMessageBox CreateMessageBox()
