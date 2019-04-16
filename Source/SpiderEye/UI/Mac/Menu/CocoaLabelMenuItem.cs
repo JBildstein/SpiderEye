@@ -29,15 +29,15 @@ namespace SpiderEye.UI.Mac.Menu
         {
             ObjC.Call(
                 Handle,
-                 "initWithTitle:action:keyEquivalent:",
-                 NSString.Create(label),
-                 ObjC.RegisterName("menuCallback:"),
-                 NSString.Create(string.Empty));
+                "initWithTitle:action:keyEquivalent:",
+                NSString.Create(label),
+                ObjC.RegisterName("menuCallback:"),
+                NSString.Create(string.Empty));
 
             SetCallbackClass();
         }
 
-        internal protected override void AddItem(IntPtr item)
+        protected internal override void AddItem(IntPtr item)
         {
             if (submenu == null)
             {
@@ -51,7 +51,7 @@ namespace SpiderEye.UI.Mac.Menu
         private void SetCallbackClass()
         {
             string name = "MenuCallbackObject" + Interlocked.Increment(ref classCount);
-            IntPtr callbackClass = ObjC.AllocateClassPair(ObjC.GetClass("NSObject"), name , IntPtr.Zero);
+            IntPtr callbackClass = ObjC.AllocateClassPair(ObjC.GetClass("NSObject"), name, IntPtr.Zero);
 
             ObjC.AddMethod(
                 callbackClass,

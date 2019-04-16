@@ -31,6 +31,6 @@ namespace SpiderEye.UI.Mac.Menu
             // don't think anything needs to be done here
         }
 
-        internal protected abstract void AddItem(IntPtr item);
+        protected internal abstract void AddItem(IntPtr item);
     }
 }

@@ -11,7 +11,7 @@ namespace SpiderEye.UI.Mac.Menu
             ObjC.Call(Handle, "setAutoenablesItems:", false);
         }
 
-        internal protected override void AddItem(IntPtr item)
+        protected internal override void AddItem(IntPtr item)
         {
             ObjC.Call(Handle, "addItem:", item);
         }
