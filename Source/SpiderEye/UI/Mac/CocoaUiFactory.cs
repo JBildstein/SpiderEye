@@ -12,7 +12,7 @@ namespace SpiderEye.UI.Mac
 
         public IStatusIcon CreateStatusIcon()
         {
-            throw new NotImplementedException();
+            return new CocoaStatusIcon();
         }
 
         public IMessageBox CreateMessageBox()
