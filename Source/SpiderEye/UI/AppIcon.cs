@@ -12,21 +12,29 @@ namespace SpiderEye.UI
     /// </summary>
     public class AppIcon
     {
+        /// <summary>
+        /// Gets or sets a value indicating whether to cache file based icons or read them from disk every time.
+        /// </summary>
+        public bool UseFileCache { get; set; }
+
         internal readonly IconSource Source;
         internal readonly IconInfo DefaultIcon;
         internal readonly IconInfo[] Icons;
 
         private readonly Assembly iconAssembly;
+        private Dictionary<string, byte[]> iconCache = new Dictionary<string, byte[]>();
 
-        private AppIcon(IconSource source, string iconName, IEnumerable<string> names)
+        private AppIcon(IconSource source, string iconName, IEnumerable<string> names, bool cacheFiles)
         {
             Source = source;
+            UseFileCache = cacheFiles;
             Icons = GetIcons(iconName, names);
             DefaultIcon = GetDefaultIcon(Icons);
+            UseFileCache = true;
         }
 
         private AppIcon(Assembly iconAssembly, string iconName, IEnumerable<string> names)
-            : this(IconSource.Resource, iconName, names)
+            : this(IconSource.Resource, iconName, names, false)
         {
             this.iconAssembly = iconAssembly;
         }
@@ -39,13 +47,25 @@ namespace SpiderEye.UI
         /// <returns>The created icon.</returns>
         public static AppIcon FromFile(string iconName, string directory)
         {
+            return FromFile(iconName, directory, true);
+        }
+
+        /// <summary>
+        /// Creates a new icon that looks for the appropriate icon in the given directory.
+        /// </summary>
+        /// <param name="iconName">The name of the icon file. e.g. "MyIcon".</param>
+        /// <param name="directory">The directory to look for icon files.</param>
+        /// <param name="cacheFiles">True to cache files after the first read; False to read from disk every time.</param>
+        /// <returns>The created icon.</returns>
+        public static AppIcon FromFile(string iconName, string directory, bool cacheFiles)
+        {
             if (iconName == null) { throw new ArgumentNullException(nameof(iconName)); }
             if (directory == null) { throw new ArgumentNullException(nameof(directory)); }
 
             var files = Directory.EnumerateFiles(directory, "*", SearchOption.AllDirectories);
             if (!files.Any()) { throw new InvalidOperationException("No files found."); }
 
-            return new AppIcon(IconSource.File, iconName, files);
+            return new AppIcon(IconSource.File, iconName, files, cacheFiles);
         }
 
         /// <summary>
@@ -80,10 +100,29 @@ namespace SpiderEye.UI
 
         internal Stream GetIconDataStream(IconInfo icon)
         {
+            if (icon == null) { throw new ArgumentNullException(nameof(icon)); }
+
             switch (Source)
             {
                 case IconSource.File:
-                    return File.OpenRead(icon.Path);
+                    if (UseFileCache)
+                    {
+                        if (iconCache.TryGetValue(icon.Path, out byte[] data)) { return new MemoryStream(data); }
+                        else
+                        {
+                            var stream = new MemoryStream();
+                            using (var fstream = File.OpenRead(icon.Path))
+                            {
+                                fstream.CopyTo(stream);
+                            }
+
+                            iconCache.Add(icon.Path, stream.ToArray());
+
+                            stream.Position = 0;
+                            return stream;
+                        }
+                    }
+                    else { return File.OpenRead(icon.Path); }
 
                 case IconSource.Resource:
                     return iconAssembly.GetManifestResourceStream(icon.Path);
@@ -95,6 +134,13 @@ namespace SpiderEye.UI
 
         internal byte[] GetIconData(IconInfo icon)
         {
+            if (icon == null) { throw new ArgumentNullException(nameof(icon)); }
+
+            if (UseFileCache && iconCache.TryGetValue(icon.Path, out byte[] data))
+            {
+                return data;
+            }
+
             using (var stream = GetIconDataStream(icon))
             using (var reader = new BinaryReader(stream))
             {
