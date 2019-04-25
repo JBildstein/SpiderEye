@@ -154,6 +154,7 @@ namespace SpiderEye.UI.Windows
         {
             ClosedBackingEvent?.Invoke(this, EventArgs.Empty);
             base.OnClosed(e);
+            Dispose();
         }
 
         private bool UseLegacy()
