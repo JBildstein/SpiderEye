@@ -56,10 +56,16 @@ namespace SpiderEye.UI.Windows
 
             bridge = new WebviewBridge();
             var contentProvider = new EmbeddedFileProvider(config.ContentAssembly, config.ContentFolder);
-            if (config.ForceWindowsLegacyWebview || UseLegacy())
+            if (!config.ForceWindowsLegacyWebview && IsEdgeAvailable())
+            {
+                var helper = new WindowInteropHelper(this);
+                var view = new WpfWebview(config, helper.EnsureHandle(), contentProvider, bridge);
+                webview = view;
+            }
+            else
             {
                 string hostAddress;
-                if (!string.IsNullOrWhiteSpace(config.ExternalHost))
+                if (string.IsNullOrWhiteSpace(config.ExternalHost))
                 {
                     server = new ContentServer(contentProvider);
                     server.Start();
@@ -68,12 +74,6 @@ namespace SpiderEye.UI.Windows
                 else { hostAddress = config.ExternalHost; }
 
                 webview = new WpfLegacyWebview(config, hostAddress, bridge);
-            }
-            else
-            {
-                var helper = new WindowInteropHelper(this);
-                var view = new WpfWebview(config, helper.EnsureHandle(), contentProvider, bridge);
-                webview = view;
             }
 
             AddChild(webview.Control);
@@ -157,13 +157,12 @@ namespace SpiderEye.UI.Windows
             Dispose();
         }
 
-        private bool UseLegacy()
+        private bool IsEdgeAvailable()
         {
             string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "edgehtml.dll");
-            if (!File.Exists(path)) { return false; }
-
             var version = Native.GetOsVersion();
-            return !(version.MajorVersion >= 10 && version.BuildNumber >= 17134);
+
+            return File.Exists(path) && version.MajorVersion >= 10 && version.BuildNumber >= 17134;
         }
     }
 }
