@@ -123,6 +123,9 @@ namespace SpiderEye.UI.Linux.Native
 
             [DllImport(GtkNativeDll, EntryPoint = "gtk_menu_item_set_label", CallingConvention = CallingConvention.Cdecl)]
             public static extern void SetMenuItemLabel(IntPtr menu_item, IntPtr label);
+
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_menu_item_set_accel_path", CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetAccelerator(IntPtr menu_item, IntPtr accel_path);
         }
 
         public static class Dialog

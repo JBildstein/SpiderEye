@@ -1,5 +1,3 @@
-using System;
-
 namespace SpiderEye.UI
 {
     /// <summary>
@@ -18,5 +16,12 @@ namespace SpiderEye.UI
         /// Adds a new separator menu item.
         /// </summary>
         void AddSeparatorMenuItem();
+
+        /// <summary>
+        /// Sets a keyboard shortcut to the menu item.
+        /// </summary>
+        /// <param name="modifier">The shortcut modifier key.</param>
+        /// <param name="key">The shortcut key.</param>
+        void SetShortcut(ModifierKey modifier, Key key);
     }
 }

@@ -14,5 +14,10 @@ namespace SpiderEye.UI.Linux.Menu
         {
             Gtk.Menu.AddItem(Handle, item);
         }
+
+        protected override void SetShortcut(string shortcut)
+        {
+            // ignore: no shortcuts for the base menu class
+        }
     }
 }

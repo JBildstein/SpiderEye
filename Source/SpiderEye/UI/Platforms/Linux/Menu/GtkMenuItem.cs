@@ -1,5 +1,6 @@
 using System;
 using SpiderEye.UI.Linux.Native;
+using SpiderEye.UI.Platforms.Linux.Interop;
 
 namespace SpiderEye.UI.Linux.Menu
 {
@@ -33,6 +34,13 @@ namespace SpiderEye.UI.Linux.Menu
             Gtk.Widget.Destroy(Handle);
         }
 
+        public void SetShortcut(ModifierKey modifier, Key key)
+        {
+            SetShortcut(KeyMapper.GetShortcut(modifier, key));
+        }
+
         protected abstract void AddItem(IntPtr item);
+
+        protected abstract void SetShortcut(string shortcut);
     }
 }

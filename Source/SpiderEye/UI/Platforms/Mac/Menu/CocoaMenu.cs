@@ -1,5 +1,6 @@
 using System;
 using SpiderEye.UI.Mac.Native;
+using SpiderEye.UI.Platforms.Mac.Interop;
 
 namespace SpiderEye.UI.Mac.Menu
 {
@@ -14,6 +15,11 @@ namespace SpiderEye.UI.Mac.Menu
         protected internal override void AddItem(IntPtr item)
         {
             ObjC.Call(Handle, "addItem:", item);
+        }
+
+        protected override void SetShortcut(NSEventModifierFlags modifier, string key)
+        {
+            // ignore: no shortcuts for the base menu class
         }
     }
 }

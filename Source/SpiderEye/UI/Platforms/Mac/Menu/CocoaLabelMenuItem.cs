@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using SpiderEye.UI.Mac.Interop;
 using SpiderEye.UI.Mac.Native;
+using SpiderEye.UI.Platforms.Mac.Interop;
 
 namespace SpiderEye.UI.Mac.Menu
 {
@@ -46,6 +47,12 @@ namespace SpiderEye.UI.Mac.Menu
             }
 
             submenu.AddItem(item);
+        }
+
+        protected override void SetShortcut(NSEventModifierFlags modifier, string key)
+        {
+            ObjC.Call(Handle, "keyEquivalentModifierMask", (uint)modifier);
+            ObjC.Call(Handle, "keyEquivalent", NSString.Create(key));
         }
 
         private void SetCallbackClass()

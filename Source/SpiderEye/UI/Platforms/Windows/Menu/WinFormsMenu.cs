@@ -15,5 +15,10 @@ namespace SpiderEye.UI.Windows.Menu
         {
             Menu.MenuItems.Add(item);
         }
+
+        protected override void SetShortcut(Shortcut shortcut)
+        {
+            // ignore: no shortcuts for the base menu class
+        }
     }
 }

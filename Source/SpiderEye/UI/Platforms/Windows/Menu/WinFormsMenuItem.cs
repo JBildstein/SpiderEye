@@ -1,4 +1,5 @@
 ﻿using System.Windows.Forms;
+using SpiderEye.UI.Platforms.Windows.Interop;
 
 namespace SpiderEye.UI.Windows.Menu
 {
@@ -16,6 +17,13 @@ namespace SpiderEye.UI.Windows.Menu
             AddItem(new MenuItem("-"));
         }
 
+        public void SetShortcut(ModifierKey modifier, Key key)
+        {
+            SetShortcut(KeyMapper.GetShortcut(modifier, key));
+        }
+
         protected abstract void AddItem(MenuItem item);
+
+        protected abstract void SetShortcut(Shortcut shortcut);
     }
 }

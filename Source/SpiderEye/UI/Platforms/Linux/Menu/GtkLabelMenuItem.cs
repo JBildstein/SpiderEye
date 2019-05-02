@@ -37,6 +37,14 @@ namespace SpiderEye.UI.Linux.Menu
             Gtk.Menu.AddSubmenu(Handle, item);
         }
 
+        protected override void SetShortcut(string shortcut)
+        {
+            using (GLibString gshortcut = shortcut)
+            {
+                Gtk.Menu.SetAccelerator(Handle, gshortcut);
+            }
+        }
+
         private static IntPtr CreateHandle(string label)
         {
             using (GLibString glabel = label)
