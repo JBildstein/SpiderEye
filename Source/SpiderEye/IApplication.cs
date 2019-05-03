@@ -19,6 +19,18 @@ namespace SpiderEye
         IUiFactory Factory { get; }
 
         /// <summary>
+        /// Creates and adds an empty app menu.
+        /// </summary>
+        /// <returns>The app menu.</returns>
+        IMenu CreateAppMenu();
+
+        /// <summary>
+        /// Creates and adds an app menu with default values.
+        /// </summary>
+        /// <returns>The app menu.</returns>
+        IMenu CreateDefaultAppMenu();
+
+        /// <summary>
         /// Starts the main loop and blocks until the application exits.
         /// </summary>
         void Run();

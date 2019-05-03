@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 
 namespace SpiderEye.UI.Windows
 {
@@ -26,6 +27,16 @@ namespace SpiderEye.UI.Windows
             Factory = new WpfUiFactory();
             application = new System.Windows.Application();
             application.ShutdownMode = ShutdownMode.OnLastWindowClose;
+        }
+
+        public IMenu CreateAppMenu()
+        {
+            return null;
+        }
+
+        public IMenu CreateDefaultAppMenu()
+        {
+            return null;
         }
 
         public void Run()

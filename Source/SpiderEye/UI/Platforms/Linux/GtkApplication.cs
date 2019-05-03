@@ -17,6 +17,16 @@ namespace SpiderEye.UI.Linux
             GtkWindow.LastWindowClosed += (s, e) => { if (ExitWithLastWindow) { Exit(); } };
         }
 
+        public IMenu CreateAppMenu()
+        {
+            return null;
+        }
+
+        public IMenu CreateDefaultAppMenu()
+        {
+            return null;
+        }
+
         public void Run()
         {
             Gtk.Main();

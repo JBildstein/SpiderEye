@@ -15,8 +15,13 @@ namespace SpiderEye.UI.Mac.Menu
 
         public string Label
         {
-            get { return NSString.GetString(ObjC.Call(Handle, "title")); }
-            set { ObjC.Call(Handle, "setTitle:", NSString.Create(value)); }
+            get { return NSString.GetString(GetTitle()); }
+            set
+            {
+                IntPtr title = NSString.Create(value);
+                SetTitle(Handle, title);
+                if (submenu != null) { SetTitle(submenu.Handle, title); }
+            }
         }
 
         public bool Enabled
@@ -43,6 +48,7 @@ namespace SpiderEye.UI.Mac.Menu
             if (submenu == null)
             {
                 submenu = new CocoaMenu();
+                SetTitle(submenu.Handle, GetTitle());
                 ObjC.Call(Handle, "setSubmenu:", submenu.Handle);
             }
 
@@ -51,8 +57,18 @@ namespace SpiderEye.UI.Mac.Menu
 
         protected override void SetShortcut(NSEventModifierFlags modifier, string key)
         {
-            ObjC.Call(Handle, "keyEquivalentModifierMask", (uint)modifier);
-            ObjC.Call(Handle, "keyEquivalent", NSString.Create(key));
+            ObjC.Call(Handle, "setKeyEquivalentModifierMask:", new UIntPtr((ulong)modifier));
+            ObjC.Call(Handle, "setKeyEquivalent:", NSString.Create(key));
+        }
+
+        private IntPtr GetTitle()
+        {
+            return ObjC.Call(Handle, "title");
+        }
+
+        private void SetTitle(IntPtr handle, IntPtr value)
+        {
+            ObjC.Call(handle, "setTitle:", value);
         }
 
         private void SetCallbackClass()

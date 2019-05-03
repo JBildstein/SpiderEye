@@ -36,11 +36,13 @@ namespace SpiderEye
         }
 
         private static readonly IApplication Instance;
+        private static IMenu appMenu;
 
         static Application()
         {
             OS = GetOS();
             Instance = CreateInstance();
+            CreateDefaultAppMenu();
         }
 
         /// <summary>
@@ -61,6 +63,24 @@ namespace SpiderEye
         public static IStatusIcon CreateStatusIcon()
         {
             return Factory.CreateStatusIcon();
+        }
+
+        /// <summary>
+        /// Creates and adds an empty app menu.
+        /// </summary>
+        /// <returns>The app menu.</returns>
+        public static IMenu CreateAppMenu()
+        {
+            return appMenu =  Instance.CreateAppMenu();
+        }
+
+        /// <summary>
+        /// Creates and adds an app menu with default values.
+        /// </summary>
+        /// <returns>The app menu.</returns>
+        public static IMenu CreateDefaultAppMenu()
+        {
+            return appMenu = Instance.CreateDefaultAppMenu();
         }
 
         /// <summary>
