@@ -60,6 +60,7 @@ namespace SpiderEye.UI.Linux
 
         private string GetAppId()
         {
+            // TODO: allow to define an application name somewhere
             return Assembly.GetEntryAssembly().GetName().Name;
         }
 
