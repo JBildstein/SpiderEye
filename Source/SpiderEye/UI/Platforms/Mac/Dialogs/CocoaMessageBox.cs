@@ -27,8 +27,8 @@ namespace SpiderEye.UI.Mac.Dialogs
             using (var alert = NSDialog.CreateAlert())
             {
                 ObjC.Call(alert.Handle, "setShowsHelp:", IntPtr.Zero);
-                ObjC.Call(alert.Handle, "setMessageText:", NSString.Create(Title));
-                ObjC.Call(alert.Handle, "setInformativeText:", NSString.Create(Message));
+                ObjC.Call(alert.Handle, "setMessageText:", NSString.Create(Title ?? string.Empty));
+                ObjC.Call(alert.Handle, "setInformativeText:", NSString.Create(Message ?? string.Empty));
                 AddButtons(alert.Handle, Buttons);
 
                 return (DialogResult)alert.Run(window);
