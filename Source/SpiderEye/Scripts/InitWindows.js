@@ -13,3 +13,9 @@ if (typeof MutationObserver !== 'undefined') {
         }
     });
 }
+
+document.addEventListener('contextmenu', function (e) {
+    e.preventDefault();
+    e.returnValue = false;
+    return false;
+});
