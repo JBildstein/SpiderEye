@@ -46,7 +46,7 @@ A SpiderEye app can be created from a normal .Net Core console app. Only a few s
 
   <ItemGroup>
     <!-- Reference to the SpiderEye NuGet package -->
-    <PackageReference Include="Bildstein.SpiderEye" Version="1.0.0-alpha.6" />
+    <PackageReference Include="Bildstein.SpiderEye" Version="1.0.0-alpha.7" />
   </ItemGroup>
 
   <ItemGroup>
