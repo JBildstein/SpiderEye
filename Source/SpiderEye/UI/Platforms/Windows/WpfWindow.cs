@@ -136,7 +136,7 @@ namespace SpiderEye.UI.Windows
             {
                 using (var stream = icon.GetIconDataStream(icon.DefaultIcon))
                 {
-                    Icon = BitmapFrame.Create(stream);
+                    Icon = BitmapFrame.Create(stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
                 }
             }
         }
