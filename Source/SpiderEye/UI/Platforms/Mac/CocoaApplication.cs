@@ -57,9 +57,8 @@ namespace SpiderEye.UI.Mac
         public IMenu CreateDefaultAppMenu()
         {
             // TODO: use app name in menu items
-
             var menu = CreateAppMenu();
-            var appMenu = menu.AddLabelMenuItem("");
+            var appMenu = menu.AddLabelMenuItem(string.Empty);
 
             var about = appMenu.AddLabelMenuItem("About");
             about.Click += (s, e) => ObjC.Call(application, "orderFrontStandardAboutPanel:", application);

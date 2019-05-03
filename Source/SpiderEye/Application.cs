@@ -71,7 +71,7 @@ namespace SpiderEye
         /// <returns>The app menu.</returns>
         public static IMenu CreateAppMenu()
         {
-            return appMenu =  Instance.CreateAppMenu();
+            return appMenu = Instance.CreateAppMenu();
         }
 
         /// <summary>
