@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
+using SpiderEye.Tools;
 
 namespace SpiderEye.Content
 {
@@ -103,6 +104,7 @@ namespace SpiderEye.Content
                     {
                         if (stream != null)
                         {
+                            context.Response.ContentType = MimeTypes.FindForUri(context.Request.Url);
                             using (var responseStream = context.Response.OutputStream)
                             {
                                 await stream.CopyToAsync(responseStream);
