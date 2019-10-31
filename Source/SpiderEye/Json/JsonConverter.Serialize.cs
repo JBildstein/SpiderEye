@@ -20,8 +20,6 @@ namespace SpiderEye.Json
             var queue = new HashQueue<object>();
             WriteValue(value, builder, type, queue);
 
-            var stack = new Stack();
-
             return builder.ToString();
         }
 
