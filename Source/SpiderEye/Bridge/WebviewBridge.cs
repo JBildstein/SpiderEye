@@ -110,7 +110,8 @@ namespace SpiderEye.Bridge
             if (string.IsNullOrWhiteSpace(id)) { throw new ArgumentNullException(nameof(id)); }
 
             string dataJson = JsonConvert.Serialize(data);
-            return $"window._spidereye._sendEvent({id}, {dataJson})";
+            string idJson = JsonConvert.Serialize(id); // this makes sure that the name is properly escaped
+            return $"window._spidereye._sendEvent({idJson}, {dataJson})";
         }
 
         private EventResultModel ResolveEventResult(string id, string resultJson)
@@ -119,8 +120,16 @@ namespace SpiderEye.Bridge
 
             if (result.NoSubscriber) { throw new InvalidOperationException($"Event with ID \"{id}\" does not exist."); }
 
-            // TODO: include error info from result
-            if (!result.Success) { throw new ScriptException(); }
+            if (!result.Success)
+            {
+                string message = result.Error.Message;
+                if (string.IsNullOrWhiteSpace(message)) { message = $"Error executing Event with ID \"{id}\"."; }
+                else if (!string.IsNullOrWhiteSpace(result.Error.Name)) { message = $"{result.Error.Name}: {message}"; }
+
+                string stackTrace = result.Error.Stack;
+                if (string.IsNullOrWhiteSpace(stackTrace)) { throw new ScriptException(message); }
+                else { throw new ScriptException(message, new ScriptException(message, stackTrace)); }
+            }
 
             return result;
         }

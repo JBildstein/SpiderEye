@@ -60,12 +60,22 @@
         var callback = events[name];
         if (callback) {
             try { result = callback(value); }
-            catch (e) { error = e; }
+            catch (e) {
+                if (e instanceof Error) {
+                    error = {
+                        message: e.message,
+                        name: e.name,
+                        stack: e.stack
+                    };
+                } else {
+                    error = { message: String(e) };
+                }
+            }
         } else {
             return "{ \"success\": false, \"noSubscriber\": true }";
         }
 
-        return Json.stringify({
+        return JSON.stringify({
             result: result,
             hasResult: typeof result !== "undefined",
             error: error,
