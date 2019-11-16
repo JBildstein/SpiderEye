@@ -32,14 +32,16 @@ namespace SpiderEye.UI.Linux
         }
 
         public readonly IntPtr Handle;
+        private const string DefaultIconName = "applications-other";
         private AppIcon icon;
         private string tempIconFile;
 
         public GtkStatusIcon()
         {
             using (GLibString id = GetAppId())
+            using (GLibString icon = DefaultIconName)
             {
-                Handle = AppIndicator.Create(id, IntPtr.Zero, AppIndicatorCategory.ApplicationStatus);
+                Handle = AppIndicator.Create(id, icon, AppIndicatorCategory.ApplicationStatus);
                 AppIndicator.SetTitle(Handle, id);
             }
         }
@@ -54,7 +56,6 @@ namespace SpiderEye.UI.Linux
 
         public void Dispose()
         {
-            AppIndicator.Dispose(Handle);
             ClearTempFile();
         }
 
@@ -68,30 +69,24 @@ namespace SpiderEye.UI.Linux
         {
             string tempPath = null;
 
-            if (icon == null || icon.Icons.Length == 0)
-            {
-                AppIndicator.SetIcon(Handle, IntPtr.Zero);
-            }
+            string path;
+            if (icon == null || icon.Icons.Length == 0) { path = DefaultIconName; }
+            else if (icon.Source == AppIcon.IconSource.File) { path = icon.DefaultIcon.Path; }
             else
             {
-                string path;
-                if (icon.Source == AppIcon.IconSource.File) { path = icon.DefaultIcon.Path; }
-                else
+                tempPath = Path.GetTempFileName();
+                using (var tmpStream = File.Open(tempPath, FileMode.Create))
+                using (var iconStream = icon.GetIconDataStream(icon.DefaultIcon))
                 {
-                    tempPath = Path.GetTempFileName();
-                    using (var tmpStream = File.Open(tempPath, FileMode.Create))
-                    using (var iconStream = icon.GetIconDataStream(icon.DefaultIcon))
-                    {
-                        iconStream.CopyTo(tmpStream);
-                    }
-
-                    path = tempPath;
+                    iconStream.CopyTo(tmpStream);
                 }
 
-                using (GLibString gpath = path)
-                {
-                    AppIndicator.SetIcon(Handle, gpath);
-                }
+                path = tempPath;
+            }
+
+            using (GLibString gpath = path)
+            {
+                AppIndicator.SetIcon(Handle, gpath);
             }
 
             ClearTempFile();
