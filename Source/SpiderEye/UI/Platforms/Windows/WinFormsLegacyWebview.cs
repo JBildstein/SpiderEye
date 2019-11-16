@@ -1,18 +1,17 @@
 ﻿using System;
 using System.Threading.Tasks;
-using System.Windows.Controls;
-using System.Windows.Navigation;
+using System.Windows.Forms;
 using SpiderEye.Bridge;
 using SpiderEye.Tools;
 using SpiderEye.UI.Windows.Internal;
 
 namespace SpiderEye.UI.Windows
 {
-    internal class WpfLegacyWebview : IWebview, IWpfWebview
+    internal class WinFormsLegacyWebview : IWebview, IWinFormsWebview
     {
         public event PageLoadEventHandler PageLoaded;
 
-        public object Control
+        public Control Control
         {
             get { return webview; }
         }
@@ -22,7 +21,7 @@ namespace SpiderEye.UI.Windows
         private readonly ScriptInterface scriptInterface;
         private readonly string hostAddress;
 
-        public WpfLegacyWebview(WindowConfiguration config, string hostAddress, WebviewBridge scriptingApi)
+        public WinFormsLegacyWebview(WindowConfiguration config, string hostAddress, WebviewBridge scriptingApi)
         {
             if (scriptingApi == null) { throw new ArgumentNullException(nameof(scriptingApi)); }
 
@@ -30,6 +29,7 @@ namespace SpiderEye.UI.Windows
             this.hostAddress = hostAddress ?? throw new ArgumentNullException(nameof(hostAddress));
 
             webview = new WebBrowser();
+            webview.IsWebBrowserContextMenuEnabled = false;
 
             if (config.EnableScriptInterface)
             {
@@ -37,7 +37,7 @@ namespace SpiderEye.UI.Windows
                 webview.ObjectForScripting = scriptInterface;
             }
 
-            webview.LoadCompleted += Webview_LoadCompleted;
+            webview.DocumentCompleted += Webview_DocumentCompleted;
         }
 
         public void NavigateToFile(string url)
@@ -48,12 +48,12 @@ namespace SpiderEye.UI.Windows
 
         public string ExecuteScript(string script)
         {
-            return webview.InvokeScript("eval", new string[] { script })?.ToString();
+            return webview.Document.InvokeScript("eval", new string[] { script })?.ToString();
         }
 
         public Task<string> ExecuteScriptAsync(string script)
         {
-            string result = webview.InvokeScript("eval", new string[] { script })?.ToString();
+            string result = webview.Document.InvokeScript("eval", new string[] { script })?.ToString();
             return Task.FromResult(result);
         }
 
@@ -62,7 +62,7 @@ namespace SpiderEye.UI.Windows
             webview.Dispose();
         }
 
-        private void Webview_LoadCompleted(object sender, NavigationEventArgs e)
+        private void Webview_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
         {
             if (config.EnableScriptInterface)
             {

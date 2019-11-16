@@ -8,7 +8,7 @@ using SpiderEye.Bridge;
 namespace SpiderEye.UI.Windows.Internal
 {
     /// <summary>
-    /// Script interface for the WPF WebBrowser control.
+    /// Script interface for the WebBrowser control.
     /// Not meant for public consumption.
     /// </summary>
     [ComVisible(true)]

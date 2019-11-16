@@ -1,25 +1,21 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using System.Windows.Interop;
-using System.Windows.Threading;
+using System.Windows.Forms;
 using SpiderEye.Bridge;
 using SpiderEye.Content;
 using SpiderEye.Tools;
-using SpiderEye.UI.Windows.Interop;
+using Windows.Foundation;
 using Windows.Web.UI;
 using Windows.Web.UI.Interop;
 using Color = Windows.UI.Color;
-using Rect = Windows.Foundation.Rect;
-using Size = System.Windows.Size;
 
 namespace SpiderEye.UI.Windows
 {
-    internal class WpfWebview : HwndHost, IWebview, IWpfWebview
+    internal class WinFormsWebview : Control, IWebview, IWinFormsWebview
     {
         public event PageLoadEventHandler PageLoaded;
 
-        public object Control
+        public Control Control
         {
             get { return this; }
         }
@@ -28,10 +24,9 @@ namespace SpiderEye.UI.Windows
         private readonly WebviewBridge bridge;
         private readonly EdgeUriToStreamResolver streamResolver;
 
-        private IntPtr window;
         private WebViewControl webview;
 
-        public WpfWebview(WindowConfiguration config, IntPtr parentWindow, IContentProvider contentProvider, WebviewBridge bridge)
+        public WinFormsWebview(WindowConfiguration config, IContentProvider contentProvider, WebviewBridge bridge)
         {
             if (contentProvider == null) { throw new ArgumentNullException(nameof(contentProvider)); }
 
@@ -39,9 +34,9 @@ namespace SpiderEye.UI.Windows
             this.bridge = bridge ?? throw new ArgumentNullException(nameof(bridge));
             streamResolver = new EdgeUriToStreamResolver(contentProvider);
 
-            SizeChanged += (s, e) => UpdateSize(e.NewSize);
+            Layout += (s, e) => UpdateSize();
 
-            Init(parentWindow);
+            Init();
         }
 
         public void NavigateToFile(string url)
@@ -60,7 +55,10 @@ namespace SpiderEye.UI.Windows
 
         public string ExecuteScript(string script)
         {
-            return RunSynchronous(ExecuteScriptAsync(script));
+            return ExecuteScriptAsync(script)
+                .ConfigureAwait(false)
+                .GetAwaiter()
+                .GetResult();
         }
 
         public async Task<string> ExecuteScriptAsync(string script)
@@ -77,30 +75,35 @@ namespace SpiderEye.UI.Windows
             }
         }
 
-        protected override HandleRef BuildWindowCore(HandleRef hwndParent)
+        protected override void DestroyHandle()
         {
-            return new HandleRef(null, window);
+            Close();
+            base.DestroyHandle();
         }
 
-        protected override void DestroyWindowCore(HandleRef hwnd)
+        protected override void OnHandleDestroyed(EventArgs e)
         {
-            Native.DestroyWindow(hwnd.Handle);
-            Native.CheckLastError();
+            Close();
+            base.OnHandleDestroyed(e);
         }
 
-        private void Init(IntPtr parentWindow)
+        private void Close()
         {
-            Native.EnableMouseInPointer(true);
-            Native.CheckLastError();
+            webview?.Close();
+        }
 
-            window = Native.CreateBrowserWindow(parentWindow);
-
+        private void Init()
+        {
             var process = new WebViewControlProcess();
-            var bounds = new Rect(0, 0, RenderSize.Width, RenderSize.Height);
+            var bounds = new Rect(Bounds.X, Bounds.Y, Bounds.Width, Bounds.Height);
 
-            webview = RunSynchronous(process.CreateWebViewControlAsync(window.ToInt64(), bounds).AsTask());
+            webview = process.CreateWebViewControlAsync(Handle.ToInt64(), bounds)
+                .AsTask()
+                .ConfigureAwait(false)
+                .GetAwaiter()
+                .GetResult();
 
-            UpdateSize(RenderSize);
+            UpdateSize();
 
             webview.DefaultBackgroundColor = ParseColor(config.BackgroundColor);
             webview.Settings.IsScriptNotifyAllowed = config.EnableScriptInterface;
@@ -124,22 +127,22 @@ namespace SpiderEye.UI.Windows
         {
             if (e.IsSuccess && config.EnableScriptInterface)
             {
-                string initScript = SpiderEye.Resources.GetInitScript("Windows");
+                string initScript = Resources.GetInitScript("Windows");
                 ExecuteScript(initScript);
             }
 
             PageLoaded?.Invoke(this, PageLoadEventArgs.GetFor(e.IsSuccess));
         }
 
-        private void UpdateSize(Size size)
+        private void UpdateSize()
         {
             if (webview != null)
             {
                 var rect = new Rect(
-                    (float)VisualOffset.X,
-                    (float)VisualOffset.Y,
-                    (float)size.Width,
-                    (float)size.Height);
+                    (float)ClientRectangle.X,
+                    (float)ClientRectangle.Y,
+                    (float)ClientRectangle.Width,
+                    (float)ClientRectangle.Height);
 
                 webview.Bounds = rect;
             }
@@ -150,27 +153,6 @@ namespace SpiderEye.UI.Windows
             ColorTools.ParseHex(hex, out byte r, out byte g, out byte b);
 
             return new Color { A = byte.MaxValue, R = r, G = g, B = b, };
-        }
-
-        private T RunSynchronous<T>(Task<T> task)
-        {
-            T result = default;
-            Exception ex = null;
-            var frame = new DispatcherFrame(true);
-
-            task.ContinueWith(t =>
-            {
-                if (t.IsFaulted) { ex = t.Exception; }
-                else { result = t.Result; }
-
-                frame.Continue = false;
-            });
-
-            Dispatcher.PushFrame(frame);
-
-            if (ex != null) { throw ex; }
-
-            return result;
         }
     }
 }

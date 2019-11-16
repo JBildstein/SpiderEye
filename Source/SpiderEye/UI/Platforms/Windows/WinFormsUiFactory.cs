@@ -2,11 +2,11 @@
 
 namespace SpiderEye.UI.Windows
 {
-    internal class WpfUiFactory : IUiFactory
+    internal class WinFormsUiFactory : IUiFactory
     {
         public IWindow CreateWindow(WindowConfiguration config)
         {
-            return new WpfWindow(config, this);
+            return new WinFormsWindow(config, this);
         }
 
         public IStatusIcon CreateStatusIcon()
@@ -16,17 +16,17 @@ namespace SpiderEye.UI.Windows
 
         public IMessageBox CreateMessageBox()
         {
-            return new WpfMessageBox();
+            return new WinFormsMessageBox();
         }
 
         public ISaveFileDialog CreateSaveFileDialog()
         {
-            return new WpfSaveFileDialog();
+            return new WinFormsSaveFileDialog();
         }
 
         public IOpenFileDialog CreateOpenFileDialog()
         {
-            return new WpfOpenFileDialog();
+            return new WinFormsOpenFileDialog();
         }
     }
 }

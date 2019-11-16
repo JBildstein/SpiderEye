@@ -1,8 +1,8 @@
-﻿using Microsoft.Win32;
+﻿using System.Windows.Forms;
 
 namespace SpiderEye.UI.Windows.Dialogs
 {
-    internal class WpfOpenFileDialog : WpfFileDialog, IOpenFileDialog
+    internal class WinFormsOpenFileDialog : WinFormsFileDialog, IOpenFileDialog
     {
         public bool Multiselect { get; set; }
 

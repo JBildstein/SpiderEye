@@ -1,8 +1,8 @@
-﻿using Microsoft.Win32;
+﻿using System.Windows.Forms;
 
 namespace SpiderEye.UI.Windows.Dialogs
 {
-    internal class WpfSaveFileDialog : WpfFileDialog, ISaveFileDialog
+    internal class WinFormsSaveFileDialog : WinFormsFileDialog, ISaveFileDialog
     {
         public bool OverwritePrompt { get; set; }
 

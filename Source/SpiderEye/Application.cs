@@ -164,7 +164,7 @@ namespace SpiderEye
             {
                 case OperatingSystem.Windows:
 #if NET462
-                    return new UI.Windows.WpfApplication();
+                    return new UI.Windows.WinFormsApplication();
 #else
                     throw new PlatformNotSupportedException("Windows is only supported on .Net 4.6.2 or newer");
 #endif

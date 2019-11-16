@@ -1,17 +1,16 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Drawing;
 using System.IO;
-using System.Windows;
-using System.Windows.Interop;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
+using System.Windows.Forms;
 using SpiderEye.Bridge;
 using SpiderEye.Content;
+using SpiderEye.Tools;
 using SpiderEye.UI.Windows.Interop;
 
 namespace SpiderEye.UI.Windows
 {
-    internal class WpfWindow : Window, IWindow
+    internal class WinFormsWindow : Form, IWindow
     {
         public event PageLoadEventHandler PageLoaded
         {
@@ -34,22 +33,32 @@ namespace SpiderEye.UI.Windows
         private event CancelableEventHandler ClosingBackingEvent;
         private event EventHandler ClosedBackingEvent;
 
-        public bool CanResize
-        {
-            get { return ResizeMode == ResizeMode.CanResize; }
-            set { ResizeMode = value ? ResizeMode.CanResize : ResizeMode.NoResize; }
-        }
-
         public IWebviewBridge Bridge
         {
             get { return bridge; }
         }
 
+        public string Title
+        {
+            get { return Text; }
+            set { Text = value; }
+        }
+
+        public bool CanResize
+        {
+            get { return FormBorderStyle == FormBorderStyle.Sizable; }
+            set
+            {
+                FormBorderStyle = value ? FormBorderStyle.Sizable : FormBorderStyle.FixedSingle;
+                MaximizeBox = value;
+            }
+        }
+
         private readonly ContentServer server;
         private readonly WebviewBridge bridge;
-        private readonly IWpfWebview webview;
+        private readonly IWinFormsWebview webview;
 
-        public WpfWindow(WindowConfiguration config, IUiFactory windowFactory)
+        public WinFormsWindow(WindowConfiguration config, IUiFactory windowFactory)
         {
             if (config == null) { throw new ArgumentNullException(nameof(config)); }
             if (windowFactory == null) { throw new ArgumentNullException(nameof(windowFactory)); }
@@ -58,9 +67,7 @@ namespace SpiderEye.UI.Windows
             var contentProvider = new EmbeddedFileProvider(config.ContentAssembly, config.ContentFolder);
             if (!config.ForceWindowsLegacyWebview && IsEdgeAvailable())
             {
-                var helper = new WindowInteropHelper(this);
-                var view = new WpfWebview(config, helper.EnsureHandle(), contentProvider, bridge);
-                webview = view;
+                webview = new WinFormsWebview(config, contentProvider, bridge);
             }
             else
             {
@@ -73,19 +80,20 @@ namespace SpiderEye.UI.Windows
                 }
                 else { hostAddress = config.ExternalHost; }
 
-                webview = new WpfLegacyWebview(config, hostAddress, bridge);
+                webview = new WinFormsLegacyWebview(config, hostAddress, bridge);
             }
 
-            AddChild(webview.Control);
+            webview.Control.Location = new Point(0, 0);
+            webview.Control.Dock = DockStyle.Fill;
+            Controls.Add(webview.Control);
 
-            Title = config.Title;
+            Text = config.Title;
             Width = config.Width;
             Height = config.Height;
             CanResize = config.CanResize;
 
-            string backgroundColor = config.BackgroundColor;
-            if (string.IsNullOrWhiteSpace(backgroundColor)) { backgroundColor = "#FFFFFF"; }
-            Background = new BrushConverter().ConvertFrom(backgroundColor) as SolidColorBrush;
+            ColorTools.ParseHex(config.BackgroundColor, out byte r, out byte g, out byte b);
+            BackColor = Color.FromArgb(r, g, b);
 
             if (config.EnableScriptInterface) { bridge.Init(this, webview, windowFactory); }
 
@@ -95,12 +103,6 @@ namespace SpiderEye.UI.Windows
             }
 
             SetIcon(config.Icon);
-        }
-
-        public void Dispose()
-        {
-            webview.Dispose();
-            server?.Dispose();
         }
 
         public void LoadUrl(string url)
@@ -113,15 +115,15 @@ namespace SpiderEye.UI.Windows
             switch (state)
             {
                 case UI.WindowState.Normal:
-                    WindowState = System.Windows.WindowState.Normal;
+                    WindowState = FormWindowState.Normal;
                     break;
 
                 case UI.WindowState.Maximized:
-                    WindowState = System.Windows.WindowState.Maximized;
+                    WindowState = FormWindowState.Maximized;
                     break;
 
                 case UI.WindowState.Minimized:
-                    WindowState = System.Windows.WindowState.Minimized;
+                    WindowState = FormWindowState.Minimized;
                     break;
 
                 default:
@@ -136,7 +138,7 @@ namespace SpiderEye.UI.Windows
             {
                 using (var stream = icon.GetIconDataStream(icon.DefaultIcon))
                 {
-                    Icon = BitmapFrame.Create(stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
+                    Icon = new Icon(stream);
                 }
             }
         }
@@ -155,6 +157,14 @@ namespace SpiderEye.UI.Windows
             ClosedBackingEvent?.Invoke(this, EventArgs.Empty);
             base.OnClosed(e);
             Dispose();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+
+            webview.Dispose();
+            server?.Dispose();
         }
 
         private bool IsEdgeAvailable()
