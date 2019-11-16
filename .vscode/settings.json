@@ -1,3 +1,10 @@
 {
-    "dotnet-test-explorer.testProjectPath": "Tests/**"
+    "dotnet-test-explorer.testProjectPath": "Tests/**",
+    "files.exclude": {
+        "**/.git": true,
+        "**/.DS_Store": true,
+        "**/node_modules": true,
+        "**/bin": true,
+        "**/obj": true
+    }
 }
