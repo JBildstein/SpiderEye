@@ -1,5 +1,4 @@
-﻿using System;
-using SpiderEye.UI.Mac.Dialogs;
+﻿using SpiderEye.UI.Mac.Dialogs;
 
 namespace SpiderEye.UI.Mac
 {

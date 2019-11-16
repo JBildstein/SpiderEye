@@ -1,6 +1,5 @@
 using System;
 using System.Runtime.InteropServices;
-using SpiderEye.UI.Linux.Interop;
 
 namespace SpiderEye.UI.Linux.Native
 {

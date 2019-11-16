@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using SpiderEye.UI.Linux.Interop;
 using SpiderEye.UI.Linux.Native;
 

@@ -1,5 +1,4 @@
-﻿using System;
-using SpiderEye.UI.Linux.Dialogs;
+﻿using SpiderEye.UI.Linux.Dialogs;
 
 namespace SpiderEye.UI.Linux
 {
