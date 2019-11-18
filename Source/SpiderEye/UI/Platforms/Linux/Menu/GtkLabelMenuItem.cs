@@ -26,10 +26,14 @@ namespace SpiderEye.UI.Linux.Menu
             set { Gtk.Widget.SetEnabled(Handle, value); }
         }
 
+        private readonly MenuActivateDelegate menuActivateDelegate;
+
         public GtkLabelMenuItem(string label)
             : base(CreateHandle(label))
         {
-            GLib.ConnectSignal(Handle, "activate", (MenuActivateDelegate)MenuActivatedCallback, IntPtr.Zero);
+            // need to keep the delegate around or it will get garbage collected
+            menuActivateDelegate = MenuActivatedCallback;
+            GLib.ConnectSignal(Handle, "activate", menuActivateDelegate, IntPtr.Zero);
         }
 
         protected override void AddItem(IntPtr item)

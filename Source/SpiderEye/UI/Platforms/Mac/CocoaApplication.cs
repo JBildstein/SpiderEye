@@ -12,10 +12,17 @@ namespace SpiderEye.UI.Mac
 
         private readonly IntPtr application;
 
+        private readonly ShouldTerminateDelegate shouldTerminateDelegate;
+        private readonly NotificationDelegate appFinishedLaunchingDelegate;
+
         public CocoaApplication()
         {
             Factory = new CocoaUiFactory();
             ExitWithLastWindow = true;
+
+            // need to keep the delegates around or they will get garbage collected
+            shouldTerminateDelegate = ShouldTerminateCallback;
+            appFinishedLaunchingDelegate = AppFinishedLaunching;
 
             application = GetApp();
             ObjC.Call(application, "setActivationPolicy:", IntPtr.Zero);
@@ -26,13 +33,13 @@ namespace SpiderEye.UI.Mac
             ObjC.AddMethod(
                 appDelegateClass,
                 ObjC.RegisterName("applicationShouldTerminateAfterLastWindowClosed:"),
-                (ShouldTerminateDelegate)ShouldTerminateCallback,
+                shouldTerminateDelegate,
                 "c@:@");
 
             ObjC.AddMethod(
                 appDelegateClass,
                 ObjC.RegisterName("applicationDidFinishLaunching:"),
-                (NotificationDelegate)AppFinishedLaunching,
+                appFinishedLaunchingDelegate,
                 "v@:@");
 
             ObjC.RegisterClassPair(appDelegateClass);

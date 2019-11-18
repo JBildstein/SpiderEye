@@ -26,6 +26,13 @@ namespace SpiderEye.UI.Mac
 
         private readonly bool enableDevTools = false;
 
+        private readonly LoadFinishedDelegate loadDelegate;
+        private readonly LoadFailedDelegate loadFailedDelegate;
+        private readonly ObserveValueDelegate observedValueChangedDelegate;
+        private readonly ScriptCallbackDelegate scriptDelegate;
+        private readonly SchemeHandlerDelegate uriSchemeStartDelegate;
+        private readonly SchemeHandlerDelegate uriSchemeStopDelegate;
+
         public CocoaWebview(WindowConfiguration config, IContentProvider contentProvider, WebviewBridge bridge)
         {
             this.config = config ?? throw new ArgumentNullException(nameof(config));
@@ -33,6 +40,15 @@ namespace SpiderEye.UI.Mac
             this.bridge = bridge ?? throw new ArgumentNullException(nameof(bridge));
 
             Interlocked.Increment(ref count);
+
+            // need to keep the delegates around or they will get garbage collected
+            loadDelegate = LoadCallback;
+            loadFailedDelegate = LoadFailedCallback;
+            observedValueChangedDelegate = ObservedValueChanged;
+            scriptDelegate = ScriptCallback;
+            uriSchemeStartDelegate = UriSchemeStartCallback;
+            uriSchemeStopDelegate = UriSchemeStopCallback;
+
 
             IntPtr configuration = WebKit.Call("WKWebViewConfiguration", "new");
             IntPtr manager = ObjC.Call(configuration, "userContentController");
@@ -97,7 +113,7 @@ namespace SpiderEye.UI.Mac
             var taskResult = new TaskCompletionSource<string>();
             NSBlock block = null;
 
-            unsafe void Callback(IntPtr self, IntPtr result, IntPtr error)
+            ScriptEvalCallbackDelegate callback = (IntPtr self, IntPtr result, IntPtr error) =>
             {
                 try
                 {
@@ -114,9 +130,9 @@ namespace SpiderEye.UI.Mac
                 }
                 catch (Exception ex) { taskResult.TrySetException(ex); }
                 finally { block.Dispose(); }
-            }
+            };
 
-            block = new NSBlock((ScriptEvalCallbackDelegate)Callback);
+            block = new NSBlock(callback);
             ObjC.Call(
                 Handle,
                 "evaluateJavaScript:completionHandler:",
@@ -140,25 +156,25 @@ namespace SpiderEye.UI.Mac
             ObjC.AddMethod(
                 callbackClass,
                 ObjC.RegisterName("webView:didFinishNavigation:"),
-                (LoadFinishedDelegate)LoadCallback,
+                loadDelegate,
                 "v@:@@");
 
             ObjC.AddMethod(
                 callbackClass,
                 ObjC.RegisterName("webView:didFailNavigation:withError:"),
-                (LoadFailedDelegate)LoadFailedCallback,
+                loadFailedDelegate,
                 "v@:@@@");
 
             ObjC.AddMethod(
                 callbackClass,
                 ObjC.RegisterName("observeValueForKeyPath:ofObject:change:context:"),
-                (ObserveValueDelegate)ObservedValueChanged,
+                observedValueChangedDelegate,
                 "v@:@@@@");
 
             ObjC.AddMethod(
                 callbackClass,
                 ObjC.RegisterName("userContentController:didReceiveScriptMessage:"),
-                (ScriptCallbackDelegate)ScriptCallback,
+                scriptDelegate,
                 "v@:@@");
 
             ObjC.RegisterClassPair(callbackClass);
@@ -180,13 +196,13 @@ namespace SpiderEye.UI.Mac
                 ObjC.AddMethod(
                     handlerClass,
                     ObjC.RegisterName("webView:startURLSchemeTask:"),
-                    (SchemeHandlerDelegate)UriSchemeStartCallback,
+                    uriSchemeStartDelegate,
                     "v@:@@");
 
                 ObjC.AddMethod(
                     handlerClass,
                     ObjC.RegisterName("webView:stopURLSchemeTask:"),
-                    (SchemeHandlerDelegate)UriSchemeStopCallback,
+                    uriSchemeStopDelegate,
                     "v@:@@");
 
                 ObjC.RegisterClassPair(handlerClass);

@@ -27,6 +27,13 @@ namespace SpiderEye.UI.Linux
 
         private readonly bool enableDevTools = false;
 
+        private readonly ScriptDelegate scriptDelegate;
+        private readonly PageLoadFailedDelegate loadFailedDelegate;
+        private readonly PageLoadDelegate loadDelegate;
+        private readonly ContextMenuRequestDelegate contextMenuDelegate;
+        private readonly WebviewDelegate closeDelegate;
+        private readonly WebviewDelegate titleChangeDelegate;
+
         private bool loadEventHandled = false;
 
         public GtkWebview(WindowConfiguration config, IContentProvider contentProvider, WebviewBridge bridge)
@@ -35,10 +42,18 @@ namespace SpiderEye.UI.Linux
             this.contentProvider = contentProvider ?? throw new ArgumentNullException(nameof(contentProvider));
             this.bridge = bridge ?? throw new ArgumentNullException(nameof(bridge));
 
+            // need to keep the delegates around or they will get garbage collected
+            scriptDelegate = ScriptCallback;
+            loadFailedDelegate = LoadFailedCallback;
+            loadDelegate = LoadCallback;
+            contextMenuDelegate = ContextMenuCallback;
+            closeDelegate = CloseCallback;
+            titleChangeDelegate = TitleChangeCallback;
+
             if (config.EnableScriptInterface)
             {
                 manager = WebKit.Manager.Create();
-                GLib.ConnectSignal(manager, "script-message-received::external", (ScriptDelegate)ScriptCallback, IntPtr.Zero);
+                GLib.ConnectSignal(manager, "script-message-received::external", scriptDelegate, IntPtr.Zero);
 
                 using (GLibString name = "external")
                 {
@@ -49,14 +64,14 @@ namespace SpiderEye.UI.Linux
             }
             else { Handle = WebKit.Create(); }
 
-            GLib.ConnectSignal(Handle, "load-failed", (PageLoadFailedDelegate)LoadFailedCallback, IntPtr.Zero);
-            GLib.ConnectSignal(Handle, "load-changed", (PageLoadDelegate)LoadCallback, IntPtr.Zero);
-            GLib.ConnectSignal(Handle, "context-menu", (ContextMenuRequestDelegate)ContextMenuCallback, IntPtr.Zero);
-            GLib.ConnectSignal(Handle, "close", (WebviewDelegate)CloseCallback, IntPtr.Zero);
+            GLib.ConnectSignal(Handle, "load-failed", loadFailedDelegate, IntPtr.Zero);
+            GLib.ConnectSignal(Handle, "load-changed", loadDelegate, IntPtr.Zero);
+            GLib.ConnectSignal(Handle, "context-menu", contextMenuDelegate, IntPtr.Zero);
+            GLib.ConnectSignal(Handle, "close", closeDelegate, IntPtr.Zero);
 
             if (config.UseBrowserTitle)
             {
-                GLib.ConnectSignal(Handle, "notify::title", (WebviewDelegate)TitleChangeCallback, IntPtr.Zero);
+                GLib.ConnectSignal(Handle, "notify::title", titleChangeDelegate, IntPtr.Zero);
             }
 
             if (string.IsNullOrWhiteSpace(config.ExternalHost))

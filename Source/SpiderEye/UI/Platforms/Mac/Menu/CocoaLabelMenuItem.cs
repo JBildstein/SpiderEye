@@ -30,9 +30,14 @@ namespace SpiderEye.UI.Mac.Menu
             set { ObjC.Call(Handle, "setEnabled:", value); }
         }
 
+        private readonly MenuCallbackDelegate menuDelegate;
+
         public CocoaLabelMenuItem(string label)
             : base(AppKit.Call("NSMenuItem", "alloc"))
         {
+            // need to keep the delegate around or it will get garbage collected
+            menuDelegate = MenuCallback;
+
             ObjC.Call(
                 Handle,
                 "initWithTitle:action:keyEquivalent:",
@@ -79,7 +84,7 @@ namespace SpiderEye.UI.Mac.Menu
             ObjC.AddMethod(
                 callbackClass,
                 ObjC.RegisterName("menuCallback:"),
-                (MenuCallbackDelegate)MenuCallback,
+                menuDelegate,
                 "v@:@");
 
             ObjC.RegisterClassPair(callbackClass);

@@ -37,6 +37,9 @@ namespace SpiderEye.UI.Mac
         private readonly CocoaWebview webview;
         private readonly WebviewBridge bridge;
 
+        private readonly WindowShouldCloseDelegate windowShouldCloseDelegate;
+        private readonly NotificationDelegate windowWillCloseDelegate;
+
         public CocoaWindow(WindowConfiguration config, IUiFactory windowFactory)
         {
             if (windowFactory == null) { throw new ArgumentNullException(nameof(windowFactory)); }
@@ -44,6 +47,11 @@ namespace SpiderEye.UI.Mac
             this.config = config ?? throw new ArgumentNullException(nameof(config));
 
             Interlocked.Increment(ref count);
+
+            // need to keep the delegates around or they will get garbage collected
+            windowShouldCloseDelegate = WindowShouldCloseCallback;
+            windowWillCloseDelegate = WindowWillCloseCallback;
+
             Handle = AppKit.Call("NSWindow", "alloc");
 
             var style = NSWindowStyleMask.Titled | NSWindowStyleMask.Closable | NSWindowStyleMask.Miniaturizable;
@@ -140,13 +148,13 @@ namespace SpiderEye.UI.Mac
             ObjC.AddMethod(
                 windowDelegateClass,
                 ObjC.RegisterName("windowShouldClose:"),
-                (WindowShouldCloseDelegate)WindowShouldCloseCallback,
+                windowShouldCloseDelegate,
                 "c@:@");
 
             ObjC.AddMethod(
                 windowDelegateClass,
                 ObjC.RegisterName("windowWillClose:"),
-                (NotificationDelegate)WindowWillCloseCallback,
+                windowWillCloseDelegate,
                 "v@:@");
 
             ObjC.RegisterClassPair(windowDelegateClass);

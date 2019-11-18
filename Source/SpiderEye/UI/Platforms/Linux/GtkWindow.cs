@@ -50,6 +50,9 @@ namespace SpiderEye.UI.Linux
         private readonly GtkWebview webview;
         private readonly WebviewBridge bridge;
 
+        private readonly DeleteCallbackDelegate deleteDelegate;
+        private readonly DestroyCallbackDelegate destroyDelegate;
+
         public GtkWindow(WindowConfiguration config, IUiFactory windowFactory)
         {
             if (windowFactory == null) { throw new ArgumentNullException(nameof(windowFactory)); }
@@ -73,8 +76,12 @@ namespace SpiderEye.UI.Linux
             Gtk.Widget.ContainerAdd(Handle, scroller);
             Gtk.Widget.ContainerAdd(scroller, webview.Handle);
 
-            GLib.ConnectSignal(Handle, "delete-event", (DeleteCallbackDelegate)DeleteCallback, IntPtr.Zero);
-            GLib.ConnectSignal(Handle, "destroy", (DestroyCallbackDelegate)DestroyCallback, IntPtr.Zero);
+            // need to keep the delegates around or they will get garbage collected
+            deleteDelegate = DeleteCallback;
+            destroyDelegate = DestroyCallback;
+
+            GLib.ConnectSignal(Handle, "delete-event", deleteDelegate, IntPtr.Zero);
+            GLib.ConnectSignal(Handle, "destroy", destroyDelegate, IntPtr.Zero);
 
             webview.CloseRequested += Webview_CloseRequested;
 
