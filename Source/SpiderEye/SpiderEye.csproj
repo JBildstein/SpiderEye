@@ -13,10 +13,8 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
     <Reference Include="WindowsBase" />
-    <Reference Include="System.Xaml" />
     <Reference Include="System.Windows.Forms" />
-    <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.18362.2005" />
-    <PackageReference Include="System.Runtime.WindowsRuntime" Version="4.6.0" />
+    <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.18362.2005" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
