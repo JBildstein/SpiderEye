@@ -4,8 +4,8 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build-example-spa",
-            "command": "dotnet build Examples/SpiderEye.Example.Spa/SpiderEye.Example.Spa.csproj -f netcoreapp2.2 -c Debug",
+            "label": "build-example-spa-win",
+            "command": "dotnet build Examples/Spa/App.Windows/SpiderEye.Example.Spa.Windows.csproj -c Debug",
             "type": "shell",
             "group": "build",
             "presentation": {
@@ -14,8 +14,48 @@
             "problemMatcher": "$msCompile"
         },
         {
-            "label": "build-example-simple",
-            "command": "dotnet build Examples/SpiderEye.Example.Simple/SpiderEye.Example.Simple.csproj -f netcoreapp2.2 -c Debug",
+            "label": "build-example-spa-linux",
+            "command": "dotnet build Examples/Spa/App.Linux/SpiderEye.Example.Spa.Linux.csproj -c Debug",
+            "type": "shell",
+            "group": "build",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "build-example-spa-osx",
+            "command": "dotnet build Examples/Spa/App.Mac/SpiderEye.Example.Spa.Mac.csproj -c Debug",
+            "type": "shell",
+            "group": "build",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "build-example-simple-win",
+            "command": "dotnet build Examples/Simple/App.Windows/SpiderEye.Example.Simple.Windows.csproj -c Debug",
+            "type": "shell",
+            "group": "build",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "build-example-simple-linux",
+            "command": "dotnet build Examples/Simple/App.Linux/SpiderEye.Example.Simple.Linux.csproj -c Debug",
+            "type": "shell",
+            "group": "build",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "build-example-simple-osx",
+            "command": "dotnet build Examples/Simple/App.Mac/SpiderEye.Example.Simple.Mac.csproj -c Debug",
             "type": "shell",
             "group": "build",
             "presentation": {
