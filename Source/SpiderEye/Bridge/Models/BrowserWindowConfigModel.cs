@@ -1,4 +1,4 @@
-﻿using SpiderEye.Json;
+﻿using Newtonsoft.Json;
 using SpiderEye.UI;
 
 namespace SpiderEye.Bridge.Models

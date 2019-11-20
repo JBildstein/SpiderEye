@@ -17,6 +17,10 @@
     <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.18362.2005" PrivateAssets="all" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <Compile Remove="UI\Platforms\Windows\**" />
     <None Include="UI\Platforms\Windows\**" />

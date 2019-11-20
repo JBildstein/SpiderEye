@@ -4,7 +4,6 @@ using System.Reflection;
 using System.Threading.Tasks;
 using SpiderEye.Bridge.Api;
 using SpiderEye.Bridge.Models;
-using SpiderEye.Json;
 using SpiderEye.UI;
 
 namespace SpiderEye.Bridge
@@ -16,6 +15,8 @@ namespace SpiderEye.Bridge
         private static event EventHandler<object> GlobalEventHandlerUpdate;
         private static readonly object GlobalHandlerLock = new object();
         private static readonly List<object> GlobalHandler = new List<object>();
+
+        private static readonly IJsonConverter JsonConverter = new JsonNetJsonConverter();
 
         private readonly HashSet<string> apiRootNames = new HashSet<string>();
         private readonly Dictionary<string, ApiMethod> apiMethods = new Dictionary<string, ApiMethod>();
@@ -72,12 +73,12 @@ namespace SpiderEye.Bridge
             // run script call handling on separate task to free up UI
             await Task.Run(async () =>
             {
-                var info = JsonConvert.Deserialize<InvokeInfoModel>(data);
+                var info = JsonConverter.Deserialize<InvokeInfoModel>(data);
                 if (info != null)
                 {
                     if (info.Type == "title")
                     {
-                        string title = JsonConvert.Deserialize<string>(info.Parameters);
+                        string title = JsonConverter.Deserialize<string>(info.Parameters);
                         TitleChanged?.Invoke(this, title);
                     }
                     else if (info.Type == "api")
@@ -98,14 +99,14 @@ namespace SpiderEye.Bridge
         {
             if (string.IsNullOrWhiteSpace(id)) { throw new ArgumentNullException(nameof(id)); }
 
-            string dataJson = JsonConvert.Serialize(data);
-            string idJson = JsonConvert.Serialize(id); // this makes sure that the name is properly escaped
+            string dataJson = JsonConverter.Serialize(data);
+            string idJson = JsonConverter.Serialize(id); // this makes sure that the name is properly escaped
             return $"window._spidereye._sendEvent({idJson}, {dataJson})";
         }
 
         private EventResultModel ResolveEventResult(string id, string resultJson)
         {
-            var result = JsonConvert.Deserialize<EventResultModel>(resultJson);
+            var result = JsonConverter.Deserialize<EventResultModel>(resultJson);
 
             if (result.NoSubscriber) { throw new InvalidOperationException($"Event with ID \"{id}\" does not exist."); }
 
@@ -126,12 +127,12 @@ namespace SpiderEye.Bridge
         private T ResolveInvokeResult<T>(EventResultModel result)
         {
             if (!result.HasResult) { return default; }
-            else { return JsonConvert.Deserialize<T>(result.Result); }
+            else { return JsonConverter.Deserialize<T>(result.Result); }
         }
 
         private async Task EndApiCall(InvokeInfoModel info, ApiResultModel result)
         {
-            string resultJson = JsonConvert.Serialize(result);
+            string resultJson = JsonConverter.Serialize(result);
             string script = $"window._spidereye._endApiCall({info.CallbackId}, {resultJson})";
             await Application.Invoke(() => webview.ExecuteScriptAsync(script));
         }
@@ -150,14 +151,14 @@ namespace SpiderEye.Bridge
                     object parametersObject = null;
                     if (info.HasParameter && !string.IsNullOrWhiteSpace(parameters))
                     {
-                        parametersObject = JsonConvert.Deserialize(parameters, info.ParameterType);
+                        parametersObject = JsonConverter.Deserialize(parameters, info.ParameterType);
                     }
 
                     object result = await info.InvokeAsync(parametersObject);
                     return new ApiResultModel
                     {
                         Success = true,
-                        Value = info.HasReturnValue ? JsonConvert.Serialize(result) : null,
+                        Value = info.HasReturnValue ? JsonConverter.Serialize(result) : null,
                     };
                 }
                 catch (Exception ex) { return ApiResultModel.FromError(ex.Message); }
