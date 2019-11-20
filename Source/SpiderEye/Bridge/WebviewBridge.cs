@@ -52,57 +52,46 @@ namespace SpiderEye.Bridge
             AddGlobalHandlerStatic(handler);
         }
 
-        public void Invoke(string id, object data)
-        {
-            string script = GetInvokeScript(id, data);
-            string resultJson = webview.ExecuteScript(script);
-            ResolveEventResult(id, resultJson);
-        }
-
         public async Task InvokeAsync(string id, object data)
         {
             string script = GetInvokeScript(id, data);
-            string resultJson = await webview.ExecuteScriptAsync(script);
+            string resultJson = await Application.Invoke(() => webview.ExecuteScriptAsync(script));
             ResolveEventResult(id, resultJson);
-        }
-
-        public T Invoke<T>(string id, object data)
-        {
-            string script = GetInvokeScript(id, data);
-            string resultJson = webview.ExecuteScript(script);
-            var result = ResolveEventResult(id, resultJson);
-            return ResolveInvokeResult<T>(result);
         }
 
         public async Task<T> InvokeAsync<T>(string id, object data)
         {
             string script = GetInvokeScript(id, data);
-            string resultJson = await webview.ExecuteScriptAsync(script);
+            string resultJson = await Application.Invoke(() => webview.ExecuteScriptAsync(script));
             var result = ResolveEventResult(id, resultJson);
             return ResolveInvokeResult<T>(result);
         }
 
         public async Task HandleScriptCall(string data)
         {
-            var info = JsonConvert.Deserialize<InvokeInfoModel>(data);
-            if (info != null)
+            // run script call handling on separate task to free up UI
+            await Task.Run(async () =>
             {
-                if (info.Type == "title")
+                var info = JsonConvert.Deserialize<InvokeInfoModel>(data);
+                if (info != null)
                 {
-                    string title = JsonConvert.Deserialize<string>(info.Parameters);
-                    TitleChanged?.Invoke(this, title);
+                    if (info.Type == "title")
+                    {
+                        string title = JsonConvert.Deserialize<string>(info.Parameters);
+                        TitleChanged?.Invoke(this, title);
+                    }
+                    else if (info.Type == "api")
+                    {
+                        var result = await ResolveCall(info.Id, info.Parameters);
+                        await EndApiCall(info, result);
+                    }
+                    else if (info.CallbackId != null)
+                    {
+                        string message = $"Invalid invoke type \"{info.Type ?? "<null>"}\".";
+                        await EndApiCall(info, ApiResultModel.FromError(message));
+                    }
                 }
-                else if (info.Type == "api")
-                {
-                    var result = await ResolveCall(info.Id, info.Parameters);
-                    await EndApiCall(info, result);
-                }
-                else if (info.CallbackId != null)
-                {
-                    string message = $"Invalid invoke type \"{info.Type ?? "<null>"}\".";
-                    await EndApiCall(info, ApiResultModel.FromError(message));
-                }
-            }
+            });
         }
 
         private string GetInvokeScript(string id, object data)
@@ -143,7 +132,8 @@ namespace SpiderEye.Bridge
         private async Task EndApiCall(InvokeInfoModel info, ApiResultModel result)
         {
             string resultJson = JsonConvert.Serialize(result);
-            await webview.ExecuteScriptAsync($"window._spidereye._endApiCall({info.CallbackId}, {resultJson})");
+            string script = $"window._spidereye._endApiCall({info.CallbackId}, {resultJson})";
+            await Application.Invoke(() => webview.ExecuteScriptAsync(script));
         }
 
         private async Task<ApiResultModel> ResolveCall(string id, string parameters)

@@ -103,11 +103,6 @@ namespace SpiderEye.UI.Mac
             ObjC.Call(Handle, "loadRequest:", request);
         }
 
-        public string ExecuteScript(string script)
-        {
-            return NSRunLoop.WaitForTask(ExecuteScriptAsync(script));
-        }
-
         public Task<string> ExecuteScriptAsync(string script)
         {
             var taskResult = new TaskCompletionSource<string>();

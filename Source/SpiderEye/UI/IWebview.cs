@@ -20,13 +20,6 @@ namespace SpiderEye.UI
         void NavigateToFile(string url);
 
         /// <summary>
-        /// Executes the given JavaScript within the webview.
-        /// </summary>
-        /// <param name="script">The JavaScript to execute.</param>
-        /// <returns>The result of the script.</returns>
-        string ExecuteScript(string script);
-
-        /// <summary>
         /// Executes the given JavaScript within the webview and gets the result.
         /// </summary>
         /// <param name="script">The JavaScript to execute.</param>

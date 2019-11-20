@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.ExceptionServices;
 #if NETSTANDARD2_0
 using System.Runtime.InteropServices;
 #endif
@@ -156,6 +157,40 @@ namespace SpiderEye
         public static void Exit()
         {
             Instance.Exit();
+        }
+
+        /// <summary>
+        /// Executes the given action on the UI main thread.
+        /// </summary>
+        /// <param name="action">The action to execute.</param>
+        public static void Invoke(Action action)
+        {
+            InvokeBase(action);
+        }
+
+        /// <summary>
+        /// Executes the given action on the UI main thread.
+        /// </summary>
+        /// <typeparam name="T">The type of the return value.</typeparam>
+        /// <param name="action">The action to execute.</param>
+        /// <returns>The result of the given action.</returns>
+        public static T Invoke<T>(Func<T> action)
+        {
+            T result = default;
+            InvokeBase(() => result = action());
+            return result;
+        }
+
+        private static void InvokeBase(Action action)
+        {
+            ExceptionDispatchInfo exception = null;
+            Instance.Invoke(() =>
+            {
+                try { action(); }
+                catch (Exception ex) { exception = ExceptionDispatchInfo.Capture(ex); }
+            });
+
+            exception?.Throw();
         }
 
         private static IApplication CreateInstance()

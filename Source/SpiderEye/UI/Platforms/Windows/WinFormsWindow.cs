@@ -54,14 +54,16 @@ namespace SpiderEye.UI.Windows
             }
         }
 
+        private readonly WindowConfiguration config;
         private readonly ContentServer server;
         private readonly WebviewBridge bridge;
         private readonly IWinFormsWebview webview;
 
         public WinFormsWindow(WindowConfiguration config, IUiFactory windowFactory)
         {
-            if (config == null) { throw new ArgumentNullException(nameof(config)); }
             if (windowFactory == null) { throw new ArgumentNullException(nameof(windowFactory)); }
+
+            this.config = config ?? throw new ArgumentNullException(nameof(config));
 
             bridge = new WebviewBridge();
             var contentProvider = new EmbeddedFileProvider(config.ContentAssembly, config.ContentFolder);
@@ -99,7 +101,7 @@ namespace SpiderEye.UI.Windows
 
             if (config.UseBrowserTitle)
             {
-                bridge.TitleChanged += (s, e) => Title = e ?? config.Title;
+                bridge.TitleChanged += Webview_TitleChanged;
             }
 
             SetIcon(config.Icon);
@@ -165,6 +167,11 @@ namespace SpiderEye.UI.Windows
 
             webview.Dispose();
             server?.Dispose();
+        }
+
+        private void Webview_TitleChanged(object sender, string title)
+        {
+            Application.Invoke(() => Title = title ?? config.Title);
         }
 
         private bool IsEdgeAvailable()

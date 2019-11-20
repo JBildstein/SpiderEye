@@ -102,6 +102,18 @@ namespace SpiderEye.UI.Mac
             ObjC.Call(application, "terminate:", application);
         }
 
+        public void Invoke(Action action)
+        {
+            if (action == null) { throw new ArgumentNullException(nameof(action)); }
+
+            bool isMainThread = Foundation.Call("NSThread", "isMainThread") != IntPtr.Zero;
+            if (isMainThread) { action(); }
+            else
+            {
+                Dispatch.SyncFunction(Dispatch.MainQueue, IntPtr.Zero, ctx => action());
+            }
+        }
+
         private byte ShouldTerminateCallback(IntPtr self, IntPtr op, IntPtr notification)
         {
             return (byte)(ExitWithLastWindow ? 1 : 0);

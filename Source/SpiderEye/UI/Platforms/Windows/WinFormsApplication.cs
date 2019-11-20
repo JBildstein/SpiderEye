@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading;
+using System.Windows.Forms;
 using App = System.Windows.Forms.Application;
 
 namespace SpiderEye.UI.Windows
@@ -9,6 +11,8 @@ namespace SpiderEye.UI.Windows
 
         public IUiFactory Factory { get; }
 
+        private readonly SynchronizationContext context;
+
         public WinFormsApplication()
         {
             App.EnableVisualStyles();
@@ -16,6 +20,7 @@ namespace SpiderEye.UI.Windows
 
             ExitWithLastWindow = true;
             Factory = new WinFormsUiFactory();
+            context = new WindowsFormsSynchronizationContext();
         }
 
         public IMenu CreateAppMenu()
@@ -37,6 +42,13 @@ namespace SpiderEye.UI.Windows
         public void Exit()
         {
             App.Exit();
+        }
+
+        public void Invoke(Action action)
+        {
+            if (action == null) { throw new ArgumentNullException(nameof(action)); }
+
+            context.Send(state => action(), null);
         }
 
         private void App_Idle(object sender, EventArgs e)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using SpiderEye.UI.Linux.Native;
 
 namespace SpiderEye.UI.Linux
@@ -37,13 +38,37 @@ namespace SpiderEye.UI.Linux
             Gtk.Quit();
         }
 
+        public void Invoke(Action action)
+        {
+            if (action == null) { throw new ArgumentNullException(nameof(action)); }
+
+            using (var mre = new ManualResetEventSlim(false))
+            {
+                // if on main thread, callback is executed immediately
+                // and mre is set before calling Wait().
+                // Otherwise we block the calling thread until the action is executed.
+                GLib.ContextInvoke(
+                    IntPtr.Zero,
+                    data =>
+                    {
+                        try { action(); }
+                        finally { mre.Set(); }
+
+                        return false;
+                    },
+                    IntPtr.Zero);
+
+                mre.Wait();
+            }
+        }
+
         private static void Init()
         {
             var argv = new IntPtr(0);
             int argc = 0;
             if (!Gtk.Init(ref argc, ref argv))
             {
-                throw new Exception("Could not initialize GTK+");
+                throw new InvalidOperationException("Could not initialize GTK+");
             }
         }
 

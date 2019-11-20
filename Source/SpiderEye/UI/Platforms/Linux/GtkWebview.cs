@@ -111,19 +111,6 @@ namespace SpiderEye.UI.Linux
             }
         }
 
-        public string ExecuteScript(string script)
-        {
-            var task = ExecuteScriptAsync(script);
-
-            // main loop would deadlock without this
-            while (!task.IsCompleted)
-            {
-                Gtk.MainIteration();
-            }
-
-            return task.Result;
-        }
-
         public Task<string> ExecuteScriptAsync(string script)
         {
             var taskResult = new TaskCompletionSource<string>();
@@ -279,7 +266,7 @@ namespace SpiderEye.UI.Linux
             return false;
         }
 
-        private void LoadCallback(IntPtr webview, WebKitLoadEvent type, IntPtr userdata)
+        private async void LoadCallback(IntPtr webview, WebKitLoadEvent type, IntPtr userdata)
         {
             if (type == WebKitLoadEvent.Started) { loadEventHandled = false; }
             else if (type == WebKitLoadEvent.Finished && !loadEventHandled)
@@ -287,7 +274,7 @@ namespace SpiderEye.UI.Linux
                 if (config.EnableScriptInterface)
                 {
                     string initScript = Resources.GetInitScript("Unix");
-                    ExecuteScript(initScript);
+                    await ExecuteScriptAsync(initScript);
                 }
 
                 loadEventHandled = true;

@@ -39,7 +39,7 @@ namespace SpiderEye.UI.Linux.Menu
             SetShortcut(KeyMapper.GetShortcut(modifier, key));
         }
 
-        protected abstract void AddItem(IntPtr item);
+        protected abstract void AddItem(IntPtr item); // TODO: keep references to the subitems somewhere (to avoid garbage collection issues)
 
         protected abstract void SetShortcut(string shortcut);
     }

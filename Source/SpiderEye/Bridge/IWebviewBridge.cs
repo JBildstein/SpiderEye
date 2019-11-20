@@ -20,23 +20,7 @@ namespace SpiderEye.Bridge
         void AddGlobalHandler(object handler);
 
         /// <summary>
-        /// Invoke an event in the webview.
-        /// </summary>
-        /// <param name="id">The event ID.</param>
-        /// <param name="data">Optional event data.</param>
-        void Invoke(string id, object data);
-
-        /// <summary>
-        /// Invoke an event in the webview and get the result.
-        /// </summary>
-        /// <typeparam name="T">The result type.</typeparam>
-        /// <param name="id">The event ID.</param>
-        /// <param name="data">Optional event data.</param>
-        /// <returns>The result from the webview.</returns>
-        T Invoke<T>(string id, object data);
-
-        /// <summary>
-        /// Asynchronously invoke an event in the webview.
+        /// Asynchronously invokes an event in the webview.
         /// </summary>
         /// <param name="id">The event ID.</param>
         /// <param name="data">Optional event data.</param>
@@ -44,7 +28,7 @@ namespace SpiderEye.Bridge
         Task InvokeAsync(string id, object data);
 
         /// <summary>
-        /// Asynchronously invoke an event in the webview and get the result.
+        /// Asynchronously invokes an event in the webview and get the result.
         /// </summary>
         /// <typeparam name="T">The result type.</typeparam>
         /// <param name="id">The event ID.</param>

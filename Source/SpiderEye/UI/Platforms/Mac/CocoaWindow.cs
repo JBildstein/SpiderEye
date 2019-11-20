@@ -137,7 +137,7 @@ namespace SpiderEye.UI.Mac
 
         private void Webview_TitleChanged(object sender, string title)
         {
-            Title = title ?? config.Title;
+            Application.Invoke(() => Title = title ?? config.Title);
         }
 
         private void SetWindowDelegate(IntPtr window)

@@ -53,14 +53,6 @@ namespace SpiderEye.UI.Windows
             }
         }
 
-        public string ExecuteScript(string script)
-        {
-            return ExecuteScriptAsync(script)
-                .ConfigureAwait(false)
-                .GetAwaiter()
-                .GetResult();
-        }
-
         public async Task<string> ExecuteScriptAsync(string script)
         {
             return await webview.InvokeScriptAsync("eval", new string[] { script });
@@ -123,12 +115,12 @@ namespace SpiderEye.UI.Windows
             await bridge.HandleScriptCall(e.Value);
         }
 
-        private void Webview_NavigationCompleted(object sender, WebViewControlNavigationCompletedEventArgs e)
+        private async void Webview_NavigationCompleted(object sender, WebViewControlNavigationCompletedEventArgs e)
         {
             if (e.IsSuccess && config.EnableScriptInterface)
             {
                 string initScript = Resources.GetInitScript("Windows");
-                ExecuteScript(initScript);
+                await ExecuteScriptAsync(initScript);
             }
 
             PageLoaded?.Invoke(this, PageLoadEventArgs.GetFor(e.IsSuccess));

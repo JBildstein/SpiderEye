@@ -1,4 +1,5 @@
-﻿using SpiderEye.UI;
+﻿using System;
+using SpiderEye.UI;
 
 namespace SpiderEye
 {
@@ -39,5 +40,11 @@ namespace SpiderEye
         /// Exits the main loop and allows it to return.
         /// </summary>
         void Exit();
+
+        /// <summary>
+        /// Executes the given action on the UI main thread.
+        /// </summary>
+        /// <param name="action">The action to execute.</param>
+        void Invoke(Action action);
     }
 }

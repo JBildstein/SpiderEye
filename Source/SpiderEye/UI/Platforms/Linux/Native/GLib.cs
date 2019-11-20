@@ -52,6 +52,9 @@ namespace SpiderEye.UI.Linux.Native
         [DllImport(GObjectNativeDll, EntryPoint = "g_object_set", CallingConvention = CallingConvention.Cdecl)]
         public static extern void SetProperty(IntPtr obj, IntPtr propertyName, IntPtr value, IntPtr terminator);
 
+        [DllImport(GLibNativeDll, EntryPoint = "g_main_context_invoke", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void ContextInvoke(IntPtr context, GSourceDelegate function, IntPtr data);
+
         public static void ConnectSignal(IntPtr instance, string signalName, Delegate handler, IntPtr data)
         {
             using (GLibString gname = signalName)

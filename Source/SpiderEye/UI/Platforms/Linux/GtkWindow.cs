@@ -204,7 +204,7 @@ namespace SpiderEye.UI.Linux
 
         private void Webview_TitleChanged(object sender, string title)
         {
-            Title = title ?? config.Title;
+            Application.Invoke(() => Title = title ?? config.Title);
         }
 
         private void Webview_CloseRequested(object sender, EventArgs e)

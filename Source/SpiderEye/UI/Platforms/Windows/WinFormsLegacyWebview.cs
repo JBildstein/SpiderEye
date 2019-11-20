@@ -46,11 +46,6 @@ namespace SpiderEye.UI.Windows
             webview.Navigate(uri);
         }
 
-        public string ExecuteScript(string script)
-        {
-            return webview.Document.InvokeScript("eval", new string[] { script })?.ToString();
-        }
-
         public Task<string> ExecuteScriptAsync(string script)
         {
             string result = webview.Document.InvokeScript("eval", new string[] { script })?.ToString();
@@ -62,12 +57,12 @@ namespace SpiderEye.UI.Windows
             webview.Dispose();
         }
 
-        private void Webview_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
+        private async void Webview_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
         {
             if (config.EnableScriptInterface)
             {
                 string initScript = Resources.GetInitScript("Windows");
-                ExecuteScript(initScript);
+                await ExecuteScriptAsync(initScript);
             }
 
             // TODO: figure out how to get success state

@@ -12,4 +12,5 @@ namespace SpiderEye.UI.Mac.Interop
     internal delegate byte WindowShouldCloseDelegate(IntPtr self, IntPtr op, IntPtr window);
     internal delegate void NotificationDelegate(IntPtr self, IntPtr op, IntPtr notification);
     internal delegate void MenuCallbackDelegate(IntPtr self, IntPtr op, IntPtr menu);
+    internal delegate void DispatchDelegate(IntPtr context);
 }
