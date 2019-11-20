@@ -1,0 +1,7 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\Shared\SpiderEye.Example.Simple.Shared.proj" />
+  
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Source\SpiderEye.Linux\SpiderEye.Linux.csproj" />
+  </ItemGroup>
+</Project>

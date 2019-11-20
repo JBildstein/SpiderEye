@@ -263,5 +263,8 @@ __pycache__/
 # macOS
 .DS_Store
 
+# NuGet publish folder
+Publish
+
 # Angular publish folder from examples
 dist

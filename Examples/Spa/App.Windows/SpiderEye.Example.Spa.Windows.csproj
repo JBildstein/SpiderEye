@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <Import Project="..\Shared\SpiderEye.Example.Spa.Shared.proj" />
+  
+  <PropertyGroup>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationIcon>Icons\icon.ico</ApplicationIcon>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Source\SpiderEye.Windows\SpiderEye.Windows.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,20 +1,20 @@
 ﻿# SpiderEye
 
 Write .Net (Core) applications with a webview UI. It can be compared to how Electron runs on Node.js, SpiderEye runs on .Net.
-Contrary to Electron though, SpiderEye uses the OS native webview instead of bundling Chrome.
+Contrary to Electron though, SpiderEye uses the OS native webview instead of bundling Chromium.
 
 What's the name supposed to mean? Simple: what kind of view does a spiders eye have? A webview! Get it? ...you'll laugh later :P
 
 ## Supported OS
 
-| OS | Version | Webview | Browser Engine |
-| ----- | ----- | ----- | ----- |
-| Windows | 7, 8.x, 10 | WinForms WebBrowser control | IE 9-11 (depending on OS and installed version) |
-| Windows |  10 Build 1803 or newer | WebViewControl | Edge |
-| Linux | any x64 distro where .Net Core runs | WebKit2GTK | WebKit |
-| macOS | x64 10.13 or newer  | WKWebView | WebKit |
+| OS | Version | Runtime (minimum) | Webview | Browser Engine |
+| ----- | ----- | ----- | ----- | ----- |
+| Windows | 7, 8.x, 10 | .Net Core 3.0 or .Net 4.6.2 | WinForms WebBrowser control | IE 9-11 (depending on OS and installed version) |
+| Windows |  10 Build 1803 or newer | .Net Core 3.0 or .Net 4.6.2 | WebViewControl | Edge |
+| Linux | any x64 distro where .Net Core runs | .Net Core 2.0 | WebKit2GTK | WebKit |
+| macOS | x64 10.13 or newer | .Net Core 2.0 | WKWebView | WebKit |
 
-| Linux Dependencies | Used for | optional |
+| Linux Dependencies | Used for | Optional |
 | ----- | ----- | ----- |
 | libgtk-3 | Application and window handling | No |
 | libwebkit2gtk-4.0 | Webview | No |
@@ -24,42 +24,34 @@ What's the name supposed to mean? Simple: what kind of view does a spiders eye h
 
 | Type | Package Manager | Name | Version |
 | ----- | ----- | ----- | ----- |
-| Host | NuGet | `Bildstein.SpiderEye` | [![NuGet](https://img.shields.io/nuget/v/Bildstein.SpiderEye.svg)](https://www.nuget.org/packages/Bildstein.SpiderEye/) |
+| Host (Windows) | NuGet | `Bildstein.SpiderEye.Windows` | [![NuGet](https://img.shields.io/nuget/v/Bildstein.SpiderEye.Windows.svg)](https://www.nuget.org/packages/Bildstein.SpiderEye.Windows/) |
+| Host (Linux) | NuGet | `Bildstein.SpiderEye.Linux` | [![NuGet](https://img.shields.io/nuget/v/Bildstein.SpiderEye.Linux.svg)](https://www.nuget.org/packages/Bildstein.SpiderEye.Linux/) |
+| Host (macOS) | NuGet | `Bildstein.SpiderEye.Mac` | [![NuGet](https://img.shields.io/nuget/v/Bildstein.SpiderEye.Mac.svg)](https://www.nuget.org/packages/Bildstein.SpiderEye.Mac/) |
 | Client | npm | `spidereye` | [![npm](https://img.shields.io/npm/v/spidereye.svg)](https://www.npmjs.com/package/spidereye) |
 
 The client package is not required but you'll need it if you intend to communicate between host and webview.
 
 ## Getting Started
 
-A SpiderEye app can be created from a normal .Net Core console app. Only a few small adjustments to the project file are needed to make it work well:
+To try things out, best head over to the Examples folder and have a look at those. The basic requirements for a new app are outlined here:
+
+A SpiderEye app can be created from a normal .Net Core console app (Linux, macOS) or a .Net Core (SDK style) Windows Forms app (Windows).
+You need a separate project for each platform you want to use because you need to reference a different NuGet package for each platform
+and for any bigger app it's likely that you'll have some platform specific code anyway.
+
+Now, to have your app load the client side files, add the following snippet to your project file(s):
 
 ```xml
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <!-- On Windows, this is necessary to hide the console window. On other platforms it falls back to Exe -->
-    <OutputType>WinExe</OutputType>
-    <!-- For Windows we need full .Net 4.6.2+, for Linux and macOS .Net Core 2.x -->
-    <TargetFrameworks>net462;netcoreapp2.2</TargetFrameworks>
-    <!-- This is needed if you wan to create a standalone app -->
-    <RuntimeIdentifiers>win;linux-x64;osx.10.13-x64</RuntimeIdentifiers>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <!-- Reference to the SpiderEye NuGet package -->
-    <PackageReference Include="Bildstein.SpiderEye" Version="1.0.0-alpha.10" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <!-- The App folder is where all our html, css, js, etc. files are (change if you use a different folder) -->
-    <EmbeddedResource Include="App\**">
-      <!-- this retains the original filename of the embedded files (required to located them later) -->
-      <LogicalName>%(RelativeDir)%(Filename)%(Extension)</LogicalName>
-    </EmbeddedResource>
-  </ItemGroup>
-</Project>
+<ItemGroup>
+<!-- The App folder is where all our html, css, js, etc. files are (change if you use a different folder) -->
+<EmbeddedResource Include="App\**">
+    <!-- this retains the original filename of the embedded files (required to located them later) -->
+    <LogicalName>%(RelativeDir)%(Filename)%(Extension)</LogicalName>
+</EmbeddedResource>
+</ItemGroup>
 ```
 
-The actual program now is just a matter of a bit of configuration and then starting it:
+The actual program is just a matter of a bit of configuration and then starting it:
 
 ```c-sharp
 using System;
@@ -70,7 +62,6 @@ namespace SpiderEyeExample
 {
     class Program
     {
-        // STAThread is required for WPF
         [STAThread]
         public static void Main(string[] args)
         {
@@ -87,7 +78,7 @@ namespace SpiderEyeExample
 }
 ```
 
-To make sure that the newest IE version is used on Windows, set the `doctype` and add the `X-UA-Compatible` header with the value `IE=edge`:
+To make sure that the newest available IE version is used on Windows, set the `doctype` and add the `X-UA-Compatible` header with the value `IE=edge`:
 ```html
 <!doctype html>
 <html lang="en">
@@ -117,13 +108,16 @@ SpiderEyeExample/
 ├─ Program.cs
 └─ SpiderEyeExample.csproj (or vbproj, fsproj etc)
 ```
+**Note:** This folder structure is just for a single platform. If you want other platforms,
+ add another project per platform and set up something for sharing the client code.
+Have a look at the examples for different ways to do that. Simply put, you could put it into a folder
+outside of the projects and adjust the paths for embedding or you could use another project (normal library)
+that has the files embedded and then set `WindowConfiguration.ContentAssembly` to use it.
 
 Then to publish that project, you can use the dotnet CLI like this (assuming a standalone publish):\
-Windows: `dotnet publish -c Release -f net462 -r win -o ./bin/Publish/Windows`\
-Linux: `dotnet publish -c Release -f netcoreapp2.2 -r linux-x64 -o ./bin/Publish/Linux`\
-macOS: `dotnet publish -c Release -f netcoreapp2.2 -r osx.10.13-x64 -o ./bin/Publish/Mac`
-
-Further examples can be found in the `Examples` folder
+Windows: `dotnet publish -c Release -f netcoreapp3.0 -r win-x64 -o ./bin/Publish/Windows`\
+Linux: `dotnet publish -c Release -f netcoreapp3.0 -r linux-x64 -o ./bin/Publish/Linux`\
+macOS: `dotnet publish -c Release -f netcoreapp3.0 -r osx.10.13-x64 -o ./bin/Publish/Mac`
 
 #### Windows 10 Edge and localhost
 
@@ -135,9 +129,9 @@ To get around that restriction for development (e.g. to use the Angular dev serv
 
 ## Development
 
-To build the project you'll need an up-to-date version of Visual Studio 2017 or Visual Studio Code as well as the .Net Core SDK 2.2.
-You can develop and run the project on all platforms but only if you target .Net Core/Standard.
-Building for Windows requires .Net 4.6.2, WPF and the Windows 10 SDK.
+To build the project you'll need an up-to-date version of Visual Studio 2019 or Visual Studio Code as well as the .Net Core SDK 3.0.
+You can develop and run the project on all platforms but only if you target .Net Core.
+Building for Windows requires .Net 4.6.2.
 
 ## Contributing
 Please check first if there is already an open issue or pull request before creating a new one.

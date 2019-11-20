@@ -1,0 +1,21 @@
+﻿<Project>
+  <Import Project="SpiderEye.Shared.proj" />
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <AssemblyName>SpiderEye</AssemblyName>
+    <SECorePath>..\SpiderEye.Core\</SECorePath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="$(SECorePath)**\*.cs"
+             Exclude="$(SECorePath)Properties\**\*;$(SECorePath)obj\**\*"
+             Link="Core\%(RecursiveDir)%(Filename)%(Extension)" />
+    <EmbeddedResource Include="Scripts\*.js">
+      <LogicalName>$(AssemblyName).Scripts.%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="$(SECorePath)Scripts\*.js" Link="Scripts\%(Filename)%(Extension)">
+      <LogicalName>$(AssemblyName).Scripts.%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+</Project>

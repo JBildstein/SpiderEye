@@ -1,0 +1,7 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\Shared\SpiderEye.Example.Spa.Shared.proj" />
+  
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Source\SpiderEye.Mac\SpiderEye.Mac.csproj" />
+  </ItemGroup>
+</Project>

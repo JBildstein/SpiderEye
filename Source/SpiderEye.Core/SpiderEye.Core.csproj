@@ -1,0 +1,8 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\Shared\SpiderEye.Shared.proj" />
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+</Project>

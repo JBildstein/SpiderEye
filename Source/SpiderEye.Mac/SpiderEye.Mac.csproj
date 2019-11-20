@@ -1,0 +1,9 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\Shared\SpiderEye.Shared.Platform.proj" />
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <PackageId>Bildstein.SpiderEye.Mac</PackageId>
+    <RootNamespace>SpiderEye.UI.Mac</RootNamespace>
+  </PropertyGroup>
+</Project>

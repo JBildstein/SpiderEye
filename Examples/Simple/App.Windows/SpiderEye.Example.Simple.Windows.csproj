@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <Import Project="..\Shared\SpiderEye.Example.Simple.Shared.proj" />
+  
+  <PropertyGroup>
+    <UseWindowsForms>true</UseWindowsForms>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Source\SpiderEye.Windows\SpiderEye.Windows.csproj" />
+  </ItemGroup>
+</Project>
