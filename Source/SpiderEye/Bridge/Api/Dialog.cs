@@ -22,7 +22,7 @@ namespace SpiderEye.Bridge.Api
             msgBox.Message = config.Message;
             msgBox.Buttons = config.Buttons;
 
-            return msgBox.Show(parent);
+            return Application.Invoke(() => msgBox.Show(parent));
         }
 
         public FileResultModel ShowSaveFileDialog(SaveFileDialogConfigModel config)
@@ -41,7 +41,7 @@ namespace SpiderEye.Bridge.Api
                 }
             }
 
-            var result = dialog.Show(parent);
+            var result = Application.Invoke(() => dialog.Show(parent));
             return new FileResultModel
             {
                 DialogResult = result,
@@ -66,7 +66,7 @@ namespace SpiderEye.Bridge.Api
                 }
             }
 
-            var result = dialog.Show(parent);
+            var result = Application.Invoke(() => dialog.Show(parent));
             return new FileResultModel
             {
                 DialogResult = result,

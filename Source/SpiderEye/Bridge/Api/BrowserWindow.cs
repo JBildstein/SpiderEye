@@ -19,9 +19,12 @@ namespace SpiderEye.Bridge.Api
         {
             // TODO: BrowserWindowConfigModel cannot hold all possible information (like Icon and Assembly)
             // TODO: transfer some configs from parent window (e.g. ExternalHost)
-            var window = windowFactory.CreateWindow(config.WindowConfig);
-            window.LoadUrl(config.Url);
-            window.Show();
+            Application.Invoke(() =>
+            {
+                var window = windowFactory.CreateWindow(config.WindowConfig);
+                window.LoadUrl(config.Url);
+                window.Show();
+            });
 
             // TODO: somehow send events from this window back to webview
         }
