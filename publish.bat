@@ -50,5 +50,5 @@ EXIT /B 0
 
 :PackProject
 ECHO Building for %1...
-dotnet pack Source\SpiderEye.%1\SpiderEye.%1.csproj -c Release -o %folder% > NUL
+dotnet pack Source\SpiderEye.%1 -c Release -o %folder% > NUL
 EXIT /B
