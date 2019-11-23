@@ -1,18 +1,15 @@
 ﻿<Project>
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <AssemblyName>SpiderEye.Example.Simple</AssemblyName>
+    <RootNamespace>SpiderEye.Example.Simple</RootNamespace>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <Compile Include="..\Shared\Program.cs" Link="Program.cs" />
   </ItemGroup>
   
   <ItemGroup>
-    <!-- The App folder is where all our html, css, js, etc. files are -->
-    <EmbeddedResource Include="..\Shared\App\**" Link="App\%(Filename)%(Extension)">
-      <!-- this retains the original filename of the embedded files (required to located them later) -->
-      <LogicalName>App\%(RecursiveDir)%(Filename)%(Extension)</LogicalName>
-    </EmbeddedResource>
+    <ProjectReference Include="..\App.Core\SpiderEye.Example.Simple.Core.csproj" />
   </ItemGroup>
 </Project>

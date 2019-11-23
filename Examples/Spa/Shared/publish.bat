@@ -1,7 +1,7 @@
 @ECHO OFF
 SETLOCAL
 
-CD ..\Client
+CD ..\App.Core
 ECHO Linting files...
 CALL npm run lint > NUL
 IF %ERRORLEVEL% NEQ 0 (
@@ -41,5 +41,5 @@ EXIT /B 0
 
 :PublishProject
 ECHO Publishing for %1...
-CALL dotnet publish App.%1\SpiderEye.Example.Spa.%1.csproj -c Release -f netcoreapp3.0 -r %2 -o Publish/%1 > NUL
+CALL dotnet publish App.%1 -c Release -f netcoreapp3.0 -r %2 -o Publish/%1 > NUL
 EXIT /B

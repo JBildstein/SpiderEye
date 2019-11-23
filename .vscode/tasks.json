@@ -1,67 +1,43 @@
 {
-    // See https://go.microsoft.com/fwlink/?LinkId=733558
-    // for the documentation about the tasks.json format
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "build-example-spa-win",
-            "command": "dotnet build Examples/Spa/App.Windows/SpiderEye.Example.Spa.Windows.csproj -c Debug",
-            "type": "shell",
-            "group": "build",
-            "presentation": {
-                "reveal": "silent"
-            },
-            "problemMatcher": "$msCompile"
-        },
-        {
-            "label": "build-example-spa-linux",
-            "command": "dotnet build Examples/Spa/App.Linux/SpiderEye.Example.Spa.Linux.csproj -c Debug",
-            "type": "shell",
-            "group": "build",
-            "presentation": {
-                "reveal": "silent"
-            },
-            "problemMatcher": "$msCompile"
-        },
-        {
-            "label": "build-example-spa-osx",
-            "command": "dotnet build Examples/Spa/App.Mac/SpiderEye.Example.Spa.Mac.csproj -c Debug",
-            "type": "shell",
-            "group": "build",
-            "presentation": {
-                "reveal": "silent"
-            },
-            "problemMatcher": "$msCompile"
-        },
-        {
-            "label": "build-example-simple-win",
-            "command": "dotnet build Examples/Simple/App.Windows/SpiderEye.Example.Simple.Windows.csproj -c Debug",
-            "type": "shell",
-            "group": "build",
-            "presentation": {
-                "reveal": "silent"
-            },
-            "problemMatcher": "$msCompile"
-        },
-        {
-            "label": "build-example-simple-linux",
-            "command": "dotnet build Examples/Simple/App.Linux/SpiderEye.Example.Simple.Linux.csproj -c Debug",
-            "type": "shell",
-            "group": "build",
-            "presentation": {
-                "reveal": "silent"
-            },
-            "problemMatcher": "$msCompile"
-        },
-        {
-            "label": "build-example-simple-osx",
-            "command": "dotnet build Examples/Simple/App.Mac/SpiderEye.Example.Simple.Mac.csproj -c Debug",
-            "type": "shell",
-            "group": "build",
-            "presentation": {
-                "reveal": "silent"
-            },
-            "problemMatcher": "$msCompile"
-        }
-    ]
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build-example-simple",
+      "windows": {
+        "command": "dotnet build Examples/Simple/App.Windows"
+      },
+      "linux": {
+        "command": "dotnet build Examples/Simple/App.Linux"
+      },
+      "osx": {
+        "command": "dotnet build Examples/Simple/App.Mac"
+      },
+      "type": "shell",
+      "group": "build",
+      "presentation": {
+        "reveal": "silent"
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build-example-spa",
+      "windows": {
+        "command": "dotnet build Examples/Spa/App.Windows"
+      },
+      "linux": {
+        "command": "dotnet build Examples/Spa/App.Linux"
+      },
+      "osx": {
+        "command": "dotnet build Examples/Spa/App.Mac"
+      },
+      "type": "shell",
+      "group": "build",
+      "presentation": {
+        "reveal": "silent"
+      },
+      "problemMatcher": "$msCompile"
+    }
+  ]
 }

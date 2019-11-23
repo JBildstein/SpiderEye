@@ -1,10 +1,10 @@
-﻿namespace SpiderEye.Example.Spa.Client
+﻿namespace SpiderEye.Example.Simple
 {
     /// <summary>
     /// This is just a marker to easily get a reference to this library.
-    /// Like so: typeof(DummyMarker).Assembly
+    /// Like so: typeof(AssemblyMarker).Assembly
     /// </summary>
-    public sealed class DummyMarker
+    public class AssemblyMarker
     {
     }
 }

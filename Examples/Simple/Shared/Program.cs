@@ -14,7 +14,10 @@ namespace SpiderEye.Example.Simple
             // this creates a new app configuration with default values
             var config = new WindowConfiguration();
 
-            // this relates to the path defined in the shared .proj file
+            // we have a separate assembly for the client side files
+            config.ContentAssembly = typeof(AssemblyMarker).Assembly;
+
+            // this relates to the path defined in the core .csproj file
             config.ContentFolder = "App";
 
             // runs the application and opens a window with the given page loaded

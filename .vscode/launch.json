@@ -1,86 +1,58 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Start SPA Example (Windows)",
-            "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "build-example-spa-win",
-            "program": "${workspaceFolder}/Examples/Spa/App.Windows/bin/Debug/netcoreapp3.0/SpiderEye.Example.Spa.Windows.dll",
-            "args": [],
-            "cwd": "${workspaceFolder}/Examples/Spa/App.Windows",
-            "console": "internalConsole",
-            "stopAtEntry": false,
-            "internalConsoleOptions": "openOnSessionStart"
-        },
-        {
-            "name": "Start SPA Example (Linux)",
-            "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "build-example-spa-linux",
-            "program": "${workspaceFolder}/Examples/Spa/App.Linux/bin/Debug/netcoreapp3.0/SpiderEye.Example.Spa.Linux.dll",
-            "args": [],
-            "cwd": "${workspaceFolder}/Examples/Spa/App.Linux",
-            "console": "internalConsole",
-            "stopAtEntry": false,
-            "internalConsoleOptions": "openOnSessionStart"
-        },
-        {
-            "name": "Start SPA Example (macOS)",
-            "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "build-example-spa-osx",
-            "program": "${workspaceFolder}/Examples/Spa/App.Mac/bin/Debug/netcoreapp3.0/SpiderEye.Example.Spa.Mac.dll",
-            "args": [],
-            "cwd": "${workspaceFolder}/Examples/Spa/App.Mac",
-            "console": "internalConsole",
-            "stopAtEntry": false,
-            "internalConsoleOptions": "openOnSessionStart"
-        },
-        {
-            "name": "Start Simple Example (Windows)",
-            "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "build-example-simple-win",
-            "program": "${workspaceFolder}/Examples/Simple/App.Windows/bin/Debug/netcoreapp3.0/SpiderEye.Example.Simple.Windows.dll",
-            "args": [],
-            "cwd": "${workspaceFolder}/Examples/Simple/App.Windows",
-            "console": "internalConsole",
-            "stopAtEntry": false,
-            "internalConsoleOptions": "openOnSessionStart"
-        },
-        {
-            "name": "Start Simple Example (Linux)",
-            "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "build-example-simple-linux",
-            "program": "${workspaceFolder}/Examples/Simple/App.Linux/bin/Debug/netcoreapp3.0/SpiderEye.Example.Simple.Linux.dll",
-            "args": [],
-            "cwd": "${workspaceFolder}/Examples/Simple/App.Linux",
-            "console": "internalConsole",
-            "stopAtEntry": false,
-            "internalConsoleOptions": "openOnSessionStart"
-        },
-        {
-            "name": "Start Simple Example (macOS)",
-            "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "build-example-simple-osx",
-            "program": "${workspaceFolder}/Examples/Simple/App.Mac/bin/Debug/netcoreapp3.0/SpiderEye.Example.Simple.Mac.dll",
-            "args": [],
-            "cwd": "${workspaceFolder}/Examples/Simple/App.Mac",
-            "console": "internalConsole",
-            "stopAtEntry": false,
-            "internalConsoleOptions": "openOnSessionStart"
-        },
-        {
-            "name": ".NET Core Attach",
-            "type": "coreclr",
-            "request": "attach",
-            "processId": "${command:pickProcess}"
-        }
-    ]
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Start Simple Example",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-example-simple",
+      "windows": {
+        "program": "${workspaceFolder}/Examples/Simple/App.Windows/bin/Debug/netcoreapp3.0/App.dll",
+        "cwd": "${workspaceFolder}/Examples/Simple/App.Windows"
+      },
+      "linux": {
+        "program": "${workspaceFolder}/Examples/Simple/App.Linux/bin/Debug/netcoreapp3.0/App.dll",
+        "cwd": "${workspaceFolder}/Examples/Simple/App.Linux"
+      },
+      "osx": {
+        "program": "${workspaceFolder}/Examples/Simple/App.Mac/bin/Debug/netcoreapp3.0/App.dll",
+        "cwd": "${workspaceFolder}/Examples/Simple/App.Mac"
+      },
+      "args": [],
+      "console": "internalConsole",
+      "stopAtEntry": false,
+      "internalConsoleOptions": "openOnSessionStart"
+    },
+    {
+      "name": "Start SPA Example",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-example-spa",
+      "windows": {
+        "program": "${workspaceFolder}/Examples/Spa/App.Windows/bin/Debug/netcoreapp3.0/App.dll",
+        "cwd": "${workspaceFolder}/Examples/Spa/App.Windows"
+      },
+      "linux": {
+        "program": "${workspaceFolder}/Examples/Spa/App.Linux/bin/Debug/netcoreapp3.0/App.dll",
+        "cwd": "${workspaceFolder}/Examples/Spa/App.Linux"
+      },
+      "osx": {
+        "program": "${workspaceFolder}/Examples/Spa/App.Mac/bin/Debug/netcoreapp3.0/App.dll",
+        "cwd": "${workspaceFolder}/Examples/Spa/App.Mac"
+      },
+      "args": [],
+      "console": "internalConsole",
+      "stopAtEntry": false,
+      "internalConsoleOptions": "openOnSessionStart"
+    },
+    {
+      "name": ".NET Core Attach",
+      "type": "coreclr",
+      "request": "attach",
+      "processId": "${command:pickProcess}"
+    }
+  ]
 }

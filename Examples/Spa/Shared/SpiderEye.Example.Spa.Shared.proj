@@ -1,20 +1,15 @@
 ﻿<Project>
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <AssemblyName>SpiderEye.Example.Spa</AssemblyName>
+    <RootNamespace>SpiderEye.Example.Spa</RootNamespace>
   </PropertyGroup>
-  
-  <ItemGroup>
-    <None Update="Icons\**\*">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
 
   <ItemGroup>
     <Compile Include="..\Shared\Program.cs" Link="Program.cs" />
   </ItemGroup>
-
+  
   <ItemGroup>
-    <ProjectReference Include="..\Client\SpiderEye.Example.Spa.Client.csproj" />
+    <ProjectReference Include="..\App.Core\SpiderEye.Example.Spa.Core.csproj" />
   </ItemGroup>
 </Project>

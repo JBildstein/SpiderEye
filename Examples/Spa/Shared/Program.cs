@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using SpiderEye.Example.Spa.Client;
 using SpiderEye.UI;
 
 namespace SpiderEye.Example.Spa
@@ -18,8 +17,8 @@ namespace SpiderEye.Example.Spa
             var icon = AppIcon.FromFile("icon", "Icons");
 
             // we have a separate assembly for the client side files
-            config.ContentAssembly = typeof(DummyMarker).Assembly;
-            // this relates to the path defined in the client .csproj file
+            config.ContentAssembly = typeof(AssemblyMarker).Assembly;
+            // this relates to the path defined in the core .csproj file
             config.ContentFolder = "Angular\\dist";
             config.Icon = icon;
 

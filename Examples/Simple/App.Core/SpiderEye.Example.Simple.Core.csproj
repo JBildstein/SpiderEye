@@ -1,17 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TypeScriptCompileBlocked>True</TypeScriptCompileBlocked>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="node_modules\**" />
-    <None Remove="node_modules\**" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <!-- The dist folder is where compiled Angular files are -->
-    <EmbeddedResource Include="Angular\dist\**">
+    <!-- The App folder is where all our html, css, js, etc. files are (change if you use a different folder) -->
+    <EmbeddedResource Include="App\**">
       <!-- this retains the original filename of the embedded files (required to located them later) -->
       <LogicalName>%(RelativeDir)%(Filename)%(Extension)</LogicalName>
     </EmbeddedResource>

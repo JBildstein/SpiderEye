@@ -1,7 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\Shared\SpiderEye.Example.Simple.Shared.proj" />
-  
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <DefineConstants>$(DefineConstants);LINUX</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Source\SpiderEye.Linux\SpiderEye.Linux.csproj" />
+    <PackageReference Include="Bildstein.SpiderEye.Linux" Version="1.0.0-alpha.11" />
   </ItemGroup>
 </Project>
