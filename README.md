@@ -47,7 +47,7 @@ dotnet new spidereye-app
 Relevant parameters for the template:
 
 | Flag | Values | Default | Description |
-| ----- | ----- | ----- | ----- | ----- |
+| ----- | ----- | ----- | ----- |
 | -lang, --language | C#, F#, VB | C# | Specifies the language of the template to create |
 | -ns, --no-sln | true, false | false | Specifies if a solution file should not be added |
 | -nv, --no-vscode | true, false | false | Specifies if the .vscode folder should not be added |
