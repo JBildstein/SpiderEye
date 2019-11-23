@@ -1,0 +1,59 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Johannes Bildstein",
+  "classifications": [ "Desktop" ],
+  "name": "SpiderEye Application",
+  "identity": "Bildstein.SpiderEye.App.FSharp",
+  "groupIdentity": "Bildstein.SpiderEye.App",
+  "shortName": "spidereye-app",
+  "tags": {
+    "language": "F#",
+    "type": "project"
+  },
+  "sourceName": "MyApp",
+  "preferNameDirectory": true,
+  "symbols": {
+    "no-sln": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false",
+      "description": "Specifies if a solution file should be added"
+    },
+    "no-vscode": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false",
+      "description": "Specifies if the .vscode folder should not be added"
+    },
+    "project-file": {
+      "type": "generated",
+      "generator": "constant",
+      "parameters": {
+        "value": "fsproj"
+      },
+      "replaces": "langproj"
+    },
+    "source-file": {
+      "type": "generated",
+      "generator": "constant",
+      "parameters": {
+        "value": "fs"
+      },
+      "replaces": "lang"
+    }
+  },
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "condition": "(no-sln)",
+          "exclude": [ "MyApp.sln" ]
+        },
+        {
+          "condition": "(no-vscode)",
+          "exclude": [ ".vscode/**/*" ]
+        }
+      ]
+    }
+  ]
+}

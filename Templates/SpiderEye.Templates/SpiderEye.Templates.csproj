@@ -1,0 +1,50 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\Shared\SpiderEye.Shared.Nuget.proj" />
+
+  <PropertyGroup>
+    <AssemblyVersion>1.0.0</AssemblyVersion>
+    <Version>$(AssemblyVersion)</Version>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>Bildstein.SpiderEye.Templates</PackageId>
+    <PackageTags>$(PackageTags);dotnet-new;templates</PackageTags>
+    <Description>Templates for a SpiderEye .Net Core application with a webview UI</Description>
+
+    <IncludeContentInPack>true</IncludeContentInPack>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <ContentTargetFolders>content</ContentTargetFolders>
+
+    <!-- ignore NuGet SemVer2.0 legacy warning  -->
+    <!-- ignore NuGet missing assembly warning -->
+    <NoWarn>NU5105;NU5128</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="**\*" />
+    <None Include="**\*" Exclude="*.csproj" />
+    <Content Include="templates\**\*" />
+    <None Remove="**\bin\**;**\obj\**" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <CommonTemplateFiles>Common\**\*</CommonTemplateFiles>
+    <TemplateOutputFolder>content\templates\</TemplateOutputFolder>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- C# -->
+    <Content Include="$(CommonTemplateFiles)">
+      <Pack>true</Pack>
+      <PackagePath>$(TemplateOutputFolder)MyApp.CSharp\%(RecursiveDir)%(Filename)%(Extension)</PackagePath>
+    </Content>
+    <!-- F# -->
+    <Content Include="$(CommonTemplateFiles)">
+      <Pack>true</Pack>
+      <PackagePath>$(TemplateOutputFolder)MyApp.FSharp\%(RecursiveDir)%(Filename)%(Extension)</PackagePath>
+    </Content>
+    <!-- VB.Net -->
+    <Content Include="$(CommonTemplateFiles)">
+      <Pack>true</Pack>
+      <PackagePath>$(TemplateOutputFolder)MyApp.VBNet\%(RecursiveDir)%(Filename)%(Extension)</PackagePath>
+    </Content>
+  </ItemGroup>
+</Project>

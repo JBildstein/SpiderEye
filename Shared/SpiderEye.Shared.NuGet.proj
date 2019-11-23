@@ -1,0 +1,22 @@
+﻿<Project>
+  <PropertyGroup>
+    <AutoIncrementPackageRevision>True</AutoIncrementPackageRevision>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <Authors>Johannes Bildstein</Authors>
+    <Company />
+    <Copyright>Copyright © Johannes Bildstein 2019</Copyright>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/JBildstein/SpiderEye.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/JBildstein/SpiderEye</PackageProjectUrl>
+    <PackageIcon>logo.png</PackageIcon>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageTags>UI;Webview;Cross-Platform</PackageTags>
+    
+    <!-- ignore NuGet SemVer2.0 legacy warning  -->
+    <NoWarn>NU5105</NoWarn>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <None Include="..\..\logo.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
+</Project>

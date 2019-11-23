@@ -6,6 +6,7 @@ MinimumVisualStudioVersion = 15.0.26124.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3C24AA46-3134-4DE4-89C5-E9A5DC144FCE}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		publish-templates.bat = publish-templates.bat
 		publish.bat = publish.bat
 		README.md = README.md
 	EndProjectSection
@@ -13,6 +14,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{3A446DC7-8794-4A0D-9691-86CFC0ABBA63}"
 	ProjectSection(SolutionItems) = preProject
 		Shared\SpiderEye.ruleset = Shared\SpiderEye.ruleset
+		Shared\SpiderEye.Shared.NuGet.proj = Shared\SpiderEye.Shared.NuGet.proj
 		Shared\SpiderEye.Shared.Platform.proj = Shared\SpiderEye.Shared.Platform.proj
 		Shared\SpiderEye.Shared.proj = Shared\SpiderEye.Shared.proj
 		Shared\stylecop.json = Shared\stylecop.json
@@ -63,6 +65,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpiderEye.Example.Spa.Mac", "Examples\Spa\App.Mac\SpiderEye.Example.Spa.Mac.csproj", "{C28D51CC-9D50-456F-8901-BA240A1E6010}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpiderEye.Example.Spa.Client", "Examples\Spa\Client\SpiderEye.Example.Spa.Client.csproj", "{3EA4669C-A66A-4936-B458-8F73AB7FAC0D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Templates", "Templates", "{9B71F506-6648-4E17-ADF8-A586875055D7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpiderEye.Templates", "Templates\SpiderEye.Templates\SpiderEye.Templates.csproj", "{758B656F-9FF6-4F58-9690-06D0C267159E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -118,6 +124,10 @@ Global
 		{3EA4669C-A66A-4936-B458-8F73AB7FAC0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3EA4669C-A66A-4936-B458-8F73AB7FAC0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3EA4669C-A66A-4936-B458-8F73AB7FAC0D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{758B656F-9FF6-4F58-9690-06D0C267159E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{758B656F-9FF6-4F58-9690-06D0C267159E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{758B656F-9FF6-4F58-9690-06D0C267159E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{758B656F-9FF6-4F58-9690-06D0C267159E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -139,6 +149,7 @@ Global
 		{28A2F020-2DE7-41AF-A2ED-0EEC8DFEFAE5} = {3CF768BB-D2A0-4F39-ABB6-4A79ABFD6D7A}
 		{C28D51CC-9D50-456F-8901-BA240A1E6010} = {3CF768BB-D2A0-4F39-ABB6-4A79ABFD6D7A}
 		{3EA4669C-A66A-4936-B458-8F73AB7FAC0D} = {3CF768BB-D2A0-4F39-ABB6-4A79ABFD6D7A}
+		{758B656F-9FF6-4F58-9690-06D0C267159E} = {9B71F506-6648-4E17-ADF8-A586875055D7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6943C0B5-C688-4621-AF2B-62F999BC9AB3}
