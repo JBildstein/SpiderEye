@@ -37,7 +37,7 @@ IF %ERRORLEVEL% NEQ 0 (
 )
 
 ECHO Publishing package...
-dotnet nuget push %folder%\*.nupkg -k %apiKey% -s https://api.nuget.org/v3/index.json
+dotnet nuget push %folder%\*.nupkg --no-symbols true -k %apiKey% -s https://api.nuget.org/v3/index.json > NUL
 IF %ERRORLEVEL% NEQ 0 (
   ECHO Publish failed
   EXIT /B 1
