@@ -1,3 +1,3 @@
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("SpiderEye.UnitTests")]
+[assembly: InternalsVisibleTo("SpiderEye.Core.UnitTests")]
