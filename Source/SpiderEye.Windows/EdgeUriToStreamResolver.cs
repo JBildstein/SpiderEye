@@ -24,7 +24,7 @@ namespace SpiderEye.UI.Windows
         private async Task<IInputStream> GetStreamAsync(Uri uri)
         {
             var stream = await contentProvider.GetStreamAsync(uri);
-            return stream.AsInputStream();
+            return stream?.AsInputStream();
         }
     }
 }
