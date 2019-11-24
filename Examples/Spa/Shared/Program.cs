@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
+using System.Reflection;
 using SpiderEye.UI;
 
 namespace SpiderEye.Example.Spa
@@ -14,10 +16,15 @@ namespace SpiderEye.Example.Spa
 
             // this creates a new configuration with default values
             var config = new WindowConfiguration();
-            var icon = AppIcon.FromFile("icon", "Icons");
+
+            // this gets the full directory path where the executable is and in extension, the icon file.
+            // this is used because Directory.GetCurrentDirectory() doesn't always work as expected
+            string exeDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var icon = AppIcon.FromFile("icon", exeDir);
 
             // we have a separate assembly for the client side files
             config.ContentAssembly = typeof(AssemblyMarker).Assembly;
+
             // this relates to the path defined in the core .csproj file
             config.ContentFolder = "Angular\\dist";
             config.Icon = icon;
