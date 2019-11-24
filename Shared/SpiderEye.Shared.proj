@@ -7,6 +7,8 @@
     <VersionPrefix>$(AssemblyVersion)</VersionPrefix>
     <VersionSuffix>alpha.11</VersionSuffix>
     <Description>Write .Net Core applications with a webview UI</Description>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <CodeAnalysisRuleSet>..\..\Shared\SpiderEye.ruleset</CodeAnalysisRuleSet>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
