@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../bin/tsc/app",
+    "types": []
+  },
+  "exclude": [
+    "dist"
+  ]
+}

@@ -1,0 +1,19 @@
+﻿
+<h1>SpiderEye Playground</h1>
+
+<div class="app-panel">
+    <p>
+        Welcome to the playground!
+    </p>
+
+    <p>
+        Here you can try out all the functionality of SpiderEye or test and debug new features.<br />
+        On the <a routerLink="/Api">API</a> page you can call the default SpiderEye client API.<br />
+        On the <a routerLink="/Bridge">Bridge</a> page you can call custom defined endpoints on the .Net side.
+    </p>
+</div>
+
+<div class="app-panel title-container">
+    <label for="title-input">Change the window title:</label>
+    <input id="title-input" type="text" [(ngModel)]="title" />
+</div>

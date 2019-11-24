@@ -1,0 +1,14 @@
+﻿<div class="toolbar">
+    <a routerLink="/Home" routerLinkActive="active">Home</a>
+    <a routerLink="/Api" routerLinkActive="active">API</a>
+    <a routerLink="/Bridge" routerLinkActive="active">Bridge</a>
+</div>
+
+<div class="container">
+    <router-outlet></router-outlet>
+</div>
+
+<div class="notification" *ngIf="showUpdate">
+    <span>Received an update from .Net:</span><br />
+    <span>{{currentDate | date:'medium'}}</span>
+</div>

@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\Shared\SpiderEye.Playground.Shared.proj" />
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <DefineConstants>$(DefineConstants);MAC</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Update="icon.icns">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Source\SpiderEye.Mac\SpiderEye.Mac.csproj" />
+  </ItemGroup>
+</Project>

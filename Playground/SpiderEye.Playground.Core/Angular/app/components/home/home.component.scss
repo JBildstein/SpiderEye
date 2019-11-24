@@ -1,0 +1,26 @@
+﻿@import "../../../styles/variables.scss";
+
+:host {
+    display: block;
+    height: 100%;
+    overflow: auto;
+}
+
+h1 {
+    font-size: 1.3em;
+    font-weight: bold;
+    text-decoration: none;
+    margin: 1em;
+}
+
+.title-container {
+    label {
+        display: block;
+        margin-bottom: 0.3em;
+    }
+
+    input {
+        width: 100%;
+        max-width: 50em;
+    }
+}

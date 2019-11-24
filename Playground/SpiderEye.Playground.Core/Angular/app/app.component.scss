@@ -1,0 +1,50 @@
+﻿@import "../styles/variables.scss";
+
+$header-height: 3em;
+
+.toolbar {
+    height: $header-height;
+    background-color: $primary;
+    color: $primary-text;
+    border-bottom: 4px solid $accent;
+    padding: 0 0.5em;
+
+    a {
+        padding: 0.5em;
+        border-radius: 4px;
+        line-height: $header-height - 0.2em;
+        margin: 0 0.25em;
+
+        &.active, &:hover {
+            background-color: $primary-hover;
+        }
+
+        &, &:visited {
+            color: $primary-text;
+        }
+
+        &:active {
+            background-color: rgba(black, 0.1);
+        }
+    }
+}
+
+.container {
+    position: absolute;
+    top: $header-height;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    overflow: hidden;
+}
+
+.notification {
+    position: fixed;
+    right: 1em;
+    top: 1em;
+    padding: 1em;
+    text-align: center;
+    border-radius: 0.5em;
+    background-color: $background-dialog;
+    box-shadow: 2px 2px 4px $backdrop;
+}

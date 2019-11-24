@@ -1,0 +1,21 @@
+﻿@import "variables.scss";
+@import "loading.scss";
+@import "theme.scss";
+
+body, html {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    padding: 0;
+    margin: 0;
+    border: 0 none;
+    outline: 0 none;
+    overflow: hidden;
+    font-family: Segoe UI,Helvetica,Arial,sans-serif;
+    background-color: $background;
+    color: $primary-text;
+}
+
+*, *:before, *:after {
+    box-sizing: border-box;
+}

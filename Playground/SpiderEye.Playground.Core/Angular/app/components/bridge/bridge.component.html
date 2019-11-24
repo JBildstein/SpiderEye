@@ -1,0 +1,83 @@
+﻿
+<h1>Bridge</h1>
+
+<div class="app-panel">
+    <h2>Long Running Task</h2>
+
+    <div class="button-result-container">
+        <div class="button-container">
+            <button (click)="startLongRunningTask()">Run</button>
+        </div>
+        <div class="result-group">
+            <span>{{longRunningTaskState}}</span>
+        </div>
+    </div>
+</div>
+
+<div class="app-panel">
+    <h2>Long Running Blocking</h2>
+
+    <div class="button-result-container">
+        <div class="button-container">
+            <button (click)="startLongRunning()">Run</button>
+        </div>
+        <div class="result-group">
+            <span>{{longRunningState}}</span>
+        </div>
+    </div>
+</div>
+
+<div class="app-panel">
+    <h2>Get Random Data from .Net</h2>
+
+    <div class="button-result-container">
+        <div class="button-container">
+            <button (click)="getData()">Get</button>
+        </div>
+        <div class="result-group">
+            <span>{{getDataState}}</span>
+        </div>
+    </div>
+</div>
+
+<div class="app-panel">
+    <h2>Calculate Power in .Net</h2>
+
+    <div>
+        <div class="input-group">
+            <label for="power-number">Value:</label>
+            <div class="input-container">
+                <input id="power-number" type="number" [(ngModel)]="powerValue" />
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="power-power">Power:</label>
+            <div class="input-container">
+                <input id="power-power" type="number" [(ngModel)]="powerPower" />
+            </div>
+        </div>
+    </div>
+
+    <div class="button-result-container">
+        <div class="button-container">
+            <button (click)="power()">Get</button>
+        </div>
+        <div class="result-group">
+            <span>{{powerState}}</span>
+        </div>
+    </div>
+</div>
+
+<div class="app-panel">
+    <h2>Intentional Error</h2>
+
+    <div class="button-result-container">
+        <div class="button-container">
+            <button (click)="getError()">Throw</button>
+        </div>
+        <div class="result-group">
+            <span>{{getErrorState}}</span>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,160 @@
+﻿
+<h1>API</h1>
+
+<div class="app-panel">
+    <h2>MessageBox</h2>
+
+    <div>
+        <div class="input-group">
+            <label for="msgbox-title">Title:</label>
+            <div class="input-container">
+                <input id="msgbox-title" type="text" [(ngModel)]="messageBox.title" />
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="msgbox-message">Message:</label>
+            <div class="input-container">
+                <input id="msgbox-message" type="text" [(ngModel)]="messageBox.message" />
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="msgbox-buttons">Buttons:</label>
+            <div class="input-container">
+                <select id="msgbox-buttons" [(ngModel)]="messageBox.buttons">
+                    <option [value]="MessageBoxButtons.Ok">Ok</option>
+                    <option [value]="MessageBoxButtons.OkCancel">Ok/Cancel</option>
+                    <option [value]="MessageBoxButtons.YesNo">Yes/No</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="button-result-container">
+        <div class="button-container">
+            <button (click)="showMessageBox()">Show</button>
+        </div>
+        <div class="result-group">
+            <span>Result:</span>
+            <span class="value">{{messageBoxResult}}</span>
+        </div>
+    </div>
+</div>
+
+<div class="app-panel">
+    <h2>Save File Dialog</h2>
+
+    <div>
+        <div class="input-group">
+            <label for="savedlg-title">Title:</label>
+            <div class="input-container">
+                <input id="savedlg-title" type="text" [(ngModel)]="saveDialog.title" />
+            </div>
+        </div>
+    </div>
+
+    <div class="button-result-container">
+        <div class="button-container">
+            <button (click)="showSaveDialog()">Show</button>
+        </div>
+        <div class="result-group">
+            <div>
+                <span>Result:</span>
+                <span class="value">{{saveResult}}</span>
+            </div>
+            <div>
+                <span>File:</span>
+                <span class="value">{{saveFile}}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="app-panel">
+    <h2>Open File Dialog</h2>
+
+    <div>
+        <div class="input-group">
+            <label for="opendlg-title">Title:</label>
+            <div class="input-container">
+                <input id="opendlg-title" type="text" [(ngModel)]="openDialog.title" />
+            </div>
+        </div>
+    </div>
+
+    <div class="button-result-container">
+        <div class="button-container">
+            <button (click)="showOpenDialog()">Show</button>
+        </div>
+        <div class="result-group">
+            <div>
+                <span>Result:</span>
+                <span class="value">{{openResult}}</span>
+            </div>
+            <div>
+                <span>File:</span>
+                <span class="value">{{openFile}}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="app-panel window-panel">
+    <h2>Open Window</h2>
+
+    <div>
+        <div class="input-group">
+            <label for="window-title">Title:</label>
+            <div class="input-container">
+                <input id="window-title" type="text" [(ngModel)]="windowConfig.title" />
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="window-url">URL:</label>
+            <div class="input-container">
+                <input id="window-url" type="text" [(ngModel)]="windowConfig.url" />
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="window-color">Background Color:</label>
+            <div class="input-container">
+                <input id="window-color" type="text" [(ngModel)]="windowConfig.backgroundColor" />
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="window-width">Width:</label>
+            <div class="input-container">
+                <input id="window-width" type="number" [(ngModel)]="windowConfig.width" />
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="window-height">Height:</label>
+            <div class="input-container">
+                <input id="window-height" type="number" [(ngModel)]="windowConfig.height" />
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="window-resize">Can Resize:</label>
+            <div class="input-container">
+                <input id="window-resize" type="checkbox" [(ngModel)]="windowConfig.canResize" />
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="window-use-title">Use Browser Title:</label>
+            <div class="input-container">
+                <input id="window-use-title" type="checkbox" [(ngModel)]="windowConfig.useBrowserTitle" />
+            </div>
+        </div>
+    </div>
+
+    <div class="button-result-container">
+        <button (click)="showWindow()">Show</button>
+    </div>
+</div>
