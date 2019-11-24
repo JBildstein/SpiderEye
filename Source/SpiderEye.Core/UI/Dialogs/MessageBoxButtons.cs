@@ -7,8 +7,8 @@ namespace SpiderEye.UI
     /// </summary>
     public enum MessageBoxButtons
     {
-        Ok,
-        OkCancel,
-        YesNo,
+        Ok = 0,
+        OkCancel = 1,
+        YesNo = 2,
     }
 }

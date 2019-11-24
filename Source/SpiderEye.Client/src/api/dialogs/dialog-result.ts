@@ -1,8 +1,8 @@
 
-export const enum DialogResult {
-    None = "None",
-    Ok = "Ok",
-    Cancel = "Cancel",
-    Yes = "Yes",
-    No = "No",
+export enum DialogResult {
+    None = 0,
+    Ok = 1,
+    Yes = 2,
+    No = 3,
+    Cancel = 4,
 }

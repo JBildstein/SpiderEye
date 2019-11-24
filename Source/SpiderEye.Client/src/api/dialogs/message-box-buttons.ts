@@ -1,6 +1,6 @@
 
-export const enum MessageBoxButtons {
-    Ok = "Ok",
-    OkCancel = "OkCancel",
-    YesNo = "YesNo",
+export enum MessageBoxButtons {
+    Ok = 0,
+    OkCancel = 1,
+    YesNo = 2,
 }
