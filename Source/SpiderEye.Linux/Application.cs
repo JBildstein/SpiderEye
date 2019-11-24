@@ -10,8 +10,6 @@ namespace SpiderEye
     /// </content>
     public static partial class Application
     {
-        private static readonly SynchronizationContext Context;
-
         static Application()
         {
             OS = GetOS();
