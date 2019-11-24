@@ -28,8 +28,15 @@ namespace SpiderEye.UI.Windows
             this.config = config ?? throw new ArgumentNullException(nameof(config));
             this.hostAddress = hostAddress ?? throw new ArgumentNullException(nameof(hostAddress));
 
-            webview = new WebBrowser();
-            webview.IsWebBrowserContextMenuEnabled = false;
+            webview = new WebBrowser
+            {
+                IsWebBrowserContextMenuEnabled = false,
+                TabStop = false,
+                AllowNavigation = true,
+                AllowWebBrowserDrop = false,
+                ScriptErrorsSuppressed = true,
+                WebBrowserShortcutsEnabled = false,
+            };
 
             if (config.EnableScriptInterface)
             {
