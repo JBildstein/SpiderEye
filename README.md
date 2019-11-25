@@ -74,6 +74,33 @@ To get around that restriction for development (e.g. to use the Angular dev serv
 
 **Note**: this is really only for development, a published app doesn't need it because everything is served from the embedded resources.
 
+## Debug the Webview
+
+Depending on which platform you are working, there are different ways to debug the webview.
+
+### Windows Edge
+
+For the Edge webview it's probably easiest if you use the [Microsoft Edge DevTools](https://www.microsoft.com/en-us/p/microsoft-edge-devtools-preview/9mzbfrmz0mnj)
+
+While your app is running, open the Microsoft Edge DevTools (or hit refresh if it's already open) and click on the target that is your app.
+
+### Windows IE
+
+I haven't been able to get this to work but it should be possible to do it from Visual Studio by selecting Debug->Attach to Process.
+In that dialog change the "Attach To" type by clicking on "Select" and there choose "Script".
+Then select the process that is your app and click "Attach"
+
+### Linux
+
+First you need to set `WindowConfiguration.EnableDevTools` to `true` in your app.
+Then just run your app and the dev tools will automatically attach to the window.
+You can detach it to a separate window by clicking on the detach icon in the top left corner of the dev tools.
+
+### macOS
+
+First you need to set `WindowConfiguration.EnableDevTools` to `true` in your app.
+Then run your app and once it's loaded, right click anywhere and select "Inspect Element" in the context menu.
+
 ## Development
 
 To build the project you'll need an up-to-date version of Visual Studio 2019 or Visual Studio Code as well as the .Net Core SDK 3.0.

@@ -25,8 +25,6 @@ namespace SpiderEye.UI.Linux
         private readonly IntPtr manager;
         private readonly string customHost;
 
-        private readonly bool enableDevTools = false;
-
         private readonly ScriptDelegate scriptDelegate;
         private readonly PageLoadFailedDelegate loadFailedDelegate;
         private readonly PageLoadDelegate loadDelegate;
@@ -89,12 +87,10 @@ namespace SpiderEye.UI.Linux
             var bgColor = new GdkColor(config.BackgroundColor);
             WebKit.SetBackgroundColor(Handle, ref bgColor);
 
-            if (enableDevTools)
+            if (config.EnableDevTools)
             {
                 var settings = WebKit.Settings.Get(Handle);
                 WebKit.Settings.SetEnableDeveloperExtras(settings, true);
-                var inspector = WebKit.Inspector.Get(Handle);
-                WebKit.Inspector.Show(inspector);
             }
         }
 
@@ -275,6 +271,12 @@ namespace SpiderEye.UI.Linux
                 {
                     string initScript = Resources.GetInitScript("Linux");
                     await ExecuteScriptAsync(initScript);
+                }
+
+                if (config.EnableDevTools)
+                {
+                    var inspector = WebKit.Inspector.Get(Handle);
+                    WebKit.Inspector.Show(inspector);
                 }
 
                 loadEventHandled = true;

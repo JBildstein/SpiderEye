@@ -69,6 +69,13 @@ namespace SpiderEye.UI
         public bool ForceWindowsLegacyWebview { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether dev tools are enabled or not.
+        /// Note that this has a different or no effect depending on the used webview.
+        /// Default is false.
+        /// </summary>
+        public bool EnableDevTools { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="WindowConfiguration"/> class.
         /// </summary>
         public WindowConfiguration()
@@ -85,6 +92,7 @@ namespace SpiderEye.UI
             ContentFolder = "App";
             ContentAssembly = Assembly.GetEntryAssembly();
             ForceWindowsLegacyWebview = false;
+            EnableDevTools = false;
         }
     }
 }

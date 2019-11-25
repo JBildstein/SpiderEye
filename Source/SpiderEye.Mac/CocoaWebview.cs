@@ -24,8 +24,6 @@ namespace SpiderEye.UI.Mac
         private readonly WebviewBridge bridge;
         private readonly string customHost;
 
-        private readonly bool enableDevTools = false;
-
         private readonly LoadFinishedDelegate loadDelegate;
         private readonly LoadFailedDelegate loadFailedDelegate;
         private readonly ObserveValueDelegate observedValueChangedDelegate;
@@ -84,7 +82,7 @@ namespace SpiderEye.UI.Mac
                 ObjC.Call(Handle, "addObserver:forKeyPath:options:context:", callbackClass, NSString.Create("title"), IntPtr.Zero, IntPtr.Zero);
             }
 
-            if (enableDevTools)
+            if (config.EnableDevTools)
             {
                 var preferences = ObjC.Call(configuration, "preferences");
                 ObjC.Call(preferences, "setValue:forKey:", new IntPtr(1), NSString.Create("developerExtrasEnabled"));
