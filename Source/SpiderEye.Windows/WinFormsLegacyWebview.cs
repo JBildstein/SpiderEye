@@ -66,14 +66,18 @@ namespace SpiderEye.UI.Windows
 
         private async void Webview_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
         {
-            if (config.EnableScriptInterface)
+            if (webview.ReadyState == WebBrowserReadyState.Complete)
             {
-                string initScript = Resources.GetInitScript("Windows");
-                await ExecuteScriptAsync(initScript);
-            }
+                if (config.EnableScriptInterface)
+                {
+                    string initScript = Resources.GetInitScript("Windows");
+                    await ExecuteScriptAsync(initScript);
+                }
 
-            // TODO: figure out how to get success state
-            PageLoaded?.Invoke(this, PageLoadEventArgs.Successful);
+                // TODO: figure out how to get success state
+                // it may require some ActiveX Voodoo: https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.webbrowser.createsink
+                PageLoaded?.Invoke(this, PageLoadEventArgs.Successful);
+            }
         }
     }
 }
