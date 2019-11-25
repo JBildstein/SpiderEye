@@ -4,6 +4,24 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "build-playground",
+      "windows": {
+        "command": "dotnet build Playground/SpiderEye.Playground.Windows"
+      },
+      "linux": {
+        "command": "dotnet build Playground/SpiderEye.Playground.Linux"
+      },
+      "osx": {
+        "command": "dotnet build Playground/SpiderEye.Playground.Mac"
+      },
+      "type": "shell",
+      "group": "build",
+      "presentation": {
+        "reveal": "silent"
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
       "label": "build-example-simple",
       "windows": {
         "command": "dotnet build Examples/Simple/App.Windows"
@@ -24,13 +42,13 @@
     {
       "label": "build-example-spa",
       "windows": {
-        "command": "dotnet build Examples/Spa/App.Windows"
+        "command": "dotnet build Examples/SPA/App.Windows"
       },
       "linux": {
-        "command": "dotnet build Examples/Spa/App.Linux"
+        "command": "dotnet build Examples/SPA/App.Linux"
       },
       "osx": {
-        "command": "dotnet build Examples/Spa/App.Mac"
+        "command": "dotnet build Examples/SPA/App.Mac"
       },
       "type": "shell",
       "group": "build",

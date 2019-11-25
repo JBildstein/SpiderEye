@@ -5,20 +5,42 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Start Playground",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-playground",
+      "windows": {
+        "program": "${workspaceFolder}/Playground/SpiderEye.Playground.Windows/bin/Debug/netcoreapp3.0/SpiderEye.Playground.dll",
+        "cwd": "${workspaceFolder}/Playground/SpiderEye.Playground.Windows"
+      },
+      "linux": {
+        "program": "${workspaceFolder}/Playground/SpiderEye.Playground.Linux/bin/Debug/netcoreapp3.0/SpiderEye.Playground.dll",
+        "cwd": "${workspaceFolder}/Playground/SpiderEye.Playground.Linux"
+      },
+      "osx": {
+        "program": "${workspaceFolder}/Playground/SpiderEye.Playground.Mac/bin/Debug/netcoreapp3.0/SpiderEye.Playground.dll",
+        "cwd": "${workspaceFolder}/Playground/SpiderEye.Playground.Mac"
+      },
+      "args": [],
+      "console": "internalConsole",
+      "stopAtEntry": false,
+      "internalConsoleOptions": "openOnSessionStart"
+    },
+    {
       "name": "Start Simple Example",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build-example-simple",
       "windows": {
-        "program": "${workspaceFolder}/Examples/Simple/App.Windows/bin/Debug/netcoreapp3.0/App.dll",
+        "program": "${workspaceFolder}/Examples/Simple/App.Windows/bin/Debug/netcoreapp3.0/SpiderEye.Example.Simple.dll",
         "cwd": "${workspaceFolder}/Examples/Simple/App.Windows"
       },
       "linux": {
-        "program": "${workspaceFolder}/Examples/Simple/App.Linux/bin/Debug/netcoreapp3.0/App.dll",
+        "program": "${workspaceFolder}/Examples/Simple/App.Linux/bin/Debug/netcoreapp3.0/SpiderEye.Example.Simple.dll",
         "cwd": "${workspaceFolder}/Examples/Simple/App.Linux"
       },
       "osx": {
-        "program": "${workspaceFolder}/Examples/Simple/App.Mac/bin/Debug/netcoreapp3.0/App.dll",
+        "program": "${workspaceFolder}/Examples/Simple/App.Mac/bin/Debug/netcoreapp3.0/SpiderEye.Example.Simple.dll",
         "cwd": "${workspaceFolder}/Examples/Simple/App.Mac"
       },
       "args": [],
@@ -32,16 +54,16 @@
       "request": "launch",
       "preLaunchTask": "build-example-spa",
       "windows": {
-        "program": "${workspaceFolder}/Examples/Spa/App.Windows/bin/Debug/netcoreapp3.0/App.dll",
-        "cwd": "${workspaceFolder}/Examples/Spa/App.Windows"
+        "program": "${workspaceFolder}/Examples/SPA/App.Windows/bin/Debug/netcoreapp3.0/SpiderEye.Example.Spa.dll",
+        "cwd": "${workspaceFolder}/Examples/SPA/App.Windows"
       },
       "linux": {
-        "program": "${workspaceFolder}/Examples/Spa/App.Linux/bin/Debug/netcoreapp3.0/App.dll",
-        "cwd": "${workspaceFolder}/Examples/Spa/App.Linux"
+        "program": "${workspaceFolder}/Examples/SPA/App.Linux/bin/Debug/netcoreapp3.0/SpiderEye.Example.Spa.dll",
+        "cwd": "${workspaceFolder}/Examples/SPA/App.Linux"
       },
       "osx": {
-        "program": "${workspaceFolder}/Examples/Spa/App.Mac/bin/Debug/netcoreapp3.0/App.dll",
-        "cwd": "${workspaceFolder}/Examples/Spa/App.Mac"
+        "program": "${workspaceFolder}/Examples/SPA/App.Mac/bin/Debug/netcoreapp3.0/SpiderEye.Example.Spa.dll",
+        "cwd": "${workspaceFolder}/Examples/SPA/App.Mac"
       },
       "args": [],
       "console": "internalConsole",
