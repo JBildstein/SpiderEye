@@ -8,4 +8,10 @@
     <Compile Remove="node_modules\**" />
     <None Remove="node_modules\**" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <EmbeddedResource Include="Angular\dist\**">
+      <LogicalName>%(RelativeDir)%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
 </Project>
