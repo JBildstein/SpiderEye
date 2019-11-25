@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace SpiderEye.Bridge.Models
@@ -25,6 +26,16 @@ namespace SpiderEye.Bridge.Models
                 Value = null,
                 Success = false,
                 Error = message,
+            };
+        }
+
+        public static ApiResultModel FromError(Exception exception)
+        {
+            return new ApiResultModel
+            {
+                Value = null,
+                Success = false,
+                Error = exception.Message,
             };
         }
     }
