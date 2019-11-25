@@ -30,15 +30,17 @@ namespace SpiderEye.Example.Spa
             config.Icon = icon;
 
             // this is only called in Debug mode:
-            SetDevServer(config);
+            SetDevSettings(config);
 
             // runs the application and opens a window with the given page loaded
             Application.Run(config, "index.html");
         }
 
         [Conditional("DEBUG")]
-        private static void SetDevServer(WindowConfiguration config)
+        private static void SetDevSettings(WindowConfiguration config)
         {
+            config.EnableDevTools = true;
+
             // the port number is defined in the angular.json file (under "architect"->"serve"->"options"->"port")
             // note that you have to run the angular dev server first (npm run watch)
             config.ExternalHost = "http://localhost:65000";
