@@ -38,6 +38,7 @@ namespace SpiderEye.Playground.Core
             statusIcon.Title = config.Title;
 
             using var window = Application.CreateWindow(config);
+            AddPageLoadWarning(window);
 
             var menu = statusIcon.AddMenu();
             var showItem = menu.AddLabelMenuItem("Hello World");
@@ -71,6 +72,28 @@ namespace SpiderEye.Playground.Core
             // the port number is defined in the angular.json file (under "architect"->"serve"->"options"->"port")
             // note that you have to run the angular dev server first (npm run watch)
             config.ExternalHost = "http://localhost:65400";
+        }
+
+        [Conditional("DEBUG")]
+        private static void AddPageLoadWarning(IWindow window)
+        {
+            window.PageLoaded += (s, e) =>
+            {
+                if (!e.Success)
+                {
+                    var msgBox = Application.Factory.CreateMessageBox();
+                    msgBox.Title = "Page load failed";
+                    string message = $"Page did not load!{Environment.NewLine}Did you start the Angular dev server?";
+                    if (Application.OS == OperatingSystem.Windows)
+                    {
+                        message += $"{Environment.NewLine}On Windows 10 you also have to allow localhost. More info can be found in the SpiderEye readme.";
+                    }
+
+                    msgBox.Message = message;
+                    msgBox.Buttons = MessageBoxButtons.Ok;
+                    msgBox.Show(window);
+                }
+            };
         }
     }
 }

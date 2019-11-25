@@ -29,11 +29,15 @@ namespace SpiderEye.Example.Spa
             config.ContentFolder = "Angular\\dist";
             config.Icon = icon;
 
-            // this is only called in Debug mode:
-            SetDevSettings(config);
+            using (var window = Application.CreateWindow(config))
+            {
+                // these are only called in Debug mode:
+                SetDevSettings(config);
+                AddPageLoadWarning(window);
 
-            // runs the application and opens a window with the given page loaded
-            Application.Run(config, "index.html");
+                // runs the application and opens the window with the given page loaded
+                Application.Run(window, "index.html");
+            }
         }
 
         [Conditional("DEBUG")]
@@ -44,6 +48,29 @@ namespace SpiderEye.Example.Spa
             // the port number is defined in the angular.json file (under "architect"->"serve"->"options"->"port")
             // note that you have to run the angular dev server first (npm run watch)
             config.ExternalHost = "http://localhost:65000";
+        }
+
+        [Conditional("DEBUG")]
+        private static void AddPageLoadWarning(IWindow window)
+        {
+            // this is just to give some suggestions in case something isn't set up correctly for development
+            window.PageLoaded += (s, e) =>
+            {
+                if (!e.Success)
+                {
+                    var msgBox = Application.Factory.CreateMessageBox();
+                    msgBox.Title = "Page load failed";
+                    string message = $"Page did not load!{Environment.NewLine}Did you start the Angular dev server?";
+                    if (Application.OS == OperatingSystem.Windows)
+                    {
+                        message += $"{Environment.NewLine}On Windows 10 you also have to allow localhost. More info can be found in the SpiderEye readme.";
+                    }
+
+                    msgBox.Message = message;
+                    msgBox.Buttons = MessageBoxButtons.Ok;
+                    msgBox.Show(window);
+                }
+            };
         }
     }
 }
