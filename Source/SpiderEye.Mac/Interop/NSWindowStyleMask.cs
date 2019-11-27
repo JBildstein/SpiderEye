@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SpiderEye.UI.Mac.Interop
+namespace SpiderEye.Mac.Interop
 {
     [Flags]
     internal enum NSWindowStyleMask

@@ -1,14 +1,14 @@
 ﻿using System;
-using SpiderEye.UI.Linux.Interop;
-using SpiderEye.UI.Linux.Native;
+using SpiderEye.Linux.Interop;
+using SpiderEye.Linux.Native;
+using SpiderEye.Tools;
 
-namespace SpiderEye.UI.Linux.Dialogs
+namespace SpiderEye.Linux
 {
     internal class GtkMessageBox : IMessageBox
     {
         public string Title { get; set; }
         public string Message { get; set; }
-
         public MessageBoxButtons Buttons { get; set; }
 
         public DialogResult Show()
@@ -18,12 +18,7 @@ namespace SpiderEye.UI.Linux.Dialogs
 
         public DialogResult Show(IWindow parent)
         {
-            var window = parent as GtkWindow;
-            if (parent != null && window == null)
-            {
-                throw new ArgumentException("Invalid window type.", nameof(parent));
-            }
-
+            var window = NativeCast.To<GtkWindow>(parent);
             IntPtr dialog = IntPtr.Zero;
             try
             {

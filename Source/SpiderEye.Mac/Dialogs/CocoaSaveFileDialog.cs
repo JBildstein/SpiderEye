@@ -1,6 +1,6 @@
-﻿using SpiderEye.UI.Mac.Interop;
+﻿using SpiderEye.Mac.Interop;
 
-namespace SpiderEye.UI.Mac.Dialogs
+namespace SpiderEye.Mac
 {
     internal class CocoaSaveFileDialog : CocoaFileDialog, ISaveFileDialog
     {

@@ -1,9 +1,9 @@
-﻿namespace SpiderEye.UI
+﻿namespace SpiderEye
 {
     /// <summary>
     /// Represents an open file dialog.
     /// </summary>
-    public interface IOpenFileDialog : IFileDialog
+    internal interface IOpenFileDialog : IFileDialog
     {
         /// <summary>
         /// Gets or sets a value indicating whether to allow multiple selections.

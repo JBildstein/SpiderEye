@@ -1,14 +1,14 @@
 ﻿using System;
-using SpiderEye.UI.Mac.Interop;
-using SpiderEye.UI.Mac.Native;
+using SpiderEye.Mac.Interop;
+using SpiderEye.Mac.Native;
+using SpiderEye.Tools;
 
-namespace SpiderEye.UI.Mac.Dialogs
+namespace SpiderEye.Mac
 {
     internal class CocoaMessageBox : IMessageBox
     {
         public string Title { get; set; }
         public string Message { get; set; }
-
         public MessageBoxButtons Buttons { get; set; }
 
         public DialogResult Show()
@@ -18,15 +18,11 @@ namespace SpiderEye.UI.Mac.Dialogs
 
         public DialogResult Show(IWindow parent)
         {
-            var window = parent as CocoaWindow;
-            if (parent != null && window == null)
-            {
-                throw new ArgumentException("Invalid window type.", nameof(parent));
-            }
-
+            var window = NativeCast.To<CocoaWindow>(parent);
             using (var alert = NSDialog.CreateAlert())
             {
                 ObjC.Call(alert.Handle, "setShowsHelp:", IntPtr.Zero);
+                ObjC.Call(alert.Handle, "setAlertStyle:", new UIntPtr((uint)NSAlertStyle.Informational));
                 ObjC.Call(alert.Handle, "setMessageText:", NSString.Create(Title ?? string.Empty));
                 ObjC.Call(alert.Handle, "setInformativeText:", NSString.Create(Message ?? string.Empty));
                 AddButtons(alert.Handle, Buttons);

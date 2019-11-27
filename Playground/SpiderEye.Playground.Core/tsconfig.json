@@ -18,6 +18,11 @@
     "lib": [
       "es2018",
       "dom"
-    ]
+    ],
+    "paths": {
+      "spidereye": [
+        "../../Source/SpiderEye.Client/src"
+      ]
+    }
   }
 }

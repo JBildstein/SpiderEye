@@ -1,4 +1,4 @@
-﻿namespace SpiderEye.UI.Platforms.Mac.Interop
+﻿namespace SpiderEye.Mac.Interop
 {
     internal static class NSKey
     {

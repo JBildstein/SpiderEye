@@ -2,12 +2,12 @@
 using System.IO;
 using System.Threading.Tasks;
 
-namespace SpiderEye.Content
+namespace SpiderEye
 {
     /// <summary>
     /// Provides methods to get content from an URI.
     /// </summary>
-    internal interface IContentProvider
+    public interface IContentProvider
     {
         /// <summary>
         /// Gets the <see cref="Stream"/> to a resource given an URI.

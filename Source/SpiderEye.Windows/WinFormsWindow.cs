@@ -2,21 +2,18 @@
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
+using System.Threading;
 using System.Windows.Forms;
 using SpiderEye.Bridge;
-using SpiderEye.Content;
 using SpiderEye.Tools;
-using SpiderEye.UI.Windows.Interop;
+using SpiderEye.Windows.Interop;
+using SDSize = System.Drawing.Size;
 
-namespace SpiderEye.UI.Windows
+namespace SpiderEye.Windows
 {
     internal class WinFormsWindow : Form, IWindow
     {
-        public event PageLoadEventHandler PageLoaded
-        {
-            add { webview.PageLoaded += value; }
-            remove { webview.PageLoaded -= value; }
-        }
+        public static event EventHandler LastWindowClosed;
 
         event CancelableEventHandler IWindow.Closing
         {
@@ -33,15 +30,28 @@ namespace SpiderEye.UI.Windows
         private event CancelableEventHandler ClosingBackingEvent;
         private event EventHandler ClosedBackingEvent;
 
-        public IWebviewBridge Bridge
-        {
-            get { return bridge; }
-        }
-
         public string Title
         {
             get { return Text; }
             set { Text = value; }
+        }
+
+        Size IWindow.Size
+        {
+            get { return new Size(Size.Width, Size.Height); }
+            set { Size = new SDSize((int)value.Width, (int)value.Height); }
+        }
+
+        public Size MinSize
+        {
+            get { return new Size(MinimumSize.Width, MinimumSize.Height); }
+            set { MinimumSize = new SDSize((int)value.Width, (int)value.Height); }
+        }
+
+        public Size MaxSize
+        {
+            get { return new Size(MaximumSize.Width, MaximumSize.Height); }
+            set { MaximumSize = new SDSize((int)value.Width, (int)value.Height); }
         }
 
         public bool CanResize
@@ -54,77 +64,86 @@ namespace SpiderEye.UI.Windows
             }
         }
 
-        private readonly WindowConfiguration config;
+        public string BackgroundColor
+        {
+            get { return ColorTools.ToHex(BackColor.R, BackColor.G, BackColor.B); }
+            set
+            {
+                ColorTools.ParseHex(value, out byte r, out byte g, out byte b);
+                BackColor = Color.FromArgb(r, g, b);
+                webview.UpdateBackgroundColor(r, g, b);
+            }
+        }
+
+        public bool UseBrowserTitle { get; set; }
+
+        AppIcon IWindow.Icon
+        {
+            get { return icon; }
+            set { SetIcon(value); }
+        }
+
+        public bool EnableScriptInterface
+        {
+            get { return webview.EnableScriptInterface; }
+            set { webview.EnableScriptInterface = value; }
+        }
+
+        public bool EnableDevTools { get; set; }
+
+        public IWebview Webview
+        {
+            get { return webview; }
+        }
+
+        private static int windowCount = 0;
+
         private readonly ContentServer server;
-        private readonly WebviewBridge bridge;
         private readonly IWinFormsWebview webview;
 
-        public WinFormsWindow(WindowConfiguration config, IUiFactory windowFactory)
+        private AppIcon icon;
+
+        public WinFormsWindow(WebviewBridge bridge)
         {
-            if (windowFactory == null) { throw new ArgumentNullException(nameof(windowFactory)); }
+            if (bridge == null) { throw new ArgumentNullException(nameof(bridge)); }
 
-            this.config = config ?? throw new ArgumentNullException(nameof(config));
-
-            bridge = new WebviewBridge();
-            var contentProvider = new EmbeddedFileProvider(config.ContentAssembly, config.ContentFolder);
-            if (!config.ForceWindowsLegacyWebview && IsEdgeAvailable())
+            var webviewType = ChooseWebview();
+            switch (webviewType)
             {
-                webview = new WinFormsWebview(config, contentProvider, bridge);
-            }
-            else
-            {
-                string hostAddress;
-                if (string.IsNullOrWhiteSpace(config.ExternalHost))
-                {
-                    server = new ContentServer(contentProvider);
+                case WebviewType.InternetExplorer:
+                    server = new ContentServer(); // TODO: every window has its own server. is that good?
                     server.Start();
-                    hostAddress = server.HostAddress;
-                }
-                else { hostAddress = config.ExternalHost; }
+                    string hostAddress = server.HostAddress;
 
-                webview = new WinFormsLegacyWebview(config, hostAddress, bridge);
+                    webview = new WinFormsLegacyWebview(hostAddress, bridge);
+                    break;
+
+                case WebviewType.Edge:
+                    webview = new WinFormsWebview(bridge);
+                    break;
+
+                default:
+                    throw new InvalidOperationException($"Invalid webview type of {webviewType}");
             }
 
             webview.Control.Location = new Point(0, 0);
             webview.Control.Dock = DockStyle.Fill;
             Controls.Add(webview.Control);
-
-            Text = config.Title;
-            Width = config.Width;
-            Height = config.Height;
-            CanResize = config.CanResize;
-
-            ColorTools.ParseHex(config.BackgroundColor, out byte r, out byte g, out byte b);
-            BackColor = Color.FromArgb(r, g, b);
-
-            if (config.EnableScriptInterface) { bridge.Init(this, webview, windowFactory); }
-
-            if (config.UseBrowserTitle)
-            {
-                bridge.TitleChanged += Webview_TitleChanged;
-            }
-
-            SetIcon(config.Icon);
-        }
-
-        public void LoadUrl(string url)
-        {
-            webview.NavigateToFile(url);
         }
 
         public void SetWindowState(WindowState state)
         {
             switch (state)
             {
-                case UI.WindowState.Normal:
+                case SpiderEye.WindowState.Normal:
                     WindowState = FormWindowState.Normal;
                     break;
 
-                case UI.WindowState.Maximized:
+                case SpiderEye.WindowState.Maximized:
                     WindowState = FormWindowState.Maximized;
                     break;
 
-                case UI.WindowState.Minimized:
+                case SpiderEye.WindowState.Minimized:
                     WindowState = FormWindowState.Minimized;
                     break;
 
@@ -135,6 +154,8 @@ namespace SpiderEye.UI.Windows
 
         public void SetIcon(AppIcon icon)
         {
+            this.icon = icon;
+
             if (icon == null || icon.Icons.Length == 0) { Icon = null; }
             else
             {
@@ -143,6 +164,13 @@ namespace SpiderEye.UI.Windows
                     Icon = new Icon(stream);
                 }
             }
+        }
+
+        protected override void OnShown(EventArgs e)
+        {
+            Interlocked.Increment(ref windowCount);
+
+            base.OnShown(e);
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -156,9 +184,17 @@ namespace SpiderEye.UI.Windows
 
         protected override void OnClosed(EventArgs e)
         {
-            ClosedBackingEvent?.Invoke(this, EventArgs.Empty);
-            base.OnClosed(e);
-            Dispose();
+            try
+            {
+                ClosedBackingEvent?.Invoke(this, EventArgs.Empty);
+                base.OnClosed(e);
+                Dispose();
+            }
+            finally
+            {
+                int count = Interlocked.Decrement(ref windowCount);
+                if (count <= 0) { LastWindowClosed?.Invoke(this, EventArgs.Empty); }
+            }
         }
 
         protected override void Dispose(bool disposing)
@@ -169,9 +205,21 @@ namespace SpiderEye.UI.Windows
             server?.Dispose();
         }
 
-        private void Webview_TitleChanged(object sender, string title)
+        private WebviewType ChooseWebview()
         {
-            Application.Invoke(() => Title = title ?? config.Title);
+            switch (WindowsApplication.WebviewType)
+            {
+                case WebviewType.Edge:
+                case WebviewType.Latest:
+                    if (IsEdgeAvailable()) { return WebviewType.Edge; }
+                    else { return WebviewType.InternetExplorer; }
+
+                case WebviewType.InternetExplorer:
+                    return WebviewType.InternetExplorer;
+
+                default:
+                    return WindowsApplication.WebviewType;
+            }
         }
 
         private bool IsEdgeAvailable()

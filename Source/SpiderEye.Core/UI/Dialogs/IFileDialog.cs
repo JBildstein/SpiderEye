@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 
-namespace SpiderEye.UI
+namespace SpiderEye
 {
     /// <summary>
     /// Represents a file dialog.
     /// </summary>
-    public interface IFileDialog : IDialog
+    internal interface IFileDialog : IDialog
     {
         /// <summary>
         /// Gets or sets the dialog title.

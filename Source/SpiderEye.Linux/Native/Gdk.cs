@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace SpiderEye.UI.Linux.Native
+namespace SpiderEye.Linux.Native
 {
     internal static class Gdk
     {

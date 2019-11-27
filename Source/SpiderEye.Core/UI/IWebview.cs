@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace SpiderEye.UI
+namespace SpiderEye
 {
     /// <summary>
     /// Represents a webview.
@@ -14,10 +14,10 @@ namespace SpiderEye.UI
         event PageLoadEventHandler PageLoaded;
 
         /// <summary>
-        /// Loads the given URL.
+        /// Loads the given URI.
         /// </summary>
-        /// <param name="url">The URL to load.</param>
-        void NavigateToFile(string url);
+        /// <param name="uri">The URI to load.</param>
+        void LoadUri(Uri uri);
 
         /// <summary>
         /// Executes the given JavaScript within the webview and gets the result.

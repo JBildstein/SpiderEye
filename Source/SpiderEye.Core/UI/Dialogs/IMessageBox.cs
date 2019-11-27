@@ -1,9 +1,9 @@
-﻿namespace SpiderEye.UI
+﻿namespace SpiderEye
 {
     /// <summary>
     /// Represents a message box.
     /// </summary>
-    public interface IMessageBox : IDialog
+    internal interface IMessageBox : IDialog
     {
         /// <summary>
         /// Gets or sets the title of the message box.

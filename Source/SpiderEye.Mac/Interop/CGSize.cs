@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace SpiderEye.UI.Mac.Interop
+namespace SpiderEye.Mac.Interop
 {
     [StructLayout(LayoutKind.Sequential)]
     internal struct CGSize

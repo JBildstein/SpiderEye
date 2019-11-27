@@ -14,4 +14,8 @@
       <LogicalName>%(RelativeDir)%(Filename)%(Extension)</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\..\Source\SpiderEye.Core\SpiderEye.Core.csproj" />
+  </ItemGroup>
 </Project>

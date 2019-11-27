@@ -1,8 +1,8 @@
 ﻿using System;
-using SpiderEye.UI.Mac.Interop;
-using SpiderEye.UI.Mac.Native;
+using SpiderEye.Mac.Interop;
+using SpiderEye.Mac.Native;
 
-namespace SpiderEye.UI.Mac.Dialogs
+namespace SpiderEye.Mac
 {
     internal class CocoaOpenFileDialog : CocoaFileDialog, IOpenFileDialog
     {
@@ -24,7 +24,6 @@ namespace SpiderEye.UI.Mac.Dialogs
 
             return panel;
         }
-
 
         protected override void BeforeReturn(NSDialog dialog)
         {

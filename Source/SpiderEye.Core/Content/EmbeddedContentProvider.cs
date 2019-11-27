@@ -4,19 +4,39 @@ using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace SpiderEye.Content
+namespace SpiderEye
 {
-    internal class EmbeddedFileProvider : IContentProvider
+    /// <summary>
+    /// Content provider for files that are embedded in an assembly.
+    /// </summary>
+    public class EmbeddedContentProvider : IContentProvider
     {
         private readonly Assembly contentAssembly;
         private readonly Dictionary<string, string> fileMap;
 
-        public EmbeddedFileProvider(Assembly contentAssembly, string contentFolder)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EmbeddedContentProvider"/> class.
+        /// </summary>
+        /// <param name="contentFolder">Gets or sets the folder path where the embedded files are.</param>
+        public EmbeddedContentProvider(string contentFolder)
+            : this(contentFolder, Assembly.GetCallingAssembly())
         {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EmbeddedContentProvider"/> class.
+        /// </summary>
+        /// <param name="contentFolder">Gets or sets the folder path where the embedded files are.</param>
+        /// <param name="contentAssembly">Gets or sets the assembly where the content files are embedded.</param>
+        public EmbeddedContentProvider(string contentFolder, Assembly contentAssembly)
+        {
+            if (contentFolder == null) { throw new ArgumentNullException(nameof(contentFolder)); }
+
             this.contentAssembly = contentAssembly ?? throw new ArgumentNullException(nameof(contentAssembly));
             fileMap = CreateFileMap(contentAssembly, contentFolder);
         }
 
+        /// <inheritdoc/>
         public Task<Stream> GetStreamAsync(Uri uri)
         {
             Stream result = null;

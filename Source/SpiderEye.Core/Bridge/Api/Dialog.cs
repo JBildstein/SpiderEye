@@ -1,37 +1,31 @@
 ﻿using System;
 using SpiderEye.Bridge.Models;
-using SpiderEye.UI;
 
 namespace SpiderEye.Bridge.Api
 {
     internal class Dialog
     {
-        private readonly IWindow parent;
-        private readonly IUiFactory windowFactory;
+        private readonly Window parent;
 
-        public Dialog(IWindow parent, IUiFactory windowFactory)
+        public Dialog(Window parent)
         {
             this.parent = parent ?? throw new ArgumentNullException(nameof(parent));
-            this.windowFactory = windowFactory ?? throw new ArgumentNullException(nameof(windowFactory));
         }
 
         public DialogResult ShowMessageBox(MessageBoxConfigModel config)
         {
-            var msgBox = windowFactory.CreateMessageBox();
-            msgBox.Title = config.Title;
-            msgBox.Message = config.Message;
-            msgBox.Buttons = config.Buttons;
-
-            return Application.Invoke(() => msgBox.Show(parent));
+            return Application.Invoke(() => MessageBox.Show(parent, config.Message, config.Title, config.Buttons));
         }
 
         public FileResultModel ShowSaveFileDialog(SaveFileDialogConfigModel config)
         {
-            var dialog = windowFactory.CreateSaveFileDialog();
-            dialog.Title = config.Title;
-            dialog.InitialDirectory = config.InitialDirectory;
-            dialog.FileName = config.FileName;
-            dialog.OverwritePrompt = config.OverwritePrompt;
+            var dialog = new SaveFileDialog
+            {
+                Title = config.Title,
+                InitialDirectory = config.InitialDirectory,
+                FileName = config.FileName,
+                OverwritePrompt = config.OverwritePrompt,
+            };
 
             if (config.FileFilters != null)
             {
@@ -52,11 +46,13 @@ namespace SpiderEye.Bridge.Api
 
         public FileResultModel ShowOpenFileDialog(OpenFileDialogConfigModel config)
         {
-            var dialog = windowFactory.CreateOpenFileDialog();
-            dialog.Title = config.Title;
-            dialog.InitialDirectory = config.InitialDirectory;
-            dialog.FileName = config.FileName;
-            dialog.Multiselect = config.Multiselect;
+            var dialog = new OpenFileDialog
+            {
+                Title = config.Title,
+                InitialDirectory = config.InitialDirectory,
+                FileName = config.FileName,
+                Multiselect = config.Multiselect,
+            };
 
             if (config.FileFilters != null)
             {

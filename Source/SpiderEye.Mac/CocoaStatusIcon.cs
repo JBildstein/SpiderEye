@@ -1,8 +1,9 @@
 using System;
-using SpiderEye.UI.Mac.Menu;
-using SpiderEye.UI.Mac.Native;
+using SpiderEye.Mac.Interop;
+using SpiderEye.Mac.Native;
+using SpiderEye.Tools;
 
-namespace SpiderEye.UI.Mac
+namespace SpiderEye.Mac
 {
     internal class CocoaStatusIcon : IStatusIcon
     {
@@ -22,26 +23,30 @@ namespace SpiderEye.UI.Mac
             }
         }
 
+        public Menu Menu
+        {
+            get { return menu; }
+            set
+            {
+                menu = value;
+                UpdateMenu(value);
+            }
+        }
+
         private readonly IntPtr statusItem;
         private readonly IntPtr statusBarButton;
 
         private AppIcon icon;
+        private Menu menu;
 
-        public CocoaStatusIcon()
+        public CocoaStatusIcon(string title)
         {
             var statusBar = AppKit.Call("NSStatusBar", "systemStatusBar");
             statusItem = ObjC.Call(statusBar, "statusItemWithLength:", -2.0); // -1 = variable size; -2 = square size
             ObjC.Call(statusItem, "setHighlightMode:", true);
             statusBarButton = ObjC.Call(statusItem, "button");
-            ObjC.Call(statusBarButton, "setImageScaling:", 3); // 3 = scale proportionally up or down
-        }
-
-        public IMenu AddMenu()
-        {
-            var menu = new CocoaMenu();
-            ObjC.Call(statusItem, "setMenu:", menu.Handle);
-
-            return menu;
+            ObjC.Call(statusBarButton, "setImageScaling:", new UIntPtr((uint)NSImageScaling.ProportionallyUpOrDown));
+            Title = title;
         }
 
         public void Dispose()
@@ -71,6 +76,12 @@ namespace SpiderEye.UI.Mac
             }
 
             ObjC.Call(statusBarButton, "setImage:", image);
+        }
+
+        private void UpdateMenu(Menu menu)
+        {
+            var nativeMenu = NativeCast.To<CocoaMenu>(menu?.NativeMenu);
+            ObjC.Call(statusItem, "setMenu:", nativeMenu?.Handle ?? IntPtr.Zero);
         }
     }
 }

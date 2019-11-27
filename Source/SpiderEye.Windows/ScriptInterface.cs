@@ -5,7 +5,7 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 using SpiderEye.Bridge;
 
-namespace SpiderEye.UI.Windows.Internal
+namespace SpiderEye.Windows.Internal
 {
     /// <summary>
     /// Script interface for the WebBrowser control.

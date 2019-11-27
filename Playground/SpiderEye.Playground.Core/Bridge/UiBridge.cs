@@ -34,7 +34,7 @@ namespace SpiderEye.Playground.Core
 
         public void ProduceError()
         {
-            throw new Exception("Intentional exception from C#");
+            throw new Exception("Intentional exception from .Net");
         }
     }
 }

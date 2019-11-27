@@ -1,8 +1,8 @@
 ﻿using System;
+using SpiderEye.Mac.Native;
 using SpiderEye.Tools;
-using SpiderEye.UI.Mac.Native;
 
-namespace SpiderEye.UI.Mac.Interop
+namespace SpiderEye.Mac.Interop
 {
     internal static class NSColor
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SpiderEye.UI.Platforms.Mac.Interop
+namespace SpiderEye.Mac.Interop
 {
     [Flags]
     internal enum NSEventModifierFlags : ulong

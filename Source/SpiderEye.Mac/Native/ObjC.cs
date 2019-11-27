@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using SpiderEye.UI.Mac.Interop;
+using SpiderEye.Mac.Interop;
 
-namespace SpiderEye.UI.Mac.Native
+namespace SpiderEye.Mac.Native
 {
     internal static class ObjC
     {
@@ -54,13 +54,10 @@ namespace SpiderEye.UI.Mac.Native
         public static extern IntPtr SendMessage(IntPtr self, IntPtr op, IntPtr[] a, IntPtr b);
 
         [DllImport(ObjCLib, EntryPoint = "objc_msgSend")]
-        public static extern IntPtr SendMessage(IntPtr self, IntPtr op, int value);
+        public static extern IntPtr SendMessage(IntPtr self, IntPtr op, [MarshalAs(UnmanagedType.I1)]bool value);
 
         [DllImport(ObjCLib, EntryPoint = "objc_msgSend")]
         public static extern IntPtr SendMessage(IntPtr self, IntPtr op, double value);
-
-        [DllImport(ObjCLib, EntryPoint = "objc_msgSend")]
-        public static extern IntPtr SendMessage(IntPtr self, IntPtr op, [MarshalAs(UnmanagedType.Bool)] byte a);
 
         [DllImport(ObjCLib, EntryPoint = "objc_msgSend")]
         public static extern IntPtr SendMessage(IntPtr self, IntPtr op, double a, double b, double c, double d);
@@ -69,7 +66,10 @@ namespace SpiderEye.UI.Mac.Native
         public static extern IntPtr SendMessage(IntPtr self, IntPtr op, CGRect rect, IntPtr a);
 
         [DllImport(ObjCLib, EntryPoint = "objc_msgSend")]
-        public static extern IntPtr SendMessage(IntPtr self, IntPtr op, CGRect rect, int a, int b, int c);
+        public static extern IntPtr SendMessage(IntPtr self, IntPtr op, CGRect rect, UIntPtr a, UIntPtr b, [MarshalAs(UnmanagedType.I1)]bool c);
+
+        [DllImport(ObjCLib, EntryPoint = "objc_msgSend")]
+        public static extern IntPtr SendMessage(IntPtr self, IntPtr op, CGSize size);
 
 
         public static IntPtr Call(IntPtr id, string sel)
@@ -87,11 +87,6 @@ namespace SpiderEye.UI.Mac.Native
             return SendMessage(id, RegisterName(sel), a);
         }
 
-        public static IntPtr Call(IntPtr id, string sel, int a)
-        {
-            return SendMessage(id, RegisterName(sel), a);
-        }
-
         public static IntPtr Call(IntPtr id, string sel, double a)
         {
             return SendMessage(id, RegisterName(sel), a);
@@ -99,7 +94,7 @@ namespace SpiderEye.UI.Mac.Native
 
         public static IntPtr Call(IntPtr id, string sel, bool a)
         {
-            return SendMessage(id, RegisterName(sel), a ? 1 : 0);
+            return SendMessage(id, RegisterName(sel), a);
         }
 
         public static IntPtr Call(IntPtr id, string sel, IntPtr a, IntPtr b)
@@ -120,6 +115,11 @@ namespace SpiderEye.UI.Mac.Native
         public static IntPtr Call(IntPtr id, string sel, CGRect rect, IntPtr a)
         {
             return SendMessage(id, RegisterName(sel), rect, a);
+        }
+
+        public static IntPtr Call(IntPtr id, string sel, CGSize size)
+        {
+            return SendMessage(id, RegisterName(sel), size);
         }
     }
 }

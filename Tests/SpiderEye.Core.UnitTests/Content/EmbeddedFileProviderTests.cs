@@ -11,7 +11,15 @@ namespace SpiderEye.Content
         [Fact]
         public void Constructor_WithAssemblyNull_ThrowsException()
         {
-            Exception exception = Record.Exception(() => new EmbeddedFileProvider(null, "\\Resources"));
+            Exception exception = Record.Exception(() => new EmbeddedContentProvider("\\Resources", null));
+
+            Assert.IsType<ArgumentNullException>(exception);
+        }
+
+        [Fact]
+        public void Constructor_WithContentFolderNull_ThrowsException()
+        {
+            Exception exception = Record.Exception(() => new EmbeddedContentProvider(null, Assembly.GetExecutingAssembly()));
 
             Assert.IsType<ArgumentNullException>(exception);
         }
@@ -20,7 +28,6 @@ namespace SpiderEye.Content
         [InlineData("http://foo.bar/SomeFile.txt", "Resource Content Text")]
         [InlineData("http://foo.bar/soMefILe.txt", "Resource Content Text")]
         [InlineData("http://foo.bar/Nested/SomeOtherFile.txt", "Other Resource Content Text")]
-        [InlineData("http://foo.bar/nonexistent.txt", null)]
         public async Task GetStreamAsync_WithExistingUri_ReturnsStream(string url, string expected)
         {
             var provider = Create();
@@ -28,24 +35,33 @@ namespace SpiderEye.Content
 
             using (var stream = await provider.GetStreamAsync(uri))
             {
-                if (expected == null) { Assert.Null(stream); }
-                else
-                {
-                    Assert.NotNull(stream);
+                Assert.NotNull(stream);
 
-                    using (var reader = new StreamReader(stream))
-                    {
-                        string result = reader.ReadToEnd();
-                        Assert.Equal(expected, result);
-                    }
+                using (var reader = new StreamReader(stream))
+                {
+                    string result = reader.ReadToEnd();
+                    Assert.Equal(expected, result);
                 }
             }
         }
 
-
-        private EmbeddedFileProvider Create()
+        [Theory]
+        [InlineData("http://foo.bar/nonexistent.txt")]
+        public async Task GetStreamAsync_WithNonExistingUri_ReturnsNull(string url)
         {
-            return new EmbeddedFileProvider(Assembly.GetExecutingAssembly(), "Content\\Resources");
+            var provider = Create();
+            var uri = new Uri(url);
+
+            using (var stream = await provider.GetStreamAsync(uri))
+            {
+                Assert.Null(stream);
+            }
+        }
+
+
+        private EmbeddedContentProvider Create()
+        {
+            return new EmbeddedContentProvider("Content\\Resources", Assembly.GetExecutingAssembly());
         }
     }
 }

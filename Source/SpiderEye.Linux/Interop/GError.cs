@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace SpiderEye.UI.Linux.Interop
+namespace SpiderEye.Linux.Interop
 {
     [StructLayout(LayoutKind.Sequential)]
     internal struct GError

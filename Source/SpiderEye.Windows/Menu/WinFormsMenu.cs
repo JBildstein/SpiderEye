@@ -1,24 +1,24 @@
-﻿using System.Windows.Forms;
+﻿using System;
+using System.Windows.Forms;
+using SpiderEye.Tools;
 
-namespace SpiderEye.UI.Windows.Menu
+namespace SpiderEye.Windows
 {
-    internal class WinFormsMenu : WinFormsMenuItem, IMenu
+    internal class WinFormsMenu : IMenu
     {
         public readonly ContextMenu Menu = new ContextMenu();
+
+        public void AddItem(IMenuItem item)
+        {
+            if (item == null) { throw new ArgumentNullException(nameof(item)); }
+
+            var nativeItem = NativeCast.To<WinFormsMenuItem>(item);
+            Menu.MenuItems.Add(nativeItem.Item);
+        }
 
         public void Dispose()
         {
             Menu.Dispose();
-        }
-
-        protected override void AddItem(MenuItem item)
-        {
-            Menu.MenuItems.Add(item);
-        }
-
-        protected override void SetShortcut(Shortcut shortcut)
-        {
-            // ignore: no shortcuts for the base menu class
         }
     }
 }

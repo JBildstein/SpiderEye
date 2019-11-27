@@ -1,4 +1,5 @@
 ﻿using System;
+using SpiderEye.Linux;
 using SpiderEye.Playground.Core;
 
 namespace SpiderEye.Playground
@@ -8,9 +9,8 @@ namespace SpiderEye.Playground
         [STAThread]
         public static void Main(string[] args)
         {
-            var config = GetWindowConfiguration();
-
-            Run(config);
+            LinuxApplication.Init();
+            Run();
         }
     }
 }

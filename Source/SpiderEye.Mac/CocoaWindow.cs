@@ -1,20 +1,14 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using System.Threading;
 using SpiderEye.Bridge;
-using SpiderEye.Content;
-using SpiderEye.UI.Mac.Interop;
-using SpiderEye.UI.Mac.Native;
+using SpiderEye.Mac.Interop;
+using SpiderEye.Mac.Native;
 
-namespace SpiderEye.UI.Mac
+namespace SpiderEye.Mac
 {
     internal class CocoaWindow : IWindow
     {
-        public event PageLoadEventHandler PageLoaded
-        {
-            add { webview.PageLoaded += value; }
-            remove { webview.PageLoaded -= value; }
-        }
-
         public event CancelableEventHandler Closing;
         public event EventHandler Closed;
 
@@ -24,27 +18,112 @@ namespace SpiderEye.UI.Mac
             set { ObjC.Call(Handle, "setTitle:", NSString.Create(value ?? string.Empty)); }
         }
 
-        public IWebviewBridge Bridge
+        public Size Size
         {
-            get { return bridge; }
+            get
+            {
+                var frame = Marshal.PtrToStructure<CGRect>(ObjC.Call(Handle, "frame"));
+                return new Size((int)frame.Size.Width, (int)frame.Size.Height);
+            }
+            set
+            {
+                ObjC.Call(Handle, "setContentSize:", new CGSize(value.Width, value.Height));
+            }
+        }
+
+        public Size MinSize
+        {
+            get
+            {
+                var size = Marshal.PtrToStructure<CGSize>(ObjC.Call(Handle, "contentMinSize"));
+                return new Size(size.Width, size.Height);
+            }
+            set
+            {
+                ObjC.Call(Handle, "setContentMinSize:", new CGSize(value.Width, value.Height));
+            }
+        }
+
+        public Size MaxSize
+        {
+            get
+            {
+                var size = Marshal.PtrToStructure<CGSize>(ObjC.Call(Handle, "contentMaxSize"));
+                return new Size(size.Width, size.Height);
+            }
+            set
+            {
+                if (value == Size.Zero) { value = new Size(float.MaxValue, float.MaxValue); }
+
+                ObjC.Call(Handle, "setContentMaxSize:", new CGSize(value.Width, value.Height));
+            }
+        }
+
+        public bool CanResize
+        {
+            get { return canResizeField; }
+            set
+            {
+                canResizeField = value;
+                var style = GetStyleMask(value);
+                ObjC.Call(Handle, "setStyleMask:", style);
+            }
+        }
+
+        public string BackgroundColor
+        {
+            get { return backgroundColorField; }
+            set
+            {
+                backgroundColorField = value;
+                IntPtr bgColor = NSColor.FromHex(value);
+                ObjC.Call(Handle, "setBackgroundColor:", bgColor);
+                webview.UpdateBackgroundColor(bgColor);
+            }
+        }
+
+        public bool UseBrowserTitle
+        {
+            get { return webview.UseBrowserTitle; }
+            set { webview.UseBrowserTitle = value; }
+        }
+
+        // is ignored because there are no window icons on macOS
+        public AppIcon Icon { get; set; }
+
+        public bool EnableScriptInterface
+        {
+            get { return webview.EnableScriptInterface; }
+            set { webview.EnableScriptInterface = value; }
+        }
+
+        public bool EnableDevTools
+        {
+            get { return webview.EnableDevTools; }
+            set { webview.EnableDevTools = value; }
+        }
+
+        public IWebview Webview
+        {
+            get { return webview; }
         }
 
         public readonly IntPtr Handle;
 
         private static int count = 0;
 
-        private readonly WindowConfiguration config;
         private readonly CocoaWebview webview;
-        private readonly WebviewBridge bridge;
 
         private readonly WindowShouldCloseDelegate windowShouldCloseDelegate;
         private readonly NotificationDelegate windowWillCloseDelegate;
 
-        public CocoaWindow(WindowConfiguration config, IUiFactory windowFactory)
-        {
-            if (windowFactory == null) { throw new ArgumentNullException(nameof(windowFactory)); }
+        private bool canResizeField;
+        private string backgroundColorField;
 
-            this.config = config ?? throw new ArgumentNullException(nameof(config));
+        public CocoaWindow(WindowConfiguration config, WebviewBridge bridge)
+        {
+            if (config == null) { throw new ArgumentNullException(nameof(config)); }
+            if (bridge == null) { throw new ArgumentNullException(nameof(bridge)); }
 
             Interlocked.Increment(ref count);
 
@@ -54,34 +133,19 @@ namespace SpiderEye.UI.Mac
 
             Handle = AppKit.Call("NSWindow", "alloc");
 
-            var style = NSWindowStyleMask.Titled | NSWindowStyleMask.Closable | NSWindowStyleMask.Miniaturizable;
-            if (config.CanResize) { style |= NSWindowStyleMask.Resizable; }
-
+            var style = GetStyleMask(config.CanResize);
             ObjC.SendMessage(
                 Handle,
                 ObjC.RegisterName("initWithContentRect:styleMask:backing:defer:"),
-                new CGRect(0, 0, config.Width, config.Height),
-                (int)style,
-                2,
-                0);
+                new CGRect(0, 0, config.Size.Width, config.Size.Height),
+                style,
+                new UIntPtr(2),
+                false);
 
-            Title = config.Title;
-
-            IntPtr bgColor = NSColor.FromHex(config.BackgroundColor);
-            ObjC.Call(Handle, "setBackgroundColor:", bgColor);
-
-            var contentProvider = new EmbeddedFileProvider(config.ContentAssembly, config.ContentFolder);
-            bridge = new WebviewBridge();
-            webview = new CocoaWebview(config, contentProvider, bridge);
+            webview = new CocoaWebview(bridge);
             ObjC.Call(Handle, "setContentView:", webview.Handle);
 
-            if (config.EnableScriptInterface) { bridge.Init(this, webview, windowFactory); }
-
-            if (config.UseBrowserTitle)
-            {
-                webview.TitleChanged += Webview_TitleChanged;
-                bridge.TitleChanged += Webview_TitleChanged;
-            }
+            webview.TitleChanged += Webview_TitleChanged;
 
             SetWindowDelegate(Handle);
         }
@@ -95,11 +159,6 @@ namespace SpiderEye.UI.Mac
         public void Close()
         {
             ObjC.Call(Handle, "close", IntPtr.Zero);
-        }
-
-        public void LoadUrl(string url)
-        {
-            webview.NavigateToFile(url);
         }
 
         public void SetWindowState(WindowState state)
@@ -125,19 +184,18 @@ namespace SpiderEye.UI.Mac
             }
         }
 
-        public void SetIcon(AppIcon icon)
-        {
-            // windows on macOS don't have icons
-        }
-
         public void Dispose()
         {
-            // will be released automatically
+            // window will be released automatically
+            webview.Dispose();
         }
 
-        private void Webview_TitleChanged(object sender, string title)
+        private UIntPtr GetStyleMask(bool canResize)
         {
-            Application.Invoke(() => Title = title ?? config.Title);
+            var style = NSWindowStyleMask.Titled | NSWindowStyleMask.Closable | NSWindowStyleMask.Miniaturizable;
+            if (canResize) { style |= NSWindowStyleMask.Resizable; }
+
+            return new UIntPtr((uint)style);
         }
 
         private void SetWindowDelegate(IntPtr window)
@@ -174,9 +232,16 @@ namespace SpiderEye.UI.Mac
         private void WindowWillCloseCallback(IntPtr self, IntPtr op, IntPtr notification)
         {
             webview.TitleChanged -= Webview_TitleChanged;
-            bridge.TitleChanged -= Webview_TitleChanged;
 
             Closed?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void Webview_TitleChanged(object sender, string title)
+        {
+            if (UseBrowserTitle)
+            {
+                Application.Invoke(() => Title = title ?? string.Empty);
+            }
         }
     }
 }

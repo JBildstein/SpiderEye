@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using SpiderEye.UI.Mac.Native;
+using SpiderEye.Mac.Native;
 
-namespace SpiderEye.UI.Mac.Interop
+namespace SpiderEye.Mac.Interop
 {
     internal sealed class NSRunLoop
     {

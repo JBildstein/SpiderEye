@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Text;
-using SpiderEye.UI.Mac.Native;
+using SpiderEye.Mac.Native;
 
-namespace SpiderEye.UI.Mac.Interop
+namespace SpiderEye.Mac.Interop
 {
     internal static class NSString
     {

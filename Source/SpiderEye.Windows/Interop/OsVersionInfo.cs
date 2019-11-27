@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace SpiderEye.UI.Windows.Interop
+namespace SpiderEye.Windows.Interop
 {
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     internal struct OsVersionInfo

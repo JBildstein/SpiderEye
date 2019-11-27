@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using SpiderEye.UI.Linux.Interop;
-using SpiderEye.UI.Linux.Native;
+using SpiderEye.Linux.Interop;
+using SpiderEye.Linux.Native;
 
-namespace SpiderEye.UI.Linux.Dialogs
+namespace SpiderEye.Linux
 {
     internal class GtkOpenFileDialog : GtkFileDialog, IOpenFileDialog
     {
@@ -28,13 +28,13 @@ namespace SpiderEye.UI.Linux.Dialogs
 
         protected override unsafe void BeforeReturn(IntPtr dialog)
         {
-            var ptr = Gtk.Dialog.GetSelectedFiles(dialog);
+            var filesPtr = Gtk.Dialog.GetSelectedFiles(dialog);
             var result = new List<string>();
-            if (ptr != IntPtr.Zero)
+            if (filesPtr != IntPtr.Zero)
             {
                 try
                 {
-                    var list = Marshal.PtrToStructure<GSList>(ptr);
+                    var list = Marshal.PtrToStructure<GSList>(filesPtr);
                     while (true)
                     {
                         using (var value = new GLibString(list.Data))
@@ -46,7 +46,7 @@ namespace SpiderEye.UI.Linux.Dialogs
                         list = *list.Next;
                     }
                 }
-                finally { GLib.FreeSList(ptr); }
+                finally { GLib.FreeSList(filesPtr); }
             }
 
             SelectedFiles = result.ToArray();

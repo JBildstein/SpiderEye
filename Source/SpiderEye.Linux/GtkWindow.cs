@@ -1,29 +1,17 @@
 using System;
 using System.Threading;
 using SpiderEye.Bridge;
-using SpiderEye.Content;
-using SpiderEye.UI.Linux.Interop;
-using SpiderEye.UI.Linux.Native;
+using SpiderEye.Linux.Interop;
+using SpiderEye.Linux.Native;
 
-namespace SpiderEye.UI.Linux
+namespace SpiderEye.Linux
 {
     internal class GtkWindow : IWindow
     {
         public static event EventHandler LastWindowClosed;
 
-        public event PageLoadEventHandler PageLoaded
-        {
-            add { webview.PageLoaded += value; }
-            remove { webview.PageLoaded -= value; }
-        }
-
         public event CancelableEventHandler Closing;
         public event EventHandler Closed;
-
-        public IWebview Webview
-        {
-            get { return webview; }
-        }
 
         public string Title
         {
@@ -37,40 +25,110 @@ namespace SpiderEye.UI.Linux
             }
         }
 
-        public IWebviewBridge Bridge
+        public Size Size
         {
-            get { return bridge; }
+            get
+            {
+                Gtk.Window.GetSize(Handle, out int width, out int height);
+                return new Size(width, height);
+            }
+            set
+            {
+                Gtk.Window.Resize(Handle, (int)value.Width, (int)value.Height);
+            }
+        }
+
+        public Size MinSize
+        {
+            get { return minSizeField; }
+            set
+            {
+                minSizeField = value;
+                SetWindowRestrictions(minSizeField, maxSizeField);
+            }
+        }
+
+        public Size MaxSize
+        {
+            get { return maxSizeField; }
+            set
+            {
+                maxSizeField = value;
+                SetWindowRestrictions(minSizeField, maxSizeField);
+            }
+        }
+
+        public bool CanResize
+        {
+            get { return Gtk.Window.GetResizable(Handle); }
+            set { Gtk.Window.SetResizable(Handle, value); }
+        }
+
+        public string BackgroundColor
+        {
+            get { return backgroundColorField; }
+            set
+            {
+                backgroundColorField = value;
+                SetBackgroundColor(value);
+                webview.UpdateBackgroundColor(value);
+            }
+        }
+
+        public bool UseBrowserTitle
+        {
+            get { return webview.UseBrowserTitle; }
+            set { webview.UseBrowserTitle = value; }
+        }
+
+        public AppIcon Icon
+        {
+            get { return iconField; }
+            set
+            {
+                iconField = value;
+                SetIcon(value);
+            }
+        }
+
+        public bool EnableScriptInterface
+        {
+            get { return webview.EnableScriptInterface; }
+            set { webview.EnableScriptInterface = value; }
+        }
+
+        public bool EnableDevTools
+        {
+            get { return webview.EnableDevTools; }
+            set { webview.EnableDevTools = value; }
+        }
+
+        public IWebview Webview
+        {
+            get { return webview; }
         }
 
         public readonly IntPtr Handle;
 
         private static int windowCount = 0;
 
-        private readonly WindowConfiguration config;
         private readonly GtkWebview webview;
         private readonly WebviewBridge bridge;
 
         private readonly DeleteCallbackDelegate deleteDelegate;
         private readonly DestroyCallbackDelegate destroyDelegate;
 
-        public GtkWindow(WindowConfiguration config, IUiFactory windowFactory)
+        private Size minSizeField;
+        private Size maxSizeField;
+        private string backgroundColorField;
+        private AppIcon iconField;
+
+        public GtkWindow(WebviewBridge bridge)
         {
-            if (windowFactory == null) { throw new ArgumentNullException(nameof(windowFactory)); }
+            this.bridge = bridge ?? throw new ArgumentNullException(nameof(bridge));
 
-            this.config = config ?? throw new ArgumentNullException(nameof(config));
-
-            var contentProvider = new EmbeddedFileProvider(config.ContentAssembly, config.ContentFolder);
-            bridge = new WebviewBridge();
-            webview = new GtkWebview(config, contentProvider, bridge);
+            webview = new GtkWebview(bridge);
             Handle = Gtk.Window.Create(GtkWindowType.Toplevel);
-
-            Title = config.Title;
-            Gtk.Window.SetResizable(Handle, config.CanResize);
-            Gtk.Window.SetDefaultSize(Handle, config.Width, config.Height);
-
-            string backgroundColor = config.BackgroundColor;
-            if (string.IsNullOrWhiteSpace(backgroundColor)) { backgroundColor = "#FFFFFF"; }
-            SetBackgroundColor(backgroundColor);
 
             IntPtr scroller = Gtk.Window.CreateScrolled(IntPtr.Zero, IntPtr.Zero);
             Gtk.Widget.ContainerAdd(Handle, scroller);
@@ -84,16 +142,7 @@ namespace SpiderEye.UI.Linux
             GLib.ConnectSignal(Handle, "destroy", destroyDelegate, IntPtr.Zero);
 
             webview.CloseRequested += Webview_CloseRequested;
-
-            if (config.EnableScriptInterface) { bridge.Init(this, webview, windowFactory); }
-
-            if (config.UseBrowserTitle)
-            {
-                webview.TitleChanged += Webview_TitleChanged;
-                bridge.TitleChanged += Webview_TitleChanged;
-            }
-
-            SetIcon(config.Icon);
+            webview.TitleChanged += Webview_TitleChanged;
         }
 
         public void Show()
@@ -131,7 +180,23 @@ namespace SpiderEye.UI.Linux
             }
         }
 
-        public unsafe void SetIcon(AppIcon icon)
+        public void Dispose()
+        {
+            webview.Dispose();
+            Gtk.Widget.Destroy(Handle);
+        }
+
+        private void SetWindowRestrictions(Size min, Size max)
+        {
+            var geometry = new GdkGeometry(min, max);
+            GdkWindowHints hints = 0;
+            if (min != Size.Zero) { hints |= GdkWindowHints.MinSize; }
+            if (max != Size.Zero) { hints |= GdkWindowHints.MaxSize; }
+
+            Gtk.Window.SetGeometryHints(Handle, IntPtr.Zero, ref geometry, hints);
+        }
+
+        private unsafe void SetIcon(AppIcon icon)
         {
             if (icon == null || icon.Icons.Length == 0)
             {
@@ -173,17 +238,6 @@ namespace SpiderEye.UI.Linux
             }
         }
 
-        public void LoadUrl(string url)
-        {
-            webview.NavigateToFile(url);
-        }
-
-        public void Dispose()
-        {
-            webview.Dispose();
-            Gtk.Widget.Destroy(Handle);
-        }
-
         private bool DeleteCallback(IntPtr widget, IntPtr eventData, IntPtr userdata)
         {
             var args = new CancelableEventArgs();
@@ -194,7 +248,13 @@ namespace SpiderEye.UI.Linux
 
         private void DestroyCallback(IntPtr widget, IntPtr userdata)
         {
-            try { Closed?.Invoke(this, EventArgs.Empty); }
+            try
+            {
+                webview.TitleChanged -= Webview_TitleChanged;
+                bridge.TitleChanged -= Webview_TitleChanged;
+
+                Closed?.Invoke(this, EventArgs.Empty);
+            }
             finally
             {
                 int count = Interlocked.Decrement(ref windowCount);
@@ -204,7 +264,10 @@ namespace SpiderEye.UI.Linux
 
         private void Webview_TitleChanged(object sender, string title)
         {
-            Application.Invoke(() => Title = title ?? config.Title);
+            if (UseBrowserTitle)
+            {
+                Application.Invoke(() => Title = title ?? string.Empty);
+            }
         }
 
         private void Webview_CloseRequested(object sender, EventArgs e)

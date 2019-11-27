@@ -4,13 +4,17 @@ using System.Reflection;
 using System.Threading.Tasks;
 using SpiderEye.Bridge.Api;
 using SpiderEye.Bridge.Models;
-using SpiderEye.UI;
 
 namespace SpiderEye.Bridge
 {
     internal class WebviewBridge : IWebviewBridge
     {
         public event EventHandler<string> TitleChanged;
+
+        private IWebview Webview
+        {
+            get { return window.NativeWindow.Webview; }
+        }
 
         private static event EventHandler<object> GlobalEventHandlerUpdate;
         private static readonly object GlobalHandlerLock = new object();
@@ -21,9 +25,14 @@ namespace SpiderEye.Bridge
         private readonly HashSet<string> apiRootNames = new HashSet<string>();
         private readonly Dictionary<string, ApiMethod> apiMethods = new Dictionary<string, ApiMethod>();
 
-        private IWindow window;
-        private IWebview webview;
-        private IUiFactory windowFactory;
+        private readonly Window window;
+
+        public WebviewBridge(Window window)
+        {
+            this.window = window ?? throw new ArgumentNullException(nameof(window));
+
+            InitApi();
+        }
 
         public static void AddGlobalHandlerStatic(object handler)
         {
@@ -32,15 +41,6 @@ namespace SpiderEye.Bridge
                 GlobalHandler.Add(handler);
                 GlobalEventHandlerUpdate?.Invoke(null, handler);
             }
-        }
-
-        public void Init(IWindow window, IWebview webview, IUiFactory windowFactory)
-        {
-            this.window = window ?? throw new ArgumentNullException(nameof(window));
-            this.webview = webview ?? throw new ArgumentNullException(nameof(webview));
-            this.windowFactory = windowFactory ?? throw new ArgumentNullException(nameof(windowFactory));
-
-            InitApi();
         }
 
         public void AddHandler(object handler)
@@ -56,14 +56,14 @@ namespace SpiderEye.Bridge
         public async Task InvokeAsync(string id, object data)
         {
             string script = GetInvokeScript(id, data);
-            string resultJson = await Application.Invoke(() => webview.ExecuteScriptAsync(script));
+            string resultJson = await Application.Invoke(() => Webview.ExecuteScriptAsync(script));
             ResolveEventResult(id, resultJson);
         }
 
         public async Task<T> InvokeAsync<T>(string id, object data)
         {
             string script = GetInvokeScript(id, data);
-            string resultJson = await Application.Invoke(() => webview.ExecuteScriptAsync(script));
+            string resultJson = await Application.Invoke(() => Webview.ExecuteScriptAsync(script));
             var result = ResolveEventResult(id, resultJson);
             return ResolveInvokeResult<T>(result);
         }
@@ -134,7 +134,7 @@ namespace SpiderEye.Bridge
         {
             string resultJson = JsonConverter.Serialize(result);
             string script = $"window._spidereye._endApiCall({info.CallbackId}, {resultJson})";
-            await Application.Invoke(() => webview.ExecuteScriptAsync(script));
+            await Application.Invoke(() => Webview.ExecuteScriptAsync(script));
         }
 
         private async Task<ApiResultModel> ResolveCall(string id, string parameters)
@@ -196,8 +196,8 @@ namespace SpiderEye.Bridge
 
         private void InitApi()
         {
-            AddApiObject(new BrowserWindow(window, windowFactory));
-            AddApiObject(new Dialog(window, windowFactory));
+            AddApiObject(new BrowserWindow(window));
+            AddApiObject(new Dialog(window));
 
             lock (GlobalHandlerLock)
             {

@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
 using SpiderEye.Tools;
 
-namespace SpiderEye.UI.Linux.Interop
+namespace SpiderEye.Linux.Interop
 {
     [StructLayout(LayoutKind.Sequential)]
     internal struct GdkColor

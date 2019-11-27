@@ -3,7 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using SpiderEye.Tools;
 
-namespace SpiderEye.Content
+namespace SpiderEye
 {
     /// <summary>
     /// A simple HTTP server to run inside a SpiderEye app.
@@ -22,25 +22,21 @@ namespace SpiderEye.Content
         }
 
         private readonly HttpListener listener;
-        private readonly IContentProvider contentProvider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ContentServer"/> class.
         /// </summary>
-        /// <param name="contentProvider">The content provider that gets called for each request.</param>
-        public ContentServer(IContentProvider contentProvider)
-            : this(contentProvider, 0)
+        public ContentServer()
+            : this(0)
         {
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ContentServer"/> class.
         /// </summary>
-        /// <param name="contentProvider">The content provider that gets called for each request.</param>
         /// <param name="port">The port number the server should listen to. If set to zero or null, it will be auto-assigned.</param>
-        public ContentServer(IContentProvider contentProvider, int? port)
+        public ContentServer(int? port)
         {
-            this.contentProvider = contentProvider ?? throw new ArgumentNullException(nameof(contentProvider));
             listener = new HttpListener();
 
             if (port != null && port != 0) { HostAddress = $"http://localhost:{port}/"; }
@@ -100,7 +96,7 @@ namespace SpiderEye.Content
             {
                 if (context.Request.HttpMethod.ToUpper() == "GET")
                 {
-                    using (var stream = await contentProvider.GetStreamAsync(context.Request.Url))
+                    using (var stream = await Application.ContentProvider.GetStreamAsync(context.Request.Url))
                     {
                         if (stream != null)
                         {

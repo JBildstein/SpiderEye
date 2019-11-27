@@ -1,11 +1,11 @@
 using System;
 
-namespace SpiderEye.UI
+namespace SpiderEye
 {
     /// <summary>
     /// Represents a status icon.
     /// </summary>
-    public interface IStatusIcon : IDisposable
+    internal interface IStatusIcon : IDisposable
     {
         /// <summary>
         /// Gets or sets the status icon title.
@@ -18,9 +18,8 @@ namespace SpiderEye.UI
         AppIcon Icon { get; set; }
 
         /// <summary>
-        /// Adds a menu to the status icon and returns it.
+        /// Gets or sets the icon menu.
         /// </summary>
-        /// <returns>The crated menu.</returns>
-        IMenu AddMenu();
+        Menu Menu { get; set; }
     }
 }

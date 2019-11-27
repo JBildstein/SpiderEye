@@ -1,4 +1,5 @@
 ﻿using System;
+using SpiderEye.Mac;
 using SpiderEye.Playground.Core;
 
 namespace SpiderEye.Playground
@@ -8,11 +9,8 @@ namespace SpiderEye.Playground
         [STAThread]
         public static void Main(string[] args)
         {
-            var config = GetWindowConfiguration();
-
-            using var appMenu = Application.CreateDefaultAppMenu();
-
-            Run(config);
+            MacApplication.Init();
+            Run();
         }
     }
 }

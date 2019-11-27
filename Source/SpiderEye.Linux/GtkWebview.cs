@@ -4,12 +4,11 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using SpiderEye.Bridge;
-using SpiderEye.Content;
+using SpiderEye.Linux.Interop;
+using SpiderEye.Linux.Native;
 using SpiderEye.Tools;
-using SpiderEye.UI.Linux.Interop;
-using SpiderEye.UI.Linux.Native;
 
-namespace SpiderEye.UI.Linux
+namespace SpiderEye.Linux
 {
     internal class GtkWebview : IWebview
     {
@@ -17,13 +16,27 @@ namespace SpiderEye.UI.Linux
         public event EventHandler CloseRequested;
         public event EventHandler<string> TitleChanged;
 
+        public bool EnableScriptInterface { get; set; }
+        public bool UseBrowserTitle { get; set; }
+        public bool EnableDevTools
+        {
+            get { return enableDevToolsField; }
+            set
+            {
+                enableDevToolsField = value;
+                WebKit.Settings.SetEnableDeveloperExtras(settings, true);
+                if (value && loadEventHandled) { ShowDevTools(); }
+                else if (!value) { CloseDevTools(); }
+            }
+        }
+
         public readonly IntPtr Handle;
 
-        private readonly IContentProvider contentProvider;
-        private readonly WindowConfiguration config;
         private readonly WebviewBridge bridge;
         private readonly IntPtr manager;
-        private readonly string customHost;
+        private readonly IntPtr settings;
+        private readonly IntPtr inspector;
+        private readonly Uri customHost;
 
         private readonly ScriptDelegate scriptDelegate;
         private readonly PageLoadFailedDelegate loadFailedDelegate;
@@ -33,11 +46,10 @@ namespace SpiderEye.UI.Linux
         private readonly WebviewDelegate titleChangeDelegate;
 
         private bool loadEventHandled = false;
+        private bool enableDevToolsField;
 
-        public GtkWebview(WindowConfiguration config, IContentProvider contentProvider, WebviewBridge bridge)
+        public GtkWebview(WebviewBridge bridge)
         {
-            this.config = config ?? throw new ArgumentNullException(nameof(config));
-            this.contentProvider = contentProvider ?? throw new ArgumentNullException(nameof(contentProvider));
             this.bridge = bridge ?? throw new ArgumentNullException(nameof(bridge));
 
             // need to keep the delegates around or they will get garbage collected
@@ -48,60 +60,57 @@ namespace SpiderEye.UI.Linux
             closeDelegate = CloseCallback;
             titleChangeDelegate = TitleChangeCallback;
 
-            if (config.EnableScriptInterface)
+            manager = WebKit.Manager.Create();
+            GLib.ConnectSignal(manager, "script-message-received::external", scriptDelegate, IntPtr.Zero);
+
+            using (GLibString name = "external")
             {
-                manager = WebKit.Manager.Create();
-                GLib.ConnectSignal(manager, "script-message-received::external", scriptDelegate, IntPtr.Zero);
-
-                using (GLibString name = "external")
-                {
-                    WebKit.Manager.RegisterScriptMessageHandler(manager, name);
-                }
-
-                Handle = WebKit.CreateWithUserContentManager(manager);
+                WebKit.Manager.RegisterScriptMessageHandler(manager, name);
             }
-            else { Handle = WebKit.Create(); }
+
+            Handle = WebKit.CreateWithUserContentManager(manager);
+            settings = WebKit.Settings.Get(Handle);
+            inspector = WebKit.Inspector.Get(Handle);
 
             GLib.ConnectSignal(Handle, "load-failed", loadFailedDelegate, IntPtr.Zero);
             GLib.ConnectSignal(Handle, "load-changed", loadDelegate, IntPtr.Zero);
             GLib.ConnectSignal(Handle, "context-menu", contextMenuDelegate, IntPtr.Zero);
             GLib.ConnectSignal(Handle, "close", closeDelegate, IntPtr.Zero);
+            GLib.ConnectSignal(Handle, "notify::title", titleChangeDelegate, IntPtr.Zero);
 
-            if (config.UseBrowserTitle)
+            const string scheme = "spidereye";
+            customHost = new Uri(UriTools.GetRandomResourceUrl(scheme));
+
+            IntPtr context = WebKit.Context.Get(Handle);
+            using (GLibString gscheme = scheme)
             {
-                GLib.ConnectSignal(Handle, "notify::title", titleChangeDelegate, IntPtr.Zero);
-            }
-
-            if (string.IsNullOrWhiteSpace(config.ExternalHost))
-            {
-                const string scheme = "spidereye";
-                customHost = UriTools.GetRandomResourceUrl(scheme);
-
-                IntPtr context = WebKit.Context.Get(Handle);
-                using (GLibString gscheme = scheme)
-                {
-                    WebKit.Context.RegisterUriScheme(context, gscheme, UriSchemeCallback, IntPtr.Zero, IntPtr.Zero);
-                }
-            }
-
-            var bgColor = new GdkColor(config.BackgroundColor);
-            WebKit.SetBackgroundColor(Handle, ref bgColor);
-
-            if (config.EnableDevTools)
-            {
-                var settings = WebKit.Settings.Get(Handle);
-                WebKit.Settings.SetEnableDeveloperExtras(settings, true);
+                WebKit.Context.RegisterUriScheme(context, gscheme, UriSchemeCallback, IntPtr.Zero, IntPtr.Zero);
             }
         }
 
-        public void NavigateToFile(string url)
+        public void UpdateBackgroundColor(string color)
         {
-            if (url == null) { throw new ArgumentNullException(nameof(url)); }
+            var bgColor = new GdkColor(color);
+            WebKit.SetBackgroundColor(Handle, ref bgColor);
+        }
 
-            if (customHost != null) { url = UriTools.Combine(customHost, url).ToString(); }
-            else { url = UriTools.Combine(config.ExternalHost, url).ToString(); }
+        public void ShowDevTools()
+        {
+            WebKit.Inspector.Show(inspector);
+        }
 
-            using (GLibString gurl = url)
+        public void CloseDevTools()
+        {
+            WebKit.Inspector.Close(inspector);
+        }
+
+        public void LoadUri(Uri uri)
+        {
+            if (uri == null) { throw new ArgumentNullException(nameof(uri)); }
+
+            if (!uri.IsAbsoluteUri) { uri = new Uri(customHost, uri); }
+
+            using (GLibString gurl = uri.ToString())
             {
                 WebKit.LoadUri(Handle, gurl);
             }
@@ -169,21 +178,24 @@ namespace SpiderEye.UI.Linux
 
         private async void ScriptCallback(IntPtr manager, IntPtr jsResult, IntPtr userdata)
         {
-            IntPtr value = WebKit.JavaScript.GetValue(jsResult);
-            if (WebKit.JavaScript.IsValueString(value))
+            if (EnableScriptInterface)
             {
-                IntPtr bytes = IntPtr.Zero;
-                try
+                IntPtr value = WebKit.JavaScript.GetValue(jsResult);
+                if (WebKit.JavaScript.IsValueString(value))
                 {
-                    bytes = WebKit.JavaScript.GetStringBytes(value);
-                    IntPtr bytesPtr = GLib.GetBytesDataPointer(bytes, out UIntPtr length);
+                    IntPtr bytes = IntPtr.Zero;
+                    try
+                    {
+                        bytes = WebKit.JavaScript.GetStringBytes(value);
+                        IntPtr bytesPtr = GLib.GetBytesDataPointer(bytes, out UIntPtr length);
 
-                    string result;
-                    unsafe { result = Encoding.UTF8.GetString((byte*)bytesPtr, (int)length); }
+                        string result;
+                        unsafe { result = Encoding.UTF8.GetString((byte*)bytesPtr, (int)length); }
 
-                    await bridge.HandleScriptCall(result);
+                        await bridge.HandleScriptCall(result);
+                    }
+                    finally { if (bytes != IntPtr.Zero) { GLib.UnrefBytes(bytes); } }
                 }
-                finally { if (bytes != IntPtr.Zero) { GLib.UnrefBytes(bytes); } }
             }
         }
 
@@ -192,10 +204,10 @@ namespace SpiderEye.UI.Linux
             try
             {
                 var uri = new Uri(GLibString.FromPointer(WebKit.UriScheme.GetRequestUri(request)));
-                string schemeAndServer = uri.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped);
-                if (schemeAndServer == customHost)
+                var host = new Uri(uri.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped));
+                if (host == customHost)
                 {
-                    using (var contentStream = await contentProvider.GetStreamAsync(uri))
+                    using (var contentStream = await Application.ContentProvider.GetStreamAsync(uri))
                     {
                         if (contentStream != null)
                         {
@@ -267,17 +279,10 @@ namespace SpiderEye.UI.Linux
             if (type == WebKitLoadEvent.Started) { loadEventHandled = false; }
             else if (type == WebKitLoadEvent.Finished && !loadEventHandled)
             {
-                if (config.EnableScriptInterface)
-                {
-                    string initScript = Resources.GetInitScript("Linux");
-                    await ExecuteScriptAsync(initScript);
-                }
+                string initScript = Resources.GetInitScript("Linux");
+                await ExecuteScriptAsync(initScript);
 
-                if (config.EnableDevTools)
-                {
-                    var inspector = WebKit.Inspector.Get(Handle);
-                    WebKit.Inspector.Show(inspector);
-                }
+                if (EnableDevTools) { ShowDevTools(); }
 
                 loadEventHandled = true;
                 PageLoaded?.Invoke(this, PageLoadEventArgs.Successful);

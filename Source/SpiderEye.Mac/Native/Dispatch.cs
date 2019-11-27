@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using SpiderEye.UI.Mac.Interop;
+using SpiderEye.Mac.Interop;
 
-namespace SpiderEye.UI.Mac.Native
+namespace SpiderEye.Mac.Native
 {
     internal static class Dispatch
     {

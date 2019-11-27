@@ -1,17 +1,17 @@
-﻿using SpiderEye.UI.Windows.Dialogs;
+﻿using SpiderEye.Bridge;
 
-namespace SpiderEye.UI.Windows
+namespace SpiderEye.Windows
 {
     internal class WinFormsUiFactory : IUiFactory
     {
-        public IWindow CreateWindow(WindowConfiguration config)
+        public IWindow CreateWindow(WindowConfiguration config, WebviewBridge bridge)
         {
-            return new WinFormsWindow(config, this);
+            return new WinFormsWindow(bridge);
         }
 
-        public IStatusIcon CreateStatusIcon()
+        public IStatusIcon CreateStatusIcon(string title)
         {
-            return new WinFormsStatusIcon();
+            return new WinFormsStatusIcon(title);
         }
 
         public IMessageBox CreateMessageBox()
@@ -27,6 +27,21 @@ namespace SpiderEye.UI.Windows
         public IOpenFileDialog CreateOpenFileDialog()
         {
             return new WinFormsOpenFileDialog();
+        }
+
+        public IMenu CreateMenu()
+        {
+            return new WinFormsMenu();
+        }
+
+        public ILabelMenuItem CreateLabelMenu(string label)
+        {
+            return new WinFormsLabelMenuItem(label);
+        }
+
+        public IMenuItem CreateMenuSeparator()
+        {
+            return new WinFormsSeparatorMenuItem();
         }
     }
 }

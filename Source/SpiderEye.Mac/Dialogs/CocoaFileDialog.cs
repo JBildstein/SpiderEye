@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using SpiderEye.UI.Mac.Interop;
-using SpiderEye.UI.Mac.Native;
+using SpiderEye.Mac.Interop;
+using SpiderEye.Mac.Native;
+using SpiderEye.Tools;
 
-namespace SpiderEye.UI.Mac.Dialogs
+namespace SpiderEye.Mac
 {
     internal abstract class CocoaFileDialog : IFileDialog
     {
@@ -25,12 +26,7 @@ namespace SpiderEye.UI.Mac.Dialogs
 
         public DialogResult Show(IWindow parent)
         {
-            var window = parent as CocoaWindow;
-            if (parent != null && window == null)
-            {
-                throw new ArgumentException("Invalid window type.", nameof(parent));
-            }
-
+            var window = NativeCast.To<CocoaWindow>(parent);
             var dialog = CreateDialog();
 
             if (!string.IsNullOrWhiteSpace(InitialDirectory))

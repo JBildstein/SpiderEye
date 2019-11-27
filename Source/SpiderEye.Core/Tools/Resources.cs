@@ -7,15 +7,16 @@ namespace SpiderEye
     {
         public static string GetInitScript(string type)
         {
-            var assembly = Assembly.GetExecutingAssembly();
-            string bridge = $"{assembly.GetName().Name}.Scripts.SpiderEyeBridge.js";
-            string init = $"{assembly.GetName().Name}.Scripts.Init{type}.js";
-            string ready = $"{assembly.GetName().Name}.Scripts.ReadyEvent.js";
+            var coreAssembly = Assembly.GetExecutingAssembly();
+            var platformAssembly = Assembly.GetCallingAssembly();
+            string bridge = $"{coreAssembly.GetName().Name}.Scripts.SpiderEyeBridge.js";
+            string init = $"{platformAssembly.GetName().Name}.Scripts.Init{type}.js";
+            string ready = $"{coreAssembly.GetName().Name}.Scripts.ReadyEvent.js";
 
             return string.Concat(
-                GetScript(assembly, bridge),
-                GetScript(assembly, init),
-                GetScript(assembly, ready));
+                GetScript(coreAssembly, bridge),
+                GetScript(platformAssembly, init),
+                GetScript(coreAssembly, ready));
         }
 
         private static string GetScript(Assembly assembly, string manifestName)

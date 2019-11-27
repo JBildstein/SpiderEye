@@ -112,20 +112,6 @@
         </div>
 
         <div class="input-group">
-            <label for="window-url">URL:</label>
-            <div class="input-container">
-                <input id="window-url" type="text" [(ngModel)]="windowConfig.url" />
-            </div>
-        </div>
-
-        <div class="input-group">
-            <label for="window-color">Background Color:</label>
-            <div class="input-container">
-                <input id="window-color" type="text" [(ngModel)]="windowConfig.backgroundColor" />
-            </div>
-        </div>
-
-        <div class="input-group">
             <label for="window-width">Width:</label>
             <div class="input-container">
                 <input id="window-width" type="number" [(ngModel)]="windowConfig.width" />
@@ -140,6 +126,41 @@
         </div>
 
         <div class="input-group">
+            <label for="window-minwidth">Min Width:</label>
+            <div class="input-container">
+                <input id="window-minwidth" type="number" [(ngModel)]="windowConfig.minWidth" />
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="window-minheight">Min Height:</label>
+            <div class="input-container">
+                <input id="window-minheight" type="number" [(ngModel)]="windowConfig.minHeight" />
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="window-maxwidth">Max Width:</label>
+            <div class="input-container">
+                <input id="window-maxwidth" type="number" [(ngModel)]="windowConfig.maxWidth" />
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="window-maxheight">Max Height:</label>
+            <div class="input-container">
+                <input id="window-maxheight" type="number" [(ngModel)]="windowConfig.maxHeight" />
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="window-color">Background Color:</label>
+            <div class="input-container">
+                <input id="window-color" type="text" [(ngModel)]="windowConfig.backgroundColor" />
+            </div>
+        </div>
+
+        <div class="input-group">
             <label for="window-resize">Can Resize:</label>
             <div class="input-container">
                 <input id="window-resize" type="checkbox" [(ngModel)]="windowConfig.canResize" />
@@ -150,6 +171,27 @@
             <label for="window-use-title">Use Browser Title:</label>
             <div class="input-container">
                 <input id="window-use-title" type="checkbox" [(ngModel)]="windowConfig.useBrowserTitle" />
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="window-enable-script">Enable Script Interface:</label>
+            <div class="input-container">
+                <input id="window-enable-script" type="checkbox" [(ngModel)]="windowConfig.enableScriptInterface" />
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="window-enable-dev">Enable Dev Tools:</label>
+            <div class="input-container">
+                <input id="window-enable-dev" type="checkbox" [(ngModel)]="windowConfig.enableDevTools" />
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="window-url">URL:</label>
+            <div class="input-container">
+                <input id="window-url" type="text" [(ngModel)]="windowConfig.url" />
             </div>
         </div>
     </div>

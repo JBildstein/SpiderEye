@@ -1,6 +1,4 @@
-﻿using SpiderEye.UI;
-
-namespace SpiderEye.Bridge.Models
+﻿namespace SpiderEye.Bridge.Models
 {
     internal class FileFilterModel
     {

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace SpiderEye.UI
+namespace SpiderEye
 {
     /// <summary>
     /// Represents an application icon with one or more resolutions.
@@ -54,7 +54,10 @@ namespace SpiderEye.UI
         /// Creates a new icon that looks for the appropriate icon in the given directory.
         /// </summary>
         /// <param name="iconName">The name of the icon file. e.g. "MyIcon".</param>
-        /// <param name="directory">The directory to look for icon files.</param>
+        /// <param name="directory">The directory to look for icon files.
+        /// May be absolute or relative to the executable.
+        /// To use the executable directory, use either an empty string or a period.
+        /// </param>
         /// <param name="cacheFiles">True to cache files after the first read; False to read from disk every time.</param>
         /// <returns>The created icon.</returns>
         public static AppIcon FromFile(string iconName, string directory, bool cacheFiles)
@@ -62,7 +65,14 @@ namespace SpiderEye.UI
             if (iconName == null) { throw new ArgumentNullException(nameof(iconName)); }
             if (directory == null) { throw new ArgumentNullException(nameof(directory)); }
 
-            var files = Directory.EnumerateFiles(directory, "*", SearchOption.AllDirectories);
+            if (!Path.IsPathRooted(directory))
+            {
+                string exeDir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+                if (directory == string.Empty || directory == ".") { directory = exeDir; }
+                else { directory = Path.Combine(exeDir, directory); }
+            }
+
+            var files = Directory.EnumerateFiles(directory, "*", SearchOption.TopDirectoryOnly);
             if (!files.Any()) { throw new InvalidOperationException("No files found."); }
 
             return new AppIcon(IconSource.File, iconName, files, cacheFiles);

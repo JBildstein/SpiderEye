@@ -1,8 +1,8 @@
 using System;
 using System.Runtime.InteropServices;
-using SpiderEye.UI.Linux.Interop;
+using SpiderEye.Linux.Interop;
 
-namespace SpiderEye.UI.Linux.Native
+namespace SpiderEye.Linux.Native
 {
     internal static class Gtk
     {
@@ -99,6 +99,9 @@ namespace SpiderEye.UI.Linux.Native
 
             [DllImport(GtkNativeDll, EntryPoint = "gtk_window_set_icon_list", CallingConvention = CallingConvention.Cdecl)]
             public static extern void SetIconList(IntPtr window, IntPtr list);
+
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_window_set_geometry_hints", CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetGeometryHints(IntPtr window, IntPtr geometry_widget, ref GdkGeometry geometry, GdkWindowHints geom_mask);
         }
 
         public static class Menu
@@ -116,7 +119,7 @@ namespace SpiderEye.UI.Linux.Native
             public static extern IntPtr CreateLabelItem(IntPtr label);
 
             [DllImport(GtkNativeDll, EntryPoint = "gtk_menu_item_set_submenu", CallingConvention = CallingConvention.Cdecl)]
-            public static extern void AddSubmenu(IntPtr menu_item, IntPtr submenu);
+            public static extern void SetSubmenu(IntPtr menu_item, IntPtr submenu);
 
             [DllImport(GtkNativeDll, EntryPoint = "gtk_menu_item_get_label", CallingConvention = CallingConvention.Cdecl)]
             public static extern IntPtr GetMenuItemLabel(IntPtr menu_item);

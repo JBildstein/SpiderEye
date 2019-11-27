@@ -1,8 +1,8 @@
 ﻿using System;
-using SpiderEye.UI.Linux.Interop;
-using SpiderEye.UI.Linux.Native;
+using SpiderEye.Linux.Interop;
+using SpiderEye.Linux.Native;
 
-namespace SpiderEye.UI.Linux.Dialogs
+namespace SpiderEye.Linux
 {
     internal class GtkSaveFileDialog : GtkFileDialog, ISaveFileDialog
     {

@@ -1,37 +1,38 @@
 ﻿using System;
 using System.Threading;
-using SpiderEye.UI.Linux;
-using SpiderEye.UI.Linux.Native;
+using SpiderEye.Linux.Native;
 
-namespace SpiderEye
+namespace SpiderEye.Linux
 {
-    /// <content>
-    /// Linux specific implementations.
-    /// </content>
-    public static partial class Application
+    internal class GtkApplication : IApplication
     {
-        static Application()
-        {
-            OS = GetOS();
-            CheckOs(OperatingSystem.Linux);
+        public IUiFactory Factory { get; }
 
+        private bool hasExited = false;
+
+        public GtkApplication()
+        {
             Init();
 
             Factory = new GtkUiFactory();
-            GtkWindow.LastWindowClosed += (s, e) => { if (ExitWithLastWindow) { Exit(); } };
+            GtkWindow.LastWindowClosed += GtkWindow_LastWindowClosed;
         }
 
-        static partial void RunImpl()
+        public void Run()
         {
             Gtk.Main();
         }
 
-        static partial void ExitImpl()
+        public void Exit()
         {
-            Gtk.Quit();
+            if (!hasExited)
+            {
+                hasExited = true;
+                Gtk.Quit();
+            }
         }
 
-        static partial void InvokeImpl(Action action)
+        public void Invoke(Action action)
         {
             using (var mre = new ManualResetEventSlim(false))
             {
@@ -53,7 +54,7 @@ namespace SpiderEye
             }
         }
 
-        private static void Init()
+        private void Init()
         {
             var argv = IntPtr.Zero;
             int argc = 0;
@@ -63,9 +64,9 @@ namespace SpiderEye
             }
         }
 
-        private static void Window_Closed(object sender, EventArgs e)
+        private void GtkWindow_LastWindowClosed(object sender, EventArgs e)
         {
-            ExitImpl();
+            if (Application.ExitWithLastWindow) { Exit(); }
         }
     }
 }

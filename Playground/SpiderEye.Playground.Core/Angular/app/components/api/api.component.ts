@@ -78,11 +78,17 @@ export class ApiComponent {
     private initWindow() {
         this.windowConfig = {
             title: 'Hello World',
-            backgroundColor: '#FFFFFF',
-            canResize: true,
             width: 900,
             height: 600,
+            minWidth: 0,
+            minHeight: 0,
+            maxWidth: 0,
+            maxHeight: 0,
+            backgroundColor: '#303030',
+            canResize: true,
             useBrowserTitle: true,
+            enableScriptInterface: true,
+            enableDevTools: true,
             url: '/index.html'
         };
     }

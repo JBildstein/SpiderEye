@@ -1,0 +1,7 @@
+﻿<Project>
+  <Import Project="SpiderEye.Shared.proj" />
+  
+  <ItemGroup>
+    <ProjectReference Include="..\SpiderEye.Core\SpiderEye.Core.csproj" />
+  </ItemGroup>
+</Project>

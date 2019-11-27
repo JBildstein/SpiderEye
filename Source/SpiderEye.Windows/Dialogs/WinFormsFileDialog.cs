@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows.Forms;
-using SpiderEye.UI.Windows.Interop;
+using SpiderEye.Tools;
+using SpiderEye.Windows.Interop;
+using WFFileDialog = System.Windows.Forms.FileDialog;
 
-namespace SpiderEye.UI.Windows.Dialogs
+namespace SpiderEye.Windows
 {
-    internal abstract class WinFormsFileDialog
+    internal abstract class WinFormsFileDialog : IFileDialog
     {
         public string Title { get; set; }
         public string InitialDirectory { get; set; }
@@ -26,18 +26,13 @@ namespace SpiderEye.UI.Windows.Dialogs
 
         public DialogResult Show(IWindow parent)
         {
-            var window = parent as WinFormsWindow;
-            if (parent != null && window == null)
-            {
-                throw new ArgumentException("Invalid window type.", nameof(parent));
-            }
-
             var dialog = GetDialog();
             dialog.Title = Title;
             dialog.InitialDirectory = InitialDirectory;
             dialog.FileName = FileName;
             dialog.Filter = GetFileFilter(FileFilters);
 
+            var window = NativeCast.To<WinFormsWindow>(parent);
             var result = dialog.ShowDialog(window);
             FileName = dialog.FileName;
 
@@ -46,9 +41,9 @@ namespace SpiderEye.UI.Windows.Dialogs
             return WinFormsMapper.MapResult(result);
         }
 
-        protected abstract FileDialog GetDialog();
+        protected abstract WFFileDialog GetDialog();
 
-        protected virtual void BeforeReturn(FileDialog dialog)
+        protected virtual void BeforeReturn(WFFileDialog dialog)
         {
         }
 

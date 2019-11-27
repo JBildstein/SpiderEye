@@ -1,7 +1,7 @@
 ﻿using FormsDialogButtons = System.Windows.Forms.MessageBoxButtons;
 using FormsDialogResult = System.Windows.Forms.DialogResult;
 
-namespace SpiderEye.UI.Windows.Interop
+namespace SpiderEye.Windows.Interop
 {
     internal static class WinFormsMapper
     {

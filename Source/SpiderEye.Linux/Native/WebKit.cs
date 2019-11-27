@@ -1,8 +1,8 @@
 using System;
 using System.Runtime.InteropServices;
-using SpiderEye.UI.Linux.Interop;
+using SpiderEye.Linux.Interop;
 
-namespace SpiderEye.UI.Linux.Native
+namespace SpiderEye.Linux.Native
 {
     internal static class WebKit
     {
@@ -46,6 +46,12 @@ namespace SpiderEye.UI.Linux.Native
 
             [DllImport(WebkitNativeDll, EntryPoint = "webkit_web_inspector_show", CallingConvention = CallingConvention.Cdecl)]
             public static extern void Show(IntPtr inspector);
+
+            [DllImport(WebkitNativeDll, EntryPoint = "webkit_web_inspector_close", CallingConvention = CallingConvention.Cdecl)]
+            public static extern void Close(IntPtr inspector);
+
+            [DllImport(WebkitNativeDll, EntryPoint = "webkit_web_inspector_detach", CallingConvention = CallingConvention.Cdecl)]
+            public static extern void Detach(IntPtr inspector);
         }
 
         public static class Context

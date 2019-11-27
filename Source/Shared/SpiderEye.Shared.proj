@@ -1,28 +1,28 @@
 ﻿<Project>
-  <Import Project="SpiderEye.Shared.NuGet.proj" />
-  
+  <Import Project="..\..\Shared\SpiderEye.Shared.CodeStyle.proj" />
+  <Import Project="..\..\Shared\SpiderEye.Shared.NuGet.proj" />
+
   <PropertyGroup>
     <LangVersion>7.3</LangVersion>
+    <OutputType>Library</OutputType>
     <AssemblyVersion>1.0.0</AssemblyVersion>
     <VersionPrefix>$(AssemblyVersion)</VersionPrefix>
     <VersionSuffix>alpha.12</VersionSuffix>
+    <PackageId>Bildstein.$(AssemblyName)</PackageId>
     <Description>Write .Net Core applications with a webview UI</Description>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <CodeAnalysisRuleSet>..\..\Shared\SpiderEye.ruleset</CodeAnalysisRuleSet>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
-  
+
   <ItemGroup>
-    <AdditionalFiles Include="..\..\Shared\stylecop.json" Link="Properties\stylecop.json" />
+    <EmbeddedResource Include="Scripts\*.js">
+      <LogicalName>$(AssemblyName).Scripts.%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
-      <PrivateAssets>all</PrivateAssets>
-      <DevelopmentDependency>true</DevelopmentDependency>
-    </PackageReference>
   </ItemGroup>
 </Project>

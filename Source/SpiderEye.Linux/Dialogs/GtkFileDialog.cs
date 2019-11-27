@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using SpiderEye.UI.Linux.Interop;
-using SpiderEye.UI.Linux.Native;
+using SpiderEye.Linux.Interop;
+using SpiderEye.Linux.Native;
+using SpiderEye.Tools;
 
-namespace SpiderEye.UI.Linux.Dialogs
+namespace SpiderEye.Linux
 {
     internal abstract class GtkFileDialog : IFileDialog
     {
@@ -27,12 +28,7 @@ namespace SpiderEye.UI.Linux.Dialogs
 
         public DialogResult Show(IWindow parent)
         {
-            var window = parent as GtkWindow;
-            if (parent != null && window == null)
-            {
-                throw new ArgumentException("Invalid window type.", nameof(parent));
-            }
-
+            var window = NativeCast.To<GtkWindow>(parent);
             bool useNative = false && Gtk.Version.IsAtLeast(3, 2, 0);
             IntPtr dialog = IntPtr.Zero;
             try

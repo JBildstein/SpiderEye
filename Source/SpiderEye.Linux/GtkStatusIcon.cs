@@ -1,11 +1,10 @@
 using System;
 using System.IO;
-using System.Reflection;
-using SpiderEye.UI.Linux.Interop;
-using SpiderEye.UI.Linux.Menu;
-using SpiderEye.UI.Linux.Native;
+using SpiderEye.Linux.Interop;
+using SpiderEye.Linux.Native;
+using SpiderEye.Tools;
 
-namespace SpiderEye.UI.Linux
+namespace SpiderEye.Linux
 {
     internal class GtkStatusIcon : IStatusIcon
     {
@@ -31,38 +30,36 @@ namespace SpiderEye.UI.Linux
             }
         }
 
-        public readonly IntPtr Handle;
-        private const string DefaultIconName = "applications-other";
-        private AppIcon icon;
-        private string tempIconFile;
-
-        public GtkStatusIcon()
+        public Menu Menu
         {
-            using (GLibString id = GetAppId())
-            using (GLibString icon = DefaultIconName)
+            get { return menu; }
+            set
             {
-                Handle = AppIndicator.Create(id, icon, AppIndicatorCategory.ApplicationStatus);
-                AppIndicator.SetTitle(Handle, id);
+                menu = value;
+                UpdateMenu(value);
             }
         }
 
-        public IMenu AddMenu()
-        {
-            var menu = new GtkMenu();
-            AppIndicator.SetMenu(Handle, menu.Handle);
+        public readonly IntPtr Handle;
+        private const string DefaultIconName = "applications-other";
+        private AppIcon icon;
+        private Menu menu;
+        private string tempIconFile;
 
-            return menu;
+        public GtkStatusIcon(string title)
+        {
+            // TODO: allow setting App ID and AppIndicatorCategory
+            using (GLibString id = $"com.{title}.app")
+            using (GLibString icon = DefaultIconName)
+            {
+                Handle = AppIndicator.Create(id, icon, AppIndicatorCategory.ApplicationStatus);
+                Title = title;
+            }
         }
 
         public void Dispose()
         {
             ClearTempFile();
-        }
-
-        private string GetAppId()
-        {
-            // TODO: allow to define an application name somewhere
-            return Assembly.GetEntryAssembly().GetName().Name;
         }
 
         private void UpdateIcon(AppIcon icon)
@@ -91,6 +88,12 @@ namespace SpiderEye.UI.Linux
 
             ClearTempFile();
             tempIconFile = tempPath;
+        }
+
+        private void UpdateMenu(Menu menu)
+        {
+            var nativeMenu = NativeCast.To<GtkMenu>(menu?.NativeMenu);
+            AppIndicator.SetMenu(Handle, nativeMenu?.Handle ?? IntPtr.Zero);
         }
 
         private void ClearTempFile()

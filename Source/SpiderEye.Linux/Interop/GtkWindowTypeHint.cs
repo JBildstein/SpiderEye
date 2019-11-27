@@ -1,4 +1,4 @@
-﻿namespace SpiderEye.UI.Linux.Interop
+﻿namespace SpiderEye.Linux.Interop
 {
     /// <summary>
     /// These are hints for the window manager that indicate what type of function the window has.

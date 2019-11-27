@@ -1,4 +1,4 @@
-namespace SpiderEye.UI.Linux.Interop
+namespace SpiderEye.Linux.Interop
 {
     internal enum GtkButtonsType
     {

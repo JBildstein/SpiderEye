@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\Shared\ProgramBase.cs" Link="ProgramBase.cs" />
-  </ItemGroup>
-  
-  <ItemGroup>
     <ProjectReference Include="..\SpiderEye.Playground.Core\SpiderEye.Playground.Core.csproj" />
   </ItemGroup>
 </Project>

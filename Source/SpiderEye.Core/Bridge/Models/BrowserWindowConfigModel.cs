@@ -1,73 +1,19 @@
-﻿using Newtonsoft.Json;
-using SpiderEye.UI;
-
-namespace SpiderEye.Bridge.Models
+﻿namespace SpiderEye.Bridge.Models
 {
     internal class BrowserWindowConfigModel
     {
-        public string Title
-        {
-            get { return WindowConfig.Title; }
-            set { WindowConfig.Title = value; }
-        }
-
-        public int Width
-        {
-            get { return WindowConfig.Width; }
-            set { WindowConfig.Width = value; }
-        }
-
-        public int Height
-        {
-            get { return WindowConfig.Height; }
-            set { WindowConfig.Height = value; }
-        }
-
-        public string BackgroundColor
-        {
-            get { return WindowConfig.BackgroundColor; }
-            set { WindowConfig.BackgroundColor = value; }
-        }
-
-        public bool CanResize
-        {
-            get { return WindowConfig.CanResize; }
-            set { WindowConfig.CanResize = value; }
-        }
-
-        public bool UseBrowserTitle
-        {
-            get { return WindowConfig.UseBrowserTitle; }
-            set { WindowConfig.UseBrowserTitle = value; }
-        }
-
-        public bool EnableScriptInterface
-        {
-            get { return WindowConfig.EnableScriptInterface; }
-            set { WindowConfig.EnableScriptInterface = value; }
-        }
-
-        public string ExternalHost
-        {
-            get { return WindowConfig.ExternalHost; }
-            set { WindowConfig.ExternalHost = value; }
-        }
-
-        public string ContentFolder
-        {
-            get { return WindowConfig.ContentFolder; }
-            set { WindowConfig.ContentFolder = value; }
-        }
-
-        public bool ForceWindowsLegacyWebview
-        {
-            get { return WindowConfig.ForceWindowsLegacyWebview; }
-            set { WindowConfig.ForceWindowsLegacyWebview = value; }
-        }
-
+        public string Title { get; set; }
+        public int? Width { get; set; }
+        public int? Height { get; set; }
+        public int? MinWidth { get; set; }
+        public int? MinHeight { get; set; }
+        public int? MaxWidth { get; set; }
+        public int? MaxHeight { get; set; }
+        public string BackgroundColor { get; set; }
+        public bool? CanResize { get; set; }
+        public bool? UseBrowserTitle { get; set; }
+        public bool? EnableScriptInterface { get; set; }
+        public bool? EnableDevTools { get; set; }
         public string Url { get; set; }
-
-        [JsonIgnore]
-        public readonly WindowConfiguration WindowConfig = new WindowConfiguration();
     }
 }

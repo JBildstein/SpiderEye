@@ -1,5 +1,6 @@
 ﻿using System;
-namespace SpiderEye.UI
+
+namespace SpiderEye
 {
     /// <summary>
     /// Contains information for filtering files.

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SpiderEye.UI.Mac.Interop
+namespace SpiderEye.Mac.Interop
 {
     internal delegate byte ShouldTerminateDelegate(IntPtr self, IntPtr op, IntPtr notification);
     internal delegate void ScriptCallbackDelegate(IntPtr self, IntPtr op, IntPtr notification, IntPtr msg);

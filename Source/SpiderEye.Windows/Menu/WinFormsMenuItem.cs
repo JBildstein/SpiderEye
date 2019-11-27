@@ -1,29 +1,44 @@
-﻿using System.Windows.Forms;
-using SpiderEye.UI.Platforms.Windows.Interop;
+﻿using System;
+using SpiderEye.Tools;
+using WFMenuItem = System.Windows.Forms.MenuItem;
 
-namespace SpiderEye.UI.Windows.Menu
+namespace SpiderEye.Windows
 {
     internal abstract class WinFormsMenuItem : IMenuItem
     {
-        public ILabelMenuItem AddLabelMenuItem(string label)
+        public abstract WFMenuItem Item { get; }
+
+        public IMenu CreateSubMenu()
         {
-            var item = new WinFormsLabelMenuItem(label);
-            AddItem(item.Item);
-            return item;
+            return new WinFormsSubMenu(Item);
         }
 
-        public void AddSeparatorMenuItem()
+        public void Dispose()
         {
-            AddItem(new MenuItem("-"));
+            Item.Dispose();
         }
 
-        public void SetShortcut(ModifierKey modifier, Key key)
+        private sealed class WinFormsSubMenu : IMenu
         {
-            SetShortcut(KeyMapper.GetShortcut(modifier, key));
+            private readonly WFMenuItem menuItem;
+
+            public WinFormsSubMenu(WFMenuItem menuItem)
+            {
+                this.menuItem = menuItem;
+            }
+
+            public void AddItem(IMenuItem item)
+            {
+                if (item == null) { throw new ArgumentNullException(nameof(item)); }
+
+                var nativeItem = NativeCast.To<WinFormsMenuItem>(item);
+                menuItem.MenuItems.Add(nativeItem.Item);
+            }
+
+            public void Dispose()
+            {
+                // nothing to do here, managed by WinFormsMenuItem class
+            }
         }
-
-        protected abstract void AddItem(MenuItem item);
-
-        protected abstract void SetShortcut(Shortcut shortcut);
     }
 }

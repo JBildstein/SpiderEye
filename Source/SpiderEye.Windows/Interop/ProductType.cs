@@ -1,4 +1,4 @@
-﻿namespace SpiderEye.UI.Windows.Interop
+﻿namespace SpiderEye.Windows.Interop
 {
     internal enum ProductType : byte
     {

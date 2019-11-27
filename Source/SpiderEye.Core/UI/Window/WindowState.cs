@@ -1,4 +1,4 @@
-﻿namespace SpiderEye.UI
+﻿namespace SpiderEye
 {
     /// <summary>
     /// Window state.

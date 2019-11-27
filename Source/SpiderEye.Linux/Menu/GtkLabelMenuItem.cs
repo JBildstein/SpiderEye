@@ -1,8 +1,9 @@
 using System;
-using SpiderEye.UI.Linux.Interop;
-using SpiderEye.UI.Linux.Native;
+using SpiderEye.Linux.Interop;
+using SpiderEye.Linux.Native;
+using SpiderEye.UI.Platforms.Linux.Interop;
 
-namespace SpiderEye.UI.Linux.Menu
+namespace SpiderEye.Linux
 {
     internal class GtkLabelMenuItem : GtkMenuItem, ILabelMenuItem
     {
@@ -36,13 +37,9 @@ namespace SpiderEye.UI.Linux.Menu
             GLib.ConnectSignal(Handle, "activate", menuActivateDelegate, IntPtr.Zero);
         }
 
-        protected override void AddItem(IntPtr item)
+        public void SetShortcut(ModifierKey modifier, Key key)
         {
-            Gtk.Menu.AddSubmenu(Handle, item);
-        }
-
-        protected override void SetShortcut(string shortcut)
-        {
+            string shortcut = KeyMapper.GetShortcut(modifier, key);
             using (GLibString gshortcut = shortcut)
             {
                 Gtk.Menu.SetAccelerator(Handle, gshortcut);

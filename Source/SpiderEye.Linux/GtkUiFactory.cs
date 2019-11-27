@@ -1,17 +1,17 @@
-﻿using SpiderEye.UI.Linux.Dialogs;
+﻿using SpiderEye.Bridge;
 
-namespace SpiderEye.UI.Linux
+namespace SpiderEye.Linux
 {
     internal class GtkUiFactory : IUiFactory
     {
-        public IWindow CreateWindow(WindowConfiguration config)
+        public IWindow CreateWindow(WindowConfiguration config, WebviewBridge bridge)
         {
-            return new GtkWindow(config, this);
+            return new GtkWindow(bridge);
         }
 
-        public IStatusIcon CreateStatusIcon()
+        public IStatusIcon CreateStatusIcon(string title)
         {
-            return new GtkStatusIcon();
+            return new GtkStatusIcon(title);
         }
 
         public IMessageBox CreateMessageBox()
@@ -27,6 +27,21 @@ namespace SpiderEye.UI.Linux
         public IOpenFileDialog CreateOpenFileDialog()
         {
             return new GtkOpenFileDialog();
+        }
+
+        public IMenu CreateMenu()
+        {
+            return new GtkMenu();
+        }
+
+        public ILabelMenuItem CreateLabelMenu(string label)
+        {
+            return new GtkLabelMenuItem(label);
+        }
+
+        public IMenuItem CreateMenuSeparator()
+        {
+            return new GtkSeparatorMenuItem();
         }
     }
 }

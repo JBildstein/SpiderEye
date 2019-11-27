@@ -2,10 +2,9 @@
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using SpiderEye.Bridge;
-using SpiderEye.Tools;
-using SpiderEye.UI.Windows.Internal;
+using SpiderEye.Windows.Internal;
 
-namespace SpiderEye.UI.Windows
+namespace SpiderEye.Windows
 {
     internal class WinFormsLegacyWebview : IWebview, IWinFormsWebview
     {
@@ -16,17 +15,22 @@ namespace SpiderEye.UI.Windows
             get { return webview; }
         }
 
-        private readonly WebBrowser webview;
-        private readonly WindowConfiguration config;
-        private readonly ScriptInterface scriptInterface;
-        private readonly string hostAddress;
-
-        public WinFormsLegacyWebview(WindowConfiguration config, string hostAddress, WebviewBridge scriptingApi)
+        public bool EnableScriptInterface
         {
-            if (scriptingApi == null) { throw new ArgumentNullException(nameof(scriptingApi)); }
+            get { return webview.ObjectForScripting == null; }
+            set { webview.ObjectForScripting = value ? scriptInterface : null; }
+        }
 
-            this.config = config ?? throw new ArgumentNullException(nameof(config));
-            this.hostAddress = hostAddress ?? throw new ArgumentNullException(nameof(hostAddress));
+        private readonly WebBrowser webview;
+        private readonly ScriptInterface scriptInterface;
+        private readonly Uri hostAddress;
+
+        public WinFormsLegacyWebview(string hostAddress, WebviewBridge bridge)
+        {
+            if (hostAddress == null) { throw new ArgumentNullException(nameof(hostAddress)); }
+            if (bridge == null) { throw new ArgumentNullException(nameof(bridge)); }
+
+            this.hostAddress = new Uri(hostAddress, UriKind.Absolute);
 
             webview = new WebBrowser
             {
@@ -38,18 +42,21 @@ namespace SpiderEye.UI.Windows
                 WebBrowserShortcutsEnabled = false,
             };
 
-            if (config.EnableScriptInterface)
-            {
-                scriptInterface = new ScriptInterface(scriptingApi);
-                webview.ObjectForScripting = scriptInterface;
-            }
-
+            scriptInterface = new ScriptInterface(bridge);
             webview.DocumentCompleted += Webview_DocumentCompleted;
         }
 
-        public void NavigateToFile(string url)
+        public void UpdateBackgroundColor(byte r, byte g, byte b)
         {
-            var uri = UriTools.Combine(hostAddress, url);
+            // TODO: can't set background color of webview, need to use different strategy to remove any flicker
+        }
+
+        public void LoadUri(Uri uri)
+        {
+            if (uri == null) { throw new ArgumentNullException(nameof(uri)); }
+
+            if (!uri.IsAbsoluteUri) { uri = new Uri(hostAddress, uri); }
+
             webview.Navigate(uri);
         }
 
@@ -68,11 +75,8 @@ namespace SpiderEye.UI.Windows
         {
             if (webview.ReadyState == WebBrowserReadyState.Complete)
             {
-                if (config.EnableScriptInterface)
-                {
-                    string initScript = Resources.GetInitScript("Windows");
-                    await ExecuteScriptAsync(initScript);
-                }
+                string initScript = Resources.GetInitScript("Windows");
+                await ExecuteScriptAsync(initScript);
 
                 // TODO: figure out how to get success state
                 // it may require some ActiveX Voodoo: https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.webbrowser.createsink

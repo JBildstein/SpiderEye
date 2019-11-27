@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SpiderEye.UI
+namespace SpiderEye
 {
     /// <summary>
     /// A delegate for an event of a cancelable operation.

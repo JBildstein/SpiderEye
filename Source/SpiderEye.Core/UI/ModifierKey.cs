@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SpiderEye.UI
+namespace SpiderEye
 {
     /// <summary>
     /// Describes modifier keys.

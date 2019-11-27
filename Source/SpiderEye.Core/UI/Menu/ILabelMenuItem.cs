@@ -1,12 +1,17 @@
 using System;
 
-namespace SpiderEye.UI
+namespace SpiderEye
 {
     /// <summary>
     /// Represents an item in a menu with a label.
     /// </summary>
-    public interface ILabelMenuItem : IMenuItem
+    internal interface ILabelMenuItem : IMenuItem
     {
+        /// <summary>
+        /// Gets or sets the label of this menu.
+        /// </summary>
+        string Label { get; set; }
+
         /// <summary>
         /// Fires when the menu item is clicked on or otherwise activated.
         /// </summary>
@@ -18,8 +23,10 @@ namespace SpiderEye.UI
         bool Enabled { get; set; }
 
         /// <summary>
-        /// Gets or sets the label of this menu item.
+        /// Sets a keyboard shortcut to the menu item.
         /// </summary>
-        string Label { get; set; }
+        /// <param name="modifier">The shortcut modifier key.</param>
+        /// <param name="key">The shortcut key.</param>
+        void SetShortcut(ModifierKey modifier, Key key);
     }
 }

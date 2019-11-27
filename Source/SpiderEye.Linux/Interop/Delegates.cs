@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SpiderEye.UI.Linux.Interop
+namespace SpiderEye.Linux.Interop
 {
     internal delegate void GAsyncReadyDelegate(IntPtr gobject, IntPtr result, IntPtr userdata);
     internal delegate bool GSourceDelegate(IntPtr userdata);

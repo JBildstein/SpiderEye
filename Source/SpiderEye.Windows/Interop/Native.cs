@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 
-namespace SpiderEye.UI.Windows.Interop
+namespace SpiderEye.Windows.Interop
 {
     internal class Native
     {

@@ -4,20 +4,37 @@ using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 #endif
 using SpiderEye.Bridge;
-using SpiderEye.UI;
 
 namespace SpiderEye
 {
     /// <summary>
     /// Provides methods to create or run an application.
     /// </summary>
-    public static partial class Application
+    public static class Application
     {
         /// <summary>
         /// Gets or sets a value indicating whether the application should exit once the last window is closed.
         /// Default is true.
         /// </summary>
-        public static bool ExitWithLastWindow { get; set; } = true;
+        public static bool ExitWithLastWindow { get; set; }
+
+        /// <summary>
+        /// Gets or sets the content provider for loading webview files.
+        /// </summary>
+        public static IContentProvider ContentProvider
+        {
+            get { return contentProvider; }
+            set { contentProvider = value ?? NoopContentProvider.Instance; }
+        }
+
+        /// <summary>
+        /// Gets or sets the URI watcher to check URIs before they are loaded.
+        /// </summary>
+        public static IUriWatcher UriWatcher
+        {
+            get { return uriWatcher; }
+            set { uriWatcher = value ?? NoopUriWatcher.Instance; }
+        }
 
         /// <summary>
         /// Gets the operating system the app is currently running on.
@@ -27,26 +44,25 @@ namespace SpiderEye
         /// <summary>
         /// Gets the UI factory.
         /// </summary>
-        public static IUiFactory Factory { get; }
-
-        /// <summary>
-        /// Creates a new window.
-        /// </summary>
-        /// <param name="config">The window configuration.</param>
-        /// <returns>The created window.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="config"/> is null.</exception>
-        public static IWindow CreateWindow(WindowConfiguration config)
+        internal static IUiFactory Factory
         {
-            return Factory.CreateWindow(config);
+            get
+            {
+                CheckInitialized();
+                return app.Factory;
+            }
         }
 
-        /// <summary>
-        /// Creates a new status icon.
-        /// </summary>
-        /// <returns>The created status icon.</returns>
-        public static IStatusIcon CreateStatusIcon()
+        private static IApplication app;
+        private static IContentProvider contentProvider;
+        private static IUriWatcher uriWatcher;
+
+        static Application()
         {
-            return Factory.CreateStatusIcon();
+            OS = GetOS();
+            ExitWithLastWindow = true;
+            contentProvider = NoopContentProvider.Instance;
+            uriWatcher = NoopUriWatcher.Instance;
         }
 
         /// <summary>
@@ -63,7 +79,9 @@ namespace SpiderEye
         /// </summary>
         public static void Run()
         {
-            RunImpl();
+            CheckInitialized();
+
+            app.Run();
         }
 
         /// <summary>
@@ -71,15 +89,12 @@ namespace SpiderEye
         /// </summary>
         /// <param name="window">The window to show.</param>
         /// <exception cref="ArgumentNullException"><paramref name="window"/> is null.</exception>
-        public static void Run(IWindow window)
+        public static void Run(Window window)
         {
             if (window == null) { throw new ArgumentNullException(nameof(window)); }
 
-            using (window)
-            {
-                window.Show();
-                RunImpl();
-            }
+            window.Show();
+            Run();
         }
 
         /// <summary>
@@ -89,31 +104,14 @@ namespace SpiderEye
         /// <param name="startUrl">The initial URL to load in the window.</param>
         /// <exception cref="ArgumentNullException"><paramref name="window"/> is null.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="startUrl"/> is null.</exception>
-        public static void Run(IWindow window, string startUrl)
+        public static void Run(Window window, string startUrl)
         {
             if (window == null) { throw new ArgumentNullException(nameof(window)); }
             if (startUrl == null) { throw new ArgumentNullException(nameof(startUrl)); }
 
-            using (window)
-            {
-                window.LoadUrl(startUrl);
-                window.Show();
-                RunImpl();
-            }
-        }
-
-        /// <summary>
-        /// Starts the main loop, creates a window, loads the URL, shows the window and blocks until the application exits.
-        /// </summary>
-        /// <param name="config">The window configuration.</param>
-        /// <param name="startUrl">The initial URL to load in the window.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="config"/> is null.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="startUrl"/> is null.</exception>
-        public static void Run(WindowConfiguration config, string startUrl)
-        {
-            if (config == null) { throw new ArgumentNullException(nameof(config)); }
-
-            Run(Factory.CreateWindow(config), startUrl);
+            window.LoadUrl(startUrl);
+            window.Show();
+            Run();
         }
 
         /// <summary>
@@ -121,7 +119,9 @@ namespace SpiderEye
         /// </summary>
         public static void Exit()
         {
-            ExitImpl();
+            CheckInitialized();
+
+            app.Exit();
         }
 
         /// <summary>
@@ -150,10 +150,28 @@ namespace SpiderEye
             return result;
         }
 
+        /// <summary>
+        /// Checks if the current operating system is correct.
+        /// </summary>
+        /// <param name="application">The application OS specific implementation.</param>
+        /// <param name="applicationOS">The operating system the implementation is made for.</param>
+        internal static void Register(IApplication application, OperatingSystem applicationOS)
+        {
+            if (OS != applicationOS)
+            {
+                string msg = $"Wrong platform: using {applicationOS} specific library on {OS}";
+                throw new PlatformNotSupportedException(msg);
+            }
+
+            app = application ?? throw new ArgumentNullException(nameof(application));
+        }
+
         private static void InvokeSafely(Action action)
         {
+            CheckInitialized();
+
             ExceptionDispatchInfo exception = null;
-            InvokeImpl(() =>
+            app.Invoke(() =>
             {
                 try { action(); }
                 catch (Exception ex) { exception = ExceptionDispatchInfo.Capture(ex); }
@@ -162,9 +180,31 @@ namespace SpiderEye
             exception?.Throw();
         }
 
-        static partial void RunImpl();
-        static partial void ExitImpl();
-        static partial void InvokeImpl(Action action);
+        private static void CheckInitialized()
+        {
+            if (app == null)
+            {
+                string platform;
+                switch (OS)
+                {
+                    case OperatingSystem.Windows:
+                        platform = "Windows";
+                        break;
+                    case OperatingSystem.MacOS:
+                        platform = "Mac";
+                        break;
+                    case OperatingSystem.Linux:
+                        platform = "Linux";
+                        break;
+
+                    default:
+                        throw new PlatformNotSupportedException();
+                }
+
+                string message = $"Application has not been initialized yet. Call {platform}Application.Init() first.";
+                throw new InvalidOperationException(message);
+            }
+        }
 
         private static OperatingSystem GetOS()
         {
@@ -187,15 +227,6 @@ namespace SpiderEye
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) { return OperatingSystem.Linux; }
             else { throw new PlatformNotSupportedException(); }
 #endif
-        }
-
-        private static void CheckOs(OperatingSystem expected)
-        {
-            if (OS != expected)
-            {
-                string msg = $"Wrong platform: using {expected} specific library on {OS}";
-                throw new PlatformNotSupportedException(msg);
-            }
         }
     }
 }

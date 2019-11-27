@@ -1,10 +1,9 @@
 using System;
-using SpiderEye.UI.Linux.Native;
-using SpiderEye.UI.Platforms.Linux.Interop;
+using SpiderEye.Linux.Native;
 
-namespace SpiderEye.UI.Linux.Menu
+namespace SpiderEye.Linux
 {
-    internal abstract class GtkMenuItem : IMenuItem
+    internal class GtkMenuItem : IMenuItem
     {
         public readonly IntPtr Handle;
 
@@ -13,20 +12,9 @@ namespace SpiderEye.UI.Linux.Menu
             Handle = handle;
         }
 
-        public ILabelMenuItem AddLabelMenuItem(string label)
+        public IMenu CreateSubMenu()
         {
-            var item = new GtkLabelMenuItem(label);
-            AddItem(item.Handle);
-            Gtk.Widget.Show(item.Handle);
-
-            return item;
-        }
-
-        public void AddSeparatorMenuItem()
-        {
-            var item = Gtk.Menu.CreateSeparatorItem();
-            AddItem(item);
-            Gtk.Widget.Show(item);
+            return new GtkSubMenu(Handle);
         }
 
         public void Dispose()
@@ -34,13 +22,33 @@ namespace SpiderEye.UI.Linux.Menu
             Gtk.Widget.Destroy(Handle);
         }
 
-        public void SetShortcut(ModifierKey modifier, Key key)
+        private sealed class GtkSubMenu : IMenu
         {
-            SetShortcut(KeyMapper.GetShortcut(modifier, key));
+            private readonly IntPtr menuItem;
+            private GtkMenu menu;
+
+            public GtkSubMenu(IntPtr menuItem)
+            {
+                this.menuItem = menuItem;
+            }
+
+            public void AddItem(IMenuItem item)
+            {
+                if (item == null) { throw new ArgumentNullException(nameof(item)); }
+
+                if (menu == null)
+                {
+                    menu = new GtkMenu();
+                    Gtk.Menu.SetSubmenu(menuItem, menu.Handle);
+                }
+
+                menu.AddItem(item);
+            }
+
+            public void Dispose()
+            {
+                menu.Dispose();
+            }
         }
-
-        protected abstract void AddItem(IntPtr item); // TODO: keep references to the subitems somewhere (to avoid garbage collection issues)
-
-        protected abstract void SetShortcut(string shortcut);
     }
 }

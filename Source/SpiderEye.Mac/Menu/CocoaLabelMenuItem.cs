@@ -1,17 +1,15 @@
 using System;
 using System.Threading;
-using SpiderEye.UI.Mac.Interop;
-using SpiderEye.UI.Mac.Native;
-using SpiderEye.UI.Platforms.Mac.Interop;
+using SpiderEye.Mac.Interop;
+using SpiderEye.Mac.Native;
 
-namespace SpiderEye.UI.Mac.Menu
+namespace SpiderEye.Mac
 {
     internal class CocoaLabelMenuItem : CocoaMenuItem, ILabelMenuItem
     {
         public event EventHandler Click;
 
         private static int classCount;
-        private CocoaMenu submenu;
 
         public string Label
         {
@@ -20,7 +18,6 @@ namespace SpiderEye.UI.Mac.Menu
             {
                 IntPtr title = NSString.Create(value);
                 SetTitle(Handle, title);
-                if (submenu != null) { SetTitle(submenu.Handle, title); }
             }
         }
 
@@ -48,22 +45,13 @@ namespace SpiderEye.UI.Mac.Menu
             SetCallbackClass();
         }
 
-        protected internal override void AddItem(IntPtr item)
+        public void SetShortcut(ModifierKey modifier, Key key)
         {
-            if (submenu == null)
-            {
-                submenu = new CocoaMenu();
-                SetTitle(submenu.Handle, GetTitle());
-                ObjC.Call(Handle, "setSubmenu:", submenu.Handle);
-            }
+            NSEventModifierFlags nsModifier = KeyMapper.GetModifier(modifier);
+            string mappedKey = KeyMapper.GetKey(key);
 
-            submenu.AddItem(item);
-        }
-
-        protected override void SetShortcut(NSEventModifierFlags modifier, string key)
-        {
-            ObjC.Call(Handle, "setKeyEquivalentModifierMask:", new UIntPtr((ulong)modifier));
-            ObjC.Call(Handle, "setKeyEquivalent:", NSString.Create(key));
+            ObjC.Call(Handle, "setKeyEquivalentModifierMask:", new UIntPtr((ulong)nsModifier));
+            ObjC.Call(Handle, "setKeyEquivalent:", NSString.Create(mappedKey));
         }
 
         private IntPtr GetTitle()

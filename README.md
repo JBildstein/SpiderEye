@@ -1,6 +1,6 @@
 ﻿# SpiderEye
 
-Write .Net (Core) applications with a webview UI. It can be compared to how Electron runs on Node.js, SpiderEye runs on .Net.
+Write .Net Core applications with a webview UI. It can be compared to how Electron runs on Node.js, SpiderEye runs on .Net.
 Contrary to Electron though, SpiderEye uses the OS native webview instead of bundling Chromium.
 
 What's the name supposed to mean? Simple: what kind of view does a spiders eye have? A webview! Get it? ...you'll laugh later :P
@@ -24,6 +24,7 @@ What's the name supposed to mean? Simple: what kind of view does a spiders eye h
 
 | Type | Package Manager | Name | Version |
 | ----- | ----- | ----- | ----- |
+| Host (Common) | NuGet | `Bildstein.SpiderEye.Core` | [![NuGet](https://img.shields.io/nuget/v/Bildstein.SpiderEye.Core.svg)](https://www.nuget.org/packages/Bildstein.SpiderEye.Core/) |
 | Host (Windows) | NuGet | `Bildstein.SpiderEye.Windows` | [![NuGet](https://img.shields.io/nuget/v/Bildstein.SpiderEye.Windows.svg)](https://www.nuget.org/packages/Bildstein.SpiderEye.Windows/) |
 | Host (Linux) | NuGet | `Bildstein.SpiderEye.Linux` | [![NuGet](https://img.shields.io/nuget/v/Bildstein.SpiderEye.Linux.svg)](https://www.nuget.org/packages/Bildstein.SpiderEye.Linux/) |
 | Host (macOS) | NuGet | `Bildstein.SpiderEye.Mac` | [![NuGet](https://img.shields.io/nuget/v/Bildstein.SpiderEye.Mac.svg)](https://www.nuget.org/packages/Bildstein.SpiderEye.Mac/) |
@@ -44,9 +45,9 @@ When starting, you may get a "Just My Code" warning saying that you are trying t
 I believe this is a Visual Studio bug and can be safely ignored by selecting "Continue debugging" or "Continue debugging (don't ask again)".
 
 **Visual Studio for Mac:** Same as with Visual Studio on Windows but you may get an error that .Net Core Desktop projects cannot be run on macOS.
-Just right click on the Windows specific projects (in Examples/Simple, Examples/SPA and Playground) and select "Unload".
+Just right click on the Windows specific projects and select "Unload".
 
-**Visual Studio Code:** Open the base folder (i.e. where the sln file lies), select which project you want to run in the Debug pane and hit start.
+**Visual Studio Code:** Open the base folder (i.e. where the SpiderEye.sln file lies), select which project you want to run in the Debug pane and hit start.
 The launch/tasks.json is set up in a way that starts the project matching your current platform. Make sure that you have the C# extension installed before running.
 
 **Console:** Simply go into the folder that matches your platform, e.g. Examples/Simple/App.Linux and call `dotnet run`
@@ -63,7 +64,7 @@ It has the same project structure as the simple example but the Core project con
 
 It is also set up in a way that uses the Angular dev server when running in Debug and uses the compiled Angular app (in the Angular/dist folder) when running in Release.
 This means that you have to start the Angular dev server before you can run in Debug.
-To do that, open a console window, go into the App.Core folder and call `npm run watch`.
+To do that, open a console window and `cd` into the App.Core folder. First install the packages with `npm i` and then call `npm run watch`.
 On Windows 10, please also read [this note about Edge and localhost](#windows-10-edge-and-localhost) or you may see a blank page.
 
 Before you can run/publish a Release build, you need to build the Angular app.
@@ -86,7 +87,7 @@ Relevant parameters for the template:
 | Flag | Values | Default | Description |
 | ----- | ----- | ----- | ----- |
 | -lang, --language | C#, F#, VB | C# | Specifies the language of the template to create |
-| -ns, --no-sln | true, false | false | Specifies if a solution file should not be added |
+| -ns, --no-sln | true, false | false | Specifies if the solution file should not be added |
 | -nv, --no-vscode | true, false | false | Specifies if the .vscode folder should not be added |
 
 For more flags and more details, see the help output:
@@ -136,13 +137,13 @@ Then select the process that is your app and click "Attach"
 
 ### Linux
 
-First you need to set `WindowConfiguration.EnableDevTools` to `true` in your app.
+First you need to set `Window.EnableDevTools` to `true` in your app.
 Then just run your app and the dev tools will automatically attach to the window.
 You can detach it to a separate window by clicking on the detach icon in the top left corner of the dev tools.
 
 ### macOS
 
-First you need to set `WindowConfiguration.EnableDevTools` to `true` in your app.
+First you need to set `Window.EnableDevTools` to `true` in your app.
 Then run your app and once it's loaded, right click anywhere and select "Inspect Element" in the context menu.
 
 ## Development
@@ -151,6 +152,10 @@ To build the project you'll need an up-to-date version of Visual Studio 2019 or 
 You can develop and run the project on all platforms but only if you target .Net Core.
 Building for Windows requires .Net 4.6.2.
 To run/build the SpiderEye.Client project, the SPA example or the Playground project, you also need node.js/npm.
+
+Before running the Playground project, make sure that you have all client side packages installed and the Angular dev server running.
+Client side packages need to be installed with `npm i` in the Source/SpiderEye.Client folder and the Playground/SpiderEye.Playground.Core folder.
+Once those are installed, call `npm run watch` in the Playground/SpiderEye.Playground.Core folder.
 
 ## How it Works
 

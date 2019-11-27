@@ -1,7 +1,7 @@
 ﻿using System.Windows.Forms;
-using SpiderEye.UI.Windows.Menu;
+using SpiderEye.Tools;
 
-namespace SpiderEye.UI.Windows
+namespace SpiderEye.Windows
 {
     internal class WinFormsStatusIcon : IStatusIcon
     {
@@ -21,21 +21,25 @@ namespace SpiderEye.UI.Windows
             }
         }
 
-        private readonly NotifyIcon notifyIcon;
-        private AppIcon icon;
-
-        public WinFormsStatusIcon()
+        public Menu Menu
         {
-            notifyIcon = new NotifyIcon();
-            notifyIcon.Visible = true;
+            get { return menu; }
+            set
+            {
+                menu = value;
+                UpdateMenu(value);
+            }
         }
 
-        public IMenu AddMenu()
-        {
-            var menu = new WinFormsMenu();
-            notifyIcon.ContextMenu = menu.Menu;
+        private readonly NotifyIcon notifyIcon;
+        private AppIcon icon;
+        private Menu menu;
 
-            return menu;
+        public WinFormsStatusIcon(string title)
+        {
+            notifyIcon = new NotifyIcon();
+            Title = title;
+            notifyIcon.Visible = true;
         }
 
         public void Dispose()
@@ -56,6 +60,12 @@ namespace SpiderEye.UI.Windows
                     notifyIcon.Icon = new System.Drawing.Icon(stream);
                 }
             }
+        }
+
+        private void UpdateMenu(Menu menu)
+        {
+            var nativeMenu = NativeCast.To<WinFormsMenu>(menu?.NativeMenu);
+            notifyIcon.ContextMenu = nativeMenu?.Menu;
         }
     }
 }

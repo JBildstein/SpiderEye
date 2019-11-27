@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace SpiderEye.UI.Mac.Native
+namespace SpiderEye.Mac.Native
 {
     internal static class Foundation
     {
@@ -35,7 +35,7 @@ namespace SpiderEye.UI.Mac.Native
             return ObjC.SendMessage(GetClass(id), ObjC.RegisterName(sel), a, b);
         }
 
-        public static IntPtr Call(string id, string sel, int a)
+        public static IntPtr Call(string id, string sel, bool a)
         {
             return ObjC.SendMessage(GetClass(id), ObjC.RegisterName(sel), a);
         }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace SpiderEye.UI.Mac.Native
+namespace SpiderEye.Mac.Native
 {
     internal static class AppKit
     {

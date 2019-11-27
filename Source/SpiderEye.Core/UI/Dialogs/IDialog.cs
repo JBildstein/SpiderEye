@@ -1,9 +1,9 @@
-﻿namespace SpiderEye.UI
+﻿namespace SpiderEye
 {
     /// <summary>
     /// Represents a dialog.
     /// </summary>
-    public interface IDialog
+    internal interface IDialog
     {
         /// <summary>
         /// Shows the dialog.

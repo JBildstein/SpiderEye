@@ -1,4 +1,4 @@
-﻿namespace SpiderEye.UI
+﻿namespace SpiderEye
 {
     /// <summary>
     /// Defines mask for different types of keys in <see cref="Key"/>.

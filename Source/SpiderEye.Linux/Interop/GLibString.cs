@@ -1,9 +1,9 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Text;
-using SpiderEye.UI.Linux.Native;
+using SpiderEye.Linux.Native;
 
-namespace SpiderEye.UI.Linux.Interop
+namespace SpiderEye.Linux.Interop
 {
     internal struct GLibString : IDisposable
     {

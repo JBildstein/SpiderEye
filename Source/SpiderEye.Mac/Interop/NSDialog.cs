@@ -1,13 +1,13 @@
 ﻿using System;
-using SpiderEye.UI.Mac.Native;
+using SpiderEye.Mac.Native;
 
-namespace SpiderEye.UI.Mac.Interop
+namespace SpiderEye.Mac.Interop
 {
     internal class NSDialog : IDisposable
     {
         public readonly IntPtr Handle;
         private readonly IntPtr window;
-        private bool release;
+        private readonly bool release;
 
         private delegate void Callback(IntPtr self, IntPtr result);
 
@@ -42,10 +42,9 @@ namespace SpiderEye.UI.Mac.Interop
 
             if (parent == null) { return ObjC.Call(Handle, "runModal").ToInt32(); }
 
-            var app = Application.GetApp();
-            var block = new NSBlock((Callback)((s, r) => ObjC.Call(app, "stopModalWithCode:", r)));
+            var block = new NSBlock((Callback)((s, r) => ObjC.Call(MacApplication.Handle, "stopModalWithCode:", r))); // TODO: should block be disposed?
             ObjC.Call(Handle, "beginSheetModalForWindow:completionHandler:", parent.Handle, block.Handle);
-            return ObjC.Call(app, "runModalForWindow:", window).ToInt32();
+            return ObjC.Call(MacApplication.Handle, "runModalForWindow:", window).ToInt32();
         }
 
         public void Dispose()

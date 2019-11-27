@@ -2,14 +2,12 @@
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using SpiderEye.Bridge;
-using SpiderEye.Content;
-using SpiderEye.Tools;
 using Windows.Foundation;
+using Windows.UI;
 using Windows.Web.UI;
 using Windows.Web.UI.Interop;
-using Color = Windows.UI.Color;
 
-namespace SpiderEye.UI.Windows
+namespace SpiderEye.Windows
 {
     internal class WinFormsWebview : Control, IWebview, IWinFormsWebview
     {
@@ -20,36 +18,52 @@ namespace SpiderEye.UI.Windows
             get { return this; }
         }
 
-        private readonly WindowConfiguration config;
-        private readonly WebviewBridge bridge;
-        private readonly EdgeUriToStreamResolver streamResolver;
-
-        private WebViewControl webview;
-
-        public WinFormsWebview(WindowConfiguration config, IContentProvider contentProvider, WebviewBridge bridge)
+        public bool EnableScriptInterface
         {
-            if (contentProvider == null) { throw new ArgumentNullException(nameof(contentProvider)); }
-
-            this.config = config ?? throw new ArgumentNullException(nameof(config));
-            this.bridge = bridge ?? throw new ArgumentNullException(nameof(bridge));
-            streamResolver = new EdgeUriToStreamResolver(contentProvider);
-
-            Layout += (s, e) => UpdateSize();
-
-            Init();
+            get { return webview.Settings.IsScriptNotifyAllowed; }
+            set { webview.Settings.IsScriptNotifyAllowed = value; }
         }
 
-        public void NavigateToFile(string url)
+        private readonly WebviewBridge bridge;
+        private WebViewControl webview;
+
+        public WinFormsWebview(WebviewBridge bridge)
         {
-            if (string.IsNullOrWhiteSpace(config.ExternalHost))
-            {
-                var uri = webview.BuildLocalStreamUri("spidereye", url);
-                webview.NavigateToLocalStreamUri(uri, streamResolver);
-            }
+            this.bridge = bridge ?? throw new ArgumentNullException(nameof(bridge));
+
+            var process = new WebViewControlProcess();
+            var bounds = new Rect(Bounds.X, Bounds.Y, Bounds.Width, Bounds.Height);
+
+            webview = process.CreateWebViewControlAsync(Handle.ToInt64(), bounds)
+                .AsTask()
+                .ConfigureAwait(false)
+                .GetAwaiter()
+                .GetResult();
+
+            UpdateSize();
+
+            // TODO: needs Win10 1809 - 10.0.17763.0
+            // webview.AddInitializeScript(initScript);
+            webview.ScriptNotify += Webview_ScriptNotify;
+
+            webview.NavigationCompleted += Webview_NavigationCompleted;
+            Layout += (s, e) => UpdateSize();
+        }
+
+        public void UpdateBackgroundColor(byte r, byte g, byte b)
+        {
+            webview.DefaultBackgroundColor = new Color { A = byte.MaxValue, R = r, G = g, B = b, };
+        }
+
+        public void LoadUri(Uri uri)
+        {
+            if (uri == null) { throw new ArgumentNullException(nameof(uri)); }
+
+            if (uri.IsAbsoluteUri) { webview.Navigate(uri); }
             else
             {
-                var uri = UriTools.Combine(config.ExternalHost, url);
-                webview.Navigate(uri);
+                var localUri = webview.BuildLocalStreamUri("spidereye", uri.ToString());
+                webview.NavigateToLocalStreamUri(localUri, EdgeUriToStreamResolver.Instance);
             }
         }
 
@@ -84,32 +98,6 @@ namespace SpiderEye.UI.Windows
             webview?.Close();
         }
 
-        private void Init()
-        {
-            var process = new WebViewControlProcess();
-            var bounds = new Rect(Bounds.X, Bounds.Y, Bounds.Width, Bounds.Height);
-
-            webview = process.CreateWebViewControlAsync(Handle.ToInt64(), bounds)
-                .AsTask()
-                .ConfigureAwait(false)
-                .GetAwaiter()
-                .GetResult();
-
-            UpdateSize();
-
-            webview.DefaultBackgroundColor = ParseColor(config.BackgroundColor);
-            webview.Settings.IsScriptNotifyAllowed = config.EnableScriptInterface;
-            if (config.EnableScriptInterface)
-            {
-                webview.ScriptNotify += Webview_ScriptNotify;
-
-                // TODO: needs Win10 1809 - 10.0.17763.0
-                // webview.AddInitializeScript(initScript);
-            }
-
-            webview.NavigationCompleted += Webview_NavigationCompleted;
-        }
-
         private async void Webview_ScriptNotify(IWebViewControl sender, WebViewControlScriptNotifyEventArgs e)
         {
             await bridge.HandleScriptCall(e.Value);
@@ -117,7 +105,7 @@ namespace SpiderEye.UI.Windows
 
         private async void Webview_NavigationCompleted(object sender, WebViewControlNavigationCompletedEventArgs e)
         {
-            if (e.IsSuccess && config.EnableScriptInterface)
+            if (e.IsSuccess)
             {
                 string initScript = Resources.GetInitScript("Windows");
                 await ExecuteScriptAsync(initScript);
@@ -138,13 +126,6 @@ namespace SpiderEye.UI.Windows
 
                 webview.Bounds = rect;
             }
-        }
-
-        private Color ParseColor(string hex)
-        {
-            ColorTools.ParseHex(hex, out byte r, out byte g, out byte b);
-
-            return new Color { A = byte.MaxValue, R = r, G = g, B = b, };
         }
     }
 }

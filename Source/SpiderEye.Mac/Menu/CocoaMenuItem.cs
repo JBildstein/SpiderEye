@@ -1,8 +1,7 @@
 using System;
-using SpiderEye.UI.Mac.Native;
-using SpiderEye.UI.Platforms.Mac.Interop;
+using SpiderEye.Mac.Native;
 
-namespace SpiderEye.UI.Mac.Menu
+namespace SpiderEye.Mac
 {
     internal abstract class CocoaMenuItem : IMenuItem
     {
@@ -13,18 +12,9 @@ namespace SpiderEye.UI.Mac.Menu
             Handle = handle;
         }
 
-        public ILabelMenuItem AddLabelMenuItem(string label)
+        public IMenu CreateSubMenu()
         {
-            var item = new CocoaLabelMenuItem(label);
-            AddItem(item.Handle);
-
-            return item;
-        }
-
-        public void AddSeparatorMenuItem()
-        {
-            var item = AppKit.Call("NSMenuItem", "separatorItem");
-            AddItem(item);
+            return new CocoaSubMenu(Handle);
         }
 
         public void Dispose()
@@ -32,13 +22,33 @@ namespace SpiderEye.UI.Mac.Menu
             // don't think anything needs to be done here
         }
 
-        public void SetShortcut(ModifierKey modifier, Key key)
+        private sealed class CocoaSubMenu : IMenu
         {
-            SetShortcut(KeyMapper.GetModifier(modifier), KeyMapper.GetKey(key));
+            private readonly IntPtr menuItem;
+            private CocoaMenu menu;
+
+            public CocoaSubMenu(IntPtr menuItem)
+            {
+                this.menuItem = menuItem;
+            }
+
+            public void AddItem(IMenuItem item)
+            {
+                if (item == null) { throw new ArgumentNullException(nameof(item)); }
+
+                if (menu == null)
+                {
+                    menu = new CocoaMenu();
+                    ObjC.Call(menuItem, "setSubmenu:", menu.Handle);
+                }
+
+                menu.AddItem(item);
+            }
+
+            public void Dispose()
+            {
+                menu.Dispose();
+            }
         }
-
-        protected internal abstract void AddItem(IntPtr item);
-
-        protected abstract void SetShortcut(NSEventModifierFlags modifier, string key);
     }
 }

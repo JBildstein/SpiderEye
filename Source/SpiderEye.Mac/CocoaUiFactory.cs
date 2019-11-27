@@ -1,17 +1,17 @@
-﻿using SpiderEye.UI.Mac.Dialogs;
+﻿using SpiderEye.Bridge;
 
-namespace SpiderEye.UI.Mac
+namespace SpiderEye.Mac
 {
     internal class CocoaUiFactory : IUiFactory
     {
-        public IWindow CreateWindow(WindowConfiguration config)
+        public IWindow CreateWindow(WindowConfiguration config, WebviewBridge bridge)
         {
-            return new CocoaWindow(config, this);
+            return new CocoaWindow(config, bridge);
         }
 
-        public IStatusIcon CreateStatusIcon()
+        public IStatusIcon CreateStatusIcon(string title)
         {
-            return new CocoaStatusIcon();
+            return new CocoaStatusIcon(title);
         }
 
         public IMessageBox CreateMessageBox()
@@ -27,6 +27,21 @@ namespace SpiderEye.UI.Mac
         public IOpenFileDialog CreateOpenFileDialog()
         {
             return new CocoaOpenFileDialog();
+        }
+
+        public IMenu CreateMenu()
+        {
+            return new CocoaMenu();
+        }
+
+        public ILabelMenuItem CreateLabelMenu(string label)
+        {
+            return new CocoaLabelMenuItem(label);
+        }
+
+        public IMenuItem CreateMenuSeparator()
+        {
+            return new CocoaSeparatorMenuItem();
         }
     }
 }

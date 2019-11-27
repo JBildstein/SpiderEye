@@ -1,11 +1,15 @@
 ﻿using System;
-using System.Windows.Forms;
+using SpiderEye.Windows.Interop;
 
-namespace SpiderEye.UI.Windows.Menu
+namespace SpiderEye.Windows
 {
     internal class WinFormsLabelMenuItem : WinFormsMenuItem, ILabelMenuItem
     {
-        public event EventHandler Click;
+        public event EventHandler Click
+        {
+            add { Item.Click += value; }
+            remove { Item.Click -= value; }
+        }
 
         public bool Enabled
         {
@@ -19,21 +23,16 @@ namespace SpiderEye.UI.Windows.Menu
             set { Item.Text = value; }
         }
 
-        public readonly MenuItem Item;
+        public override System.Windows.Forms.MenuItem Item { get; }
 
         public WinFormsLabelMenuItem(string label)
         {
-            Item = new MenuItem(label);
-            Item.Click += (s, e) => Click?.Invoke(this, EventArgs.Empty);
+            Item = new System.Windows.Forms.MenuItem(label);
         }
 
-        protected override void AddItem(MenuItem item)
+        public void SetShortcut(ModifierKey modifier, Key key)
         {
-            Item.MenuItems.Add(item);
-        }
-
-        protected override void SetShortcut(Shortcut shortcut)
-        {
+            var shortcut = KeyMapper.GetShortcut(modifier, key);
             Item.Shortcut = shortcut;
         }
     }

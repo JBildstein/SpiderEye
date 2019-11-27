@@ -1,6 +1,6 @@
 using System;
 
-namespace SpiderEye.UI.Linux.Interop
+namespace SpiderEye.Linux.Interop
 {
     [Flags]
     internal enum GtkDialogFlags

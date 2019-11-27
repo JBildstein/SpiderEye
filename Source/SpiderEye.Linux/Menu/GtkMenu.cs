@@ -1,23 +1,30 @@
 using System;
-using SpiderEye.UI.Linux.Native;
+using SpiderEye.Linux.Native;
+using SpiderEye.Tools;
 
-namespace SpiderEye.UI.Linux.Menu
+namespace SpiderEye.Linux
 {
-    internal class GtkMenu : GtkMenuItem, IMenu
+    internal class GtkMenu : IMenu
     {
+        public readonly IntPtr Handle;
+
         public GtkMenu()
-            : base(Gtk.Menu.Create())
         {
+            Handle = Gtk.Menu.Create();
         }
 
-        protected override void AddItem(IntPtr item)
+        public void AddItem(IMenuItem item)
         {
-            Gtk.Menu.AddItem(Handle, item);
+            if (item == null) { throw new ArgumentNullException(nameof(item)); }
+
+            var nativeItem = NativeCast.To<GtkMenuItem>(item);
+            Gtk.Menu.AddItem(Handle, nativeItem.Handle);
+            Gtk.Widget.Show(nativeItem.Handle);
         }
 
-        protected override void SetShortcut(string shortcut)
+        public void Dispose()
         {
-            // ignore: no shortcuts for the base menu class
+            Gtk.Widget.Destroy(Handle);
         }
     }
 }

@@ -1,32 +1,64 @@
 ﻿using System;
+using System.Collections.Generic;
 using SpiderEye.Bridge.Models;
-using SpiderEye.UI;
 
 namespace SpiderEye.Bridge.Api
 {
     internal class BrowserWindow
     {
-        private readonly IWindow parent;
-        private readonly IUiFactory windowFactory;
+        private static readonly WindowCollection WindowStore = new WindowCollection();
+        private readonly Window parent;
 
-        public BrowserWindow(IWindow parent, IUiFactory windowFactory)
+        public BrowserWindow(Window parent)
         {
             this.parent = parent ?? throw new ArgumentNullException(nameof(parent));
-            this.windowFactory = windowFactory ?? throw new ArgumentNullException(nameof(windowFactory));
         }
 
         public void Show(BrowserWindowConfigModel config)
         {
-            // TODO: BrowserWindowConfigModel cannot hold all possible information (like Icon and Assembly)
-            // TODO: transfer some configs from parent window (e.g. ExternalHost)
             Application.Invoke(() =>
             {
-                var window = windowFactory.CreateWindow(config.WindowConfig);
+                var window = new Window
+                {
+                    Title = config.Title ?? Window.DefaultConfig.Title,
+                    Size = new Size(
+                        config.Width ?? Window.DefaultConfig.Size.Width,
+                        config.Height ?? Window.DefaultConfig.Size.Height),
+                    MinSize = new Size(
+                        config.MinWidth ?? Window.DefaultConfig.MinSize.Width,
+                        config.MinHeight ?? Window.DefaultConfig.MinSize.Height),
+                    MaxSize = new Size(
+                        config.MaxWidth ?? Window.DefaultConfig.MaxSize.Width,
+                        config.MaxHeight ?? Window.DefaultConfig.MaxSize.Height),
+                    BackgroundColor = config.BackgroundColor ?? Window.DefaultConfig.BackgroundColor,
+                    CanResize = config.CanResize ?? Window.DefaultConfig.CanResize,
+                    UseBrowserTitle = config.UseBrowserTitle ?? Window.DefaultConfig.UseBrowserTitle,
+                    EnableScriptInterface = config.EnableScriptInterface ?? Window.DefaultConfig.EnableScriptInterface,
+                    EnableDevTools = config.EnableDevTools ?? Window.DefaultConfig.EnableDevTools,
+                    Icon = parent.Icon,
+                };
+
+                WindowStore.Add(window);
+
                 window.LoadUrl(config.Url);
                 window.Show();
             });
 
             // TODO: somehow send events from this window back to webview
+        }
+
+        private sealed class WindowCollection
+        {
+            private readonly List<Window> windows = new List<Window>();
+
+            public void Add(Window window)
+            {
+                windows.Add(window);
+
+                // both this method and the Closed event are run on the main thread,
+                // so it's save to access the windows list without a lock
+                window.Closed += (s, e) => windows.Remove(window);
+            }
         }
     }
 }

@@ -1,8 +1,8 @@
-﻿using System;
-using System.Windows.Forms;
-using SpiderEye.UI.Windows.Interop;
+﻿using SpiderEye.Tools;
+using SpiderEye.Windows.Interop;
+using WFMessageBox = System.Windows.Forms.MessageBox;
 
-namespace SpiderEye.UI.Windows.Dialogs
+namespace SpiderEye.Windows
 {
     internal class WinFormsMessageBox : IMessageBox
     {
@@ -17,23 +17,18 @@ namespace SpiderEye.UI.Windows.Dialogs
 
         public DialogResult Show(IWindow parent)
         {
-            var window = parent as WinFormsWindow;
-            if (parent != null && window == null)
-            {
-                throw new ArgumentException("Invalid window type.", nameof(parent));
-            }
-
+            var window = NativeCast.To<WinFormsWindow>(parent);
             System.Windows.Forms.DialogResult result;
             if (window == null)
             {
-                result = MessageBox.Show(
+                result = WFMessageBox.Show(
                     Message,
                     Title,
                     WinFormsMapper.MapButtons(Buttons));
             }
             else
             {
-                result = MessageBox.Show(
+                result = WFMessageBox.Show(
                     window,
                     Message,
                     Title,

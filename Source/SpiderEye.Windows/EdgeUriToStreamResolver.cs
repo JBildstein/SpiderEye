@@ -1,20 +1,15 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
-using SpiderEye.Content;
 using Windows.Foundation;
 using Windows.Storage.Streams;
+using Windows.Web;
 
-namespace SpiderEye.UI.Windows
+namespace SpiderEye.Windows
 {
-    internal class EdgeUriToStreamResolver : global::Windows.Web.IUriToStreamResolver
+    internal class EdgeUriToStreamResolver : IUriToStreamResolver
     {
-        private readonly IContentProvider contentProvider;
-
-        public EdgeUriToStreamResolver(IContentProvider contentProvider)
-        {
-            this.contentProvider = contentProvider ?? throw new ArgumentNullException(nameof(contentProvider));
-        }
+        public static readonly EdgeUriToStreamResolver Instance = new EdgeUriToStreamResolver();
 
         public IAsyncOperation<IInputStream> UriToStreamAsync(Uri uri)
         {
@@ -23,8 +18,10 @@ namespace SpiderEye.UI.Windows
 
         private async Task<IInputStream> GetStreamAsync(Uri uri)
         {
-            var stream = await contentProvider.GetStreamAsync(uri);
-            return stream?.AsInputStream();
+            var stream = await Application.ContentProvider.GetStreamAsync(uri);
+            if (stream == null) { throw new FileNotFoundException(); }
+
+            return stream.AsInputStream();
         }
     }
 }

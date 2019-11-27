@@ -1,8 +1,8 @@
 using System;
 using System.Runtime.InteropServices;
-using SpiderEye.UI.Linux.Interop;
+using SpiderEye.Linux.Interop;
 
-namespace SpiderEye.UI.Linux.Native
+namespace SpiderEye.Linux.Native
 {
     internal static class GLib
     {

@@ -1,25 +1,30 @@
 using System;
-using SpiderEye.UI.Mac.Native;
-using SpiderEye.UI.Platforms.Mac.Interop;
+using SpiderEye.Mac.Native;
+using SpiderEye.Tools;
 
-namespace SpiderEye.UI.Mac.Menu
+namespace SpiderEye.Mac
 {
-    internal class CocoaMenu : CocoaMenuItem, IMenu
+    internal class CocoaMenu : IMenu
     {
+        public readonly IntPtr Handle;
+
         public CocoaMenu()
-            : base(AppKit.Call("NSMenu", "new"))
         {
+            Handle = AppKit.Call("NSMenu", "new");
             ObjC.Call(Handle, "setAutoenablesItems:", false);
         }
 
-        protected internal override void AddItem(IntPtr item)
+        public void AddItem(IMenuItem item)
         {
-            ObjC.Call(Handle, "addItem:", item);
+            if (item == null) { throw new ArgumentNullException(nameof(item)); }
+
+            var nativeItem = NativeCast.To<CocoaMenuItem>(item);
+            ObjC.Call(Handle, "addItem:", nativeItem.Handle);
         }
 
-        protected override void SetShortcut(NSEventModifierFlags modifier, string key)
+        public void Dispose()
         {
-            // ignore: no shortcuts for the base menu class
+            // don't think anything needs to be done here
         }
     }
 }
