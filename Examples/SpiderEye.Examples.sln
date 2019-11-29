@@ -8,6 +8,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{A67AA681-AB98-4FFB-9FE4-CC22B3360320}"
 	ProjectSection(SolutionItems) = preProject
 		Simple\Shared\publish.bat = Simple\Shared\publish.bat
+		Simple\Shared\publish.sh = Simple\Shared\publish.sh
 		Simple\Shared\SpiderEye.Example.Simple.Shared.proj = Simple\Shared\SpiderEye.Example.Simple.Shared.proj
 	EndProjectSection
 EndProject
@@ -24,6 +25,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{05C0EA43-A509-4C1A-9E0C-8ADB0395FD30}"
 	ProjectSection(SolutionItems) = preProject
 		SPA\Shared\publish.bat = SPA\Shared\publish.bat
+		SPA\Shared\publish.sh = SPA\Shared\publish.sh
 		SPA\Shared\SpiderEye.Example.Spa.Shared.proj = SPA\Shared\SpiderEye.Example.Spa.Shared.proj
 	EndProjectSection
 EndProject

@@ -2,6 +2,13 @@
 SETLOCAL
 
 CD ..\App.Core
+ECHO Installing node packages...
+CALL npm i > NUL 2>&1
+IF %ERRORLEVEL% NEQ 0 (
+  ECHO Installing node packages failed
+  EXIT /B 1
+)
+
 ECHO Linting files...
 CALL npm run lint > NUL
 IF %ERRORLEVEL% NEQ 0 (
@@ -9,7 +16,7 @@ IF %ERRORLEVEL% NEQ 0 (
   EXIT /B 1
 )
 
-ECHO Building angular...
+ECHO Building Angular...
 CALL npm run build:prod > NUL
 IF %ERRORLEVEL% NEQ 0 (
   ECHO Angular build failed
