@@ -146,6 +146,58 @@ You can detach it to a separate window by clicking on the detach icon in the top
 First you need to set `Window.EnableDevTools` to `true` in your app.
 Then run your app and once it's loaded, right click anywhere and select "Inspect Element" in the context menu.
 
+## Publishing your App
+
+You can publish your application like any other .Net Core app by calling `dotnet publish` with the appropriate runtime identifier, e.g. for Linux:
+```
+dotnet publish -r linux-x64
+```
+Or alternatively use whatever mechanism your IDE (like Visual Studio) provides.
+In the Examples/\<ExampleType\>/Shared folders you'll also find build scripts that include all platforms and should provide a more complete insight.
+
+For macOS you'll likely want a proper app instead of an executable with a bunch of files. It's pretty easy to do.
+First you need an Info.plist file like you'd have for any other macOS app. Here's an example to get you started:
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleName</key>
+	<string>MyApp</string>
+    <key>CFBundleIconFile</key>
+    <string>MyApp.icns</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.mycompany.myapp</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0.0</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>10.13</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+</dict>
+</plist>
+```
+You can find more information in the [Apple documentation](https://developer.apple.com/documentation/bundleresources/information_property_list).
+
+Then create a folder structure like so (MyApp.app is the root folder):
+```
+MyApp.app/
+ └─Contents/
+    │  └─Info.plist
+    │
+    ├─MacOS/
+    │  ├─MyApp
+    │  ├─MyApp.dll
+    │  └─etc...
+    │
+    └─Resources/
+       └─MyApp.icns
+```
+In the MacOS folder you copy everything that was created from the publish, i.e. your executable and all the DLLs etc.
+In the Resources folder you put your application icon with the same name as you have defined in the Info.plist.
+
 ## Development
 
 To build the project you'll need an up-to-date version of Visual Studio 2019 or Visual Studio Code as well as the .Net Core SDK 3.0.
