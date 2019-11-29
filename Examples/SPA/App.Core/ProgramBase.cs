@@ -17,7 +17,7 @@ namespace SpiderEye.Example.Spa.Core
 
                 // the port number is defined in the angular.json file (under "architect"->"serve"->"options"->"port")
                 // note that you have to run the angular dev server first (npm run watch)
-                Application.UriWatcher = new AngularDevUriWatcher("http://localhost:65400");
+                Application.UriWatcher = new AngularDevUriWatcher("http://localhost:65000");
 
                 // this relates to the path defined in the .csproj file
                 Application.ContentProvider = new EmbeddedContentProvider("Angular\\dist");
