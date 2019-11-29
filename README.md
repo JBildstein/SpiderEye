@@ -55,12 +55,12 @@ The launch/tasks.json is set up in a way that starts the project matching your c
 #### Simple Example
 
 This is pretty much the simplest setup you can have.
-There's a Core library that contains the web files and a project for each platform with a shared Program.cs
+There are projects for each platform and there's a Core library that contains the web files and common startup logic.
 
 #### Single Page Application (SPA) Example
 
 This is a slightly more advanced example using Angular for the web side of things.
-It has the same project structure as the simple example but the Core project contains an angular app instead of static web files.
+It has the same project structure as the simple example but the Core project contains an Angular app instead of static web files.
 
 It is also set up in a way that uses the Angular dev server when running in Debug and uses the compiled Angular app (in the Angular/dist folder) when running in Release.
 This means that you have to start the Angular dev server before you can run in Debug.
