@@ -5,6 +5,10 @@
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <DefineConstants>$(DefineConstants);LINUX</DefineConstants>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <Compile Include="Program.fs" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Include="icon.png">
@@ -13,6 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Bildstein.SpiderEye.Linux" Version="1.0.0-alpha.12" />
+    <PackageReference Include="Bildstein.SpiderEye.Linux" Version="0.0.0-marker.0" />
   </ItemGroup>
 </Project>

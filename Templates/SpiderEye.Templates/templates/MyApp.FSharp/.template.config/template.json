@@ -17,7 +17,7 @@
       "type": "parameter",
       "datatype": "bool",
       "defaultValue": "false",
-      "description": "Specifies if a solution file should be added"
+      "description": "Specifies if the solution file should be added"
     },
     "no-vscode": {
       "type": "parameter",
@@ -40,6 +40,14 @@
         "value": "fs"
       },
       "replaces": "lang"
+    },
+    "package-version": {
+      "type": "generated",
+      "generator": "constant",
+      "parameters": {
+        "value": "1.0.0-alpha.13"
+      },
+      "replaces": "0.0.0-marker.0"
     }
   },
   "sources": [

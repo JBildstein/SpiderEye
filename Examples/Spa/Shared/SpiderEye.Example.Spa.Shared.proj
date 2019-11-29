@@ -4,10 +4,6 @@
     <AssemblyName>SpiderEye.Example.Spa</AssemblyName>
     <RootNamespace>SpiderEye.Example.Spa</RootNamespace>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Include="..\Shared\Program.cs" Link="Program.cs" />
-  </ItemGroup>
   
   <ItemGroup>
     <ProjectReference Include="..\App.Core\SpiderEye.Example.Spa.Core.csproj" />

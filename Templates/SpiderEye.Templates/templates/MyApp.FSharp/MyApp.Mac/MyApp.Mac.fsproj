@@ -7,12 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="icon.icns">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Bildstein.SpiderEye.Mac" Version="1.0.0-alpha.12" />
+    <PackageReference Include="Bildstein.SpiderEye.Mac" Version="0.0.0-marker.0" />
   </ItemGroup>
 </Project>

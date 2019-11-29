@@ -4,7 +4,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="AssemblyMarker.fs" />
+    <Compile Include="ProgramBase.fs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -13,5 +13,9 @@
       <!-- this retains the original filename of the embedded files (required to located them later) -->
       <LogicalName>%(RelativeDir)%(Filename)%(Extension)</LogicalName>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Bildstein.SpiderEye.Core" Version="0.0.0-marker.0" />
   </ItemGroup>
 </Project>

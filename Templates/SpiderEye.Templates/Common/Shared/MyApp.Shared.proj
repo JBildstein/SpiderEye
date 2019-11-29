@@ -6,10 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\Shared\Program.lang" Link="Program.lang" />
-  </ItemGroup>
-  
-  <ItemGroup>
     <ProjectReference Include="..\MyApp.Core\MyApp.Core.langproj" />
   </ItemGroup>
 </Project>

@@ -10,4 +10,8 @@
       <LogicalName>%(RelativeDir)%(Filename)%(Extension)</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Bildstein.SpiderEye.Core" Version="0.0.0-marker.0" />
+  </ItemGroup>
 </Project>
