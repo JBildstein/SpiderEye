@@ -18,6 +18,12 @@ IF EXIST %folder% (
     )
 )
 
+CALL :PackProject Core
+IF %ERRORLEVEL% NEQ 0 (
+  ECHO Build failed!
+  EXIT /B 1
+)
+
 CALL :PackProject Windows
 IF %ERRORLEVEL% NEQ 0 (
   ECHO Build failed!
