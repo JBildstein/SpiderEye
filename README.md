@@ -50,7 +50,7 @@ Just right click on the Windows specific projects and select "Unload".
 **Visual Studio Code:** Open the base folder (i.e. where the SpiderEye.sln file lies), select which project you want to run in the Debug pane and hit start.
 The launch/tasks.json is set up in a way that starts the project matching your current platform. Make sure that you have the C# extension installed before running.
 
-**Console:** Simply go into the folder that matches your platform, e.g. Examples/Simple/App.Linux and call `dotnet run`
+**Console:** Simply go into the folder that matches your platform, e.g. `Examples/Simple/App.Linux` and call `dotnet run`
 
 #### Simple Example
 
@@ -62,7 +62,7 @@ There are projects for each platform and there's a Core library that contains th
 This is a slightly more advanced example using Angular for the web side of things.
 It has the same project structure as the simple example but the Core project contains an Angular app instead of static web files.
 
-It is also set up in a way that uses the Angular dev server when running in Debug and uses the compiled Angular app (in the Angular/dist folder) when running in Release.
+It is also set up in a way that uses the Angular dev server when running in Debug and uses the compiled Angular app (in the `Angular/dist` folder) when running in Release.
 This means that you have to start the Angular dev server before you can run in Debug.
 To do that, open a console window and `cd` into the App.Core folder. First install the packages with `npm i` and then call `npm run watch`.
 On Windows 10, please also read [this note about Edge and localhost](#windows-10-edge-and-localhost) or you may see a blank page.
@@ -153,29 +153,29 @@ You can publish your application like any other .Net Core app by calling `dotnet
 dotnet publish -r linux-x64
 ```
 Or alternatively use whatever mechanism your IDE (like Visual Studio) provides.
-In the Examples/\<ExampleType\>/Shared folders you'll also find build scripts that include all platforms and should provide a more complete insight.
+In the `Examples/**/Shared` folders you'll also find build scripts that include all platforms and should provide a more complete insight.
 
 For macOS you'll likely want a proper app instead of an executable with a bunch of files. It's pretty easy to do.
-First you need an Info.plist file like you'd have for any other macOS app. Here's an example to get you started:
+First you need an `Info.plist` file like you'd have for any other macOS app. Here's an example to get you started:
 ```
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleName</key>
-	<string>MyApp</string>
+    <key>CFBundleName</key>
+    <string>MyApp</string>
     <key>CFBundleIconFile</key>
     <string>MyApp.icns</string>
-	<key>CFBundleIdentifier</key>
-	<string>com.mycompany.myapp</string>
-	<key>CFBundleShortVersionString</key>
-	<string>1.0.0</string>
-	<key>LSMinimumSystemVersion</key>
-	<string>10.13</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
-	<key>CFBundlePackageType</key>
-	<string>APPL</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.mycompany.myapp</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0.0</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>10.13</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
 </dict>
 </plist>
 ```
@@ -206,8 +206,8 @@ Building for Windows requires .Net 4.6.2.
 To run/build the SpiderEye.Client project, the SPA example or the Playground project, you also need node.js/npm.
 
 Before running the Playground project, make sure that you have all client side packages installed and the Angular dev server running.
-Client side packages need to be installed with `npm i` in the Source/SpiderEye.Client folder and the Playground/SpiderEye.Playground.Core folder.
-Once those are installed, call `npm run watch` in the Playground/SpiderEye.Playground.Core folder.
+Client side packages need to be installed with `npm i` in the `Source/SpiderEye.Client` folder and the `Playground/SpiderEye.Playground.Core` folder.
+Once those are installed, call `npm run watch` in the `Playground/SpiderEye.Playground.Core` folder.
 
 ## How it Works
 
