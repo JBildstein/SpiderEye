@@ -37,6 +37,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Playground", "Playground", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{D70239CE-F618-42AB-9C36-517BBB3E1BF5}"
 	ProjectSection(SolutionItems) = preProject
+		Playground\Shared\publish.bat = Playground\Shared\publish.bat
+		Playground\Shared\publish.sh = Playground\Shared\publish.sh
 		Playground\Shared\SpiderEye.Playground.Shared.proj = Playground\Shared\SpiderEye.Playground.Shared.proj
 	EndProjectSection
 EndProject
