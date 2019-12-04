@@ -100,6 +100,35 @@
     </div>
 </div>
 
+<div class="app-panel">
+    <h2>Select Folder Dialog</h2>
+
+    <div>
+        <div class="input-group">
+            <label for="folderdlg-title">Title:</label>
+            <div class="input-container">
+                <input id="folderdlg-title" type="text" [(ngModel)]="folderDialog.title" />
+            </div>
+        </div>
+    </div>
+
+    <div class="button-result-container">
+        <div class="button-container">
+            <button (click)="showFolderDialog()">Show</button>
+        </div>
+        <div class="result-group">
+            <div>
+                <span>Result:</span>
+                <span class="value">{{folderResult}}</span>
+            </div>
+            <div>
+                <span>Path:</span>
+                <span class="value">{{folderPath}}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="app-panel window-panel">
     <h2>Open Window</h2>
 

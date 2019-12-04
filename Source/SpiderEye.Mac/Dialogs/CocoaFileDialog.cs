@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using SpiderEye.Mac.Interop;
 using SpiderEye.Mac.Native;
-using SpiderEye.Tools;
 
 namespace SpiderEye.Mac
 {
-    internal abstract class CocoaFileDialog : IFileDialog
+    internal abstract class CocoaFileDialog : CocoaDialog, IFileDialog
     {
-        public string Title { get; set; }
         public string InitialDirectory { get; set; }
         public string FileName { get; set; }
         public ICollection<FileFilter> FileFilters { get; }
@@ -19,16 +17,8 @@ namespace SpiderEye.Mac
             FileFilters = new List<FileFilter>();
         }
 
-        public DialogResult Show()
+        protected override void BeforeShow(NSDialog dialog)
         {
-            return Show(null);
-        }
-
-        public DialogResult Show(IWindow parent)
-        {
-            var window = NativeCast.To<CocoaWindow>(parent);
-            var dialog = CreateDialog();
-
             if (!string.IsNullOrWhiteSpace(InitialDirectory))
             {
                 var url = Foundation.Call("NSURL", "fileURLWithPath:", NSString.Create(InitialDirectory));
@@ -40,39 +30,17 @@ namespace SpiderEye.Mac
                 ObjC.Call(dialog.Handle, "setNameFieldStringValue:", NSString.Create(FileName));
             }
 
-            ObjC.Call(dialog.Handle, "setTitle:", NSString.Create(Title));
-            ObjC.Call(dialog.Handle, "setCanCreateDirectories:", true);
             SetFileFilters(dialog.Handle, FileFilters);
-
-            int result = dialog.Run(window);
-
-            var selection = ObjC.Call(dialog.Handle, "URL");
-            FileName = NSString.GetString(ObjC.Call(selection, "path"));
-
-            BeforeReturn(dialog);
-
-            return MapResult(result);
         }
 
-        protected abstract NSDialog CreateDialog();
-
-        protected virtual void BeforeReturn(NSDialog dialog)
+        protected override void BeforeReturn(NSDialog dialog, DialogResult result)
         {
-        }
-
-        private DialogResult MapResult(int result)
-        {
-            switch (result)
+            if (result == DialogResult.Ok)
             {
-                case 1:
-                    return DialogResult.Ok;
-
-                case 0:
-                    return DialogResult.Cancel;
-
-                default:
-                    return DialogResult.None;
+                var selection = ObjC.Call(dialog.Handle, "URL");
+                FileName = NSString.GetString(ObjC.Call(selection, "path"));
             }
+            else { FileName = null; }
         }
 
         private void SetFileFilters(IntPtr dialog, IEnumerable<FileFilter> filters)

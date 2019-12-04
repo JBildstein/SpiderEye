@@ -29,6 +29,11 @@ namespace SpiderEye.Mac
             return new CocoaOpenFileDialog();
         }
 
+        public IFolderSelectDialog CreateFolderSelectDialog()
+        {
+            return new CocoaFolderSelectDialog();
+        }
+
         public IMenu CreateMenu()
         {
             return new CocoaMenu();

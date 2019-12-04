@@ -6,6 +6,11 @@
     internal interface IDialog
     {
         /// <summary>
+        /// Gets or sets the title of the dialog.
+        /// </summary>
+        string Title { get; set; }
+
+        /// <summary>
         /// Shows the dialog.
         /// </summary>
         /// <returns>The user selection.</returns>

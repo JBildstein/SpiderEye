@@ -15,6 +15,7 @@ namespace SpiderEye.Linux
 
         protected override void BeforeShow(IntPtr dialog)
         {
+            base.BeforeShow(dialog);
             Gtk.Dialog.SetOverwriteConfirmation(dialog, OverwritePrompt);
         }
     }

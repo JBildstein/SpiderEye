@@ -8,11 +8,6 @@ namespace SpiderEye
     internal interface IFileDialog : IDialog
     {
         /// <summary>
-        /// Gets or sets the dialog title.
-        /// </summary>
-        string Title { get; set; }
-
-        /// <summary>
         /// Gets or sets the initial directory.
         /// </summary>
         string InitialDirectory { get; set; }

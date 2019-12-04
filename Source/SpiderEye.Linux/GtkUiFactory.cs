@@ -29,6 +29,11 @@ namespace SpiderEye.Linux
             return new GtkOpenFileDialog();
         }
 
+        public IFolderSelectDialog CreateFolderSelectDialog()
+        {
+            return new GtkSelectFolderDialog();
+        }
+
         public IMenu CreateMenu()
         {
             return new GtkMenu();

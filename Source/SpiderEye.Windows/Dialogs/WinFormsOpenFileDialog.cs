@@ -1,9 +1,8 @@
-﻿using WFFileDialog = System.Windows.Forms.FileDialog;
-using WFOpenFileDialog = System.Windows.Forms.OpenFileDialog;
+﻿using WFOpenFileDialog = System.Windows.Forms.OpenFileDialog;
 
 namespace SpiderEye.Windows
 {
-    internal class WinFormsOpenFileDialog : WinFormsFileDialog, IOpenFileDialog
+    internal class WinFormsOpenFileDialog : WinFormsFileDialog<WFOpenFileDialog>, IOpenFileDialog
     {
         public bool Multiselect { get; set; }
 
@@ -13,7 +12,7 @@ namespace SpiderEye.Windows
             private set;
         }
 
-        protected override WFFileDialog GetDialog()
+        protected override WFOpenFileDialog GetDialog()
         {
             return new WFOpenFileDialog
             {
@@ -21,8 +20,9 @@ namespace SpiderEye.Windows
             };
         }
 
-        protected override void BeforeReturn(WFFileDialog dialog)
+        protected override void BeforeReturn(WFOpenFileDialog dialog)
         {
+            base.BeforeReturn(dialog);
             SelectedFiles = dialog.FileNames;
         }
     }

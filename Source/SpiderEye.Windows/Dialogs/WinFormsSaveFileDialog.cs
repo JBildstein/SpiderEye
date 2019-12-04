@@ -1,13 +1,12 @@
-﻿using WFFileDialog = System.Windows.Forms.FileDialog;
-using WFSaveFileDialog = System.Windows.Forms.SaveFileDialog;
+﻿using WFSaveFileDialog = System.Windows.Forms.SaveFileDialog;
 
 namespace SpiderEye.Windows
 {
-    internal class WinFormsSaveFileDialog : WinFormsFileDialog, ISaveFileDialog
+    internal class WinFormsSaveFileDialog : WinFormsFileDialog<WFSaveFileDialog>, ISaveFileDialog
     {
         public bool OverwritePrompt { get; set; }
 
-        protected override WFFileDialog GetDialog()
+        protected override WFSaveFileDialog GetDialog()
         {
             return new WFSaveFileDialog
             {

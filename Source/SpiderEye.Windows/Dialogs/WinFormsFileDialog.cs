@@ -1,15 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SpiderEye.Tools;
-using SpiderEye.Windows.Interop;
-using WFFileDialog = System.Windows.Forms.FileDialog;
 
 namespace SpiderEye.Windows
 {
-    internal abstract class WinFormsFileDialog : IFileDialog
+    internal abstract class WinFormsFileDialog<T> : WinFormsDialog<T>, IFileDialog
+        where T : System.Windows.Forms.FileDialog
     {
-        public string Title { get; set; }
         public string InitialDirectory { get; set; }
         public string FileName { get; set; }
         public ICollection<FileFilter> FileFilters { get; }
@@ -19,32 +16,17 @@ namespace SpiderEye.Windows
             FileFilters = new List<FileFilter>();
         }
 
-        public DialogResult Show()
+        protected override void BeforeShow(T dialog)
         {
-            return Show(null);
-        }
-
-        public DialogResult Show(IWindow parent)
-        {
-            var dialog = GetDialog();
             dialog.Title = Title;
             dialog.InitialDirectory = InitialDirectory;
             dialog.FileName = FileName;
             dialog.Filter = GetFileFilter(FileFilters);
-
-            var window = NativeCast.To<WinFormsWindow>(parent);
-            var result = dialog.ShowDialog(window);
-            FileName = dialog.FileName;
-
-            BeforeReturn(dialog);
-
-            return WinFormsMapper.MapResult(result);
         }
 
-        protected abstract WFFileDialog GetDialog();
-
-        protected virtual void BeforeReturn(WFFileDialog dialog)
+        protected override void BeforeReturn(T dialog)
         {
+            FileName = dialog.FileName;
         }
 
         private string GetFileFilter(IEnumerable<FileFilter> filters)

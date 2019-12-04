@@ -29,6 +29,11 @@ namespace SpiderEye.Windows
             return new WinFormsOpenFileDialog();
         }
 
+        public IFolderSelectDialog CreateFolderSelectDialog()
+        {
+            return new WinFormsFolderSelectDialog();
+        }
+
         public IMenu CreateMenu()
         {
             return new WinFormsMenu();

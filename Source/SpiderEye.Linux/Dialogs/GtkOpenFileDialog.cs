@@ -23,13 +23,16 @@ namespace SpiderEye.Linux
 
         protected override void BeforeShow(IntPtr dialog)
         {
+            base.BeforeShow(dialog);
             Gtk.Dialog.SetAllowMultiple(dialog, Multiselect);
         }
 
-        protected override unsafe void BeforeReturn(IntPtr dialog)
+        protected override unsafe void BeforeReturn(IntPtr dialog, DialogResult result)
         {
+            base.BeforeReturn(dialog, result);
+
             var filesPtr = Gtk.Dialog.GetSelectedFiles(dialog);
-            var result = new List<string>();
+            var files = new List<string>();
             if (filesPtr != IntPtr.Zero)
             {
                 try
@@ -39,7 +42,7 @@ namespace SpiderEye.Linux
                     {
                         using (var value = new GLibString(list.Data))
                         {
-                            result.Add(value.ToString());
+                            files.Add(value.ToString());
                         }
 
                         if (list.Next == null) { break; }
@@ -49,7 +52,7 @@ namespace SpiderEye.Linux
                 finally { GLib.FreeSList(filesPtr); }
             }
 
-            SelectedFiles = result.ToArray();
+            SelectedFiles = files.ToArray();
         }
     }
 }

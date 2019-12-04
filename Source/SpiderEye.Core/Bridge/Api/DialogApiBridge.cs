@@ -71,5 +71,22 @@ namespace SpiderEye.Bridge.Api
                 Files = dialog.SelectedFiles,
             };
         }
+
+        public FileResultModel ShowFolderSelectDialog(SelectFolderDialogConfigModel config)
+        {
+            var dialog = new FolderSelectDialog
+            {
+                Title = config.Title,
+                SelectedPath = config.SelectedPath,
+            };
+
+            var result = Application.Invoke(() => dialog.Show(parent));
+            return new FileResultModel
+            {
+                DialogResult = result,
+                File = dialog.SelectedPath,
+                Files = new string[] { dialog.SelectedPath },
+            };
+        }
     }
 }

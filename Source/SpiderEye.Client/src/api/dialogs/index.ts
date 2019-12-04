@@ -6,3 +6,4 @@ export * from "./message-box-config";
 export * from "./message-box";
 export * from "./open-file-dialog";
 export * from "./save-file-dialog";
+export * from "./folder-select-dialog";

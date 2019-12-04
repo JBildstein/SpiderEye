@@ -41,6 +41,12 @@ namespace SpiderEye
         IOpenFileDialog CreateOpenFileDialog();
 
         /// <summary>
+        /// Creates a new folder select dialog.
+        /// </summary>
+        /// <returns>The created folder select dialog.</returns>
+        IFolderSelectDialog CreateFolderSelectDialog();
+
+        /// <summary>
         /// Creates a new menu.
         /// </summary>
         /// <returns>The created menu.</returns>

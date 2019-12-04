@@ -4,6 +4,7 @@ import {
     MessageBoxButtons,
     SaveFileDialog,
     OpenFileDialog,
+    FolderSelectDialog,
     DialogResult,
     BrowserWindow,
     BrowserWindowConfig,
@@ -27,12 +28,17 @@ export class ApiComponent {
     openResult: string;
     openFile: string;
 
+    folderDialog: FolderSelectDialog;
+    folderResult: string;
+    folderPath: string;
+
     windowConfig: BrowserWindowConfig;
 
     constructor() {
         this.initMessageBox();
         this.initSaveDialog();
         this.initOpenDialog();
+        this.initFolderDialog();
         this.initWindow();
     }
 
@@ -51,6 +57,12 @@ export class ApiComponent {
         const result = await this.openDialog.showAsync();
         this.openResult = DialogResult[result.dialogResult];
         this.openFile = result.file;
+    }
+
+    async showFolderDialog() {
+        const result = await this.folderDialog.showAsync();
+        this.folderResult = DialogResult[result.dialogResult];
+        this.folderPath = result.file;
     }
 
     showWindow() {
@@ -73,6 +85,11 @@ export class ApiComponent {
     private initOpenDialog() {
         this.openDialog = new OpenFileDialog();
         this.openDialog.title = 'Hello World';
+    }
+
+    private initFolderDialog() {
+        this.folderDialog = new FolderSelectDialog();
+        this.folderDialog.title = 'Hello World';
     }
 
     private initWindow() {

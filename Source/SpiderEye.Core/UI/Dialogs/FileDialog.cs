@@ -5,17 +5,8 @@ namespace SpiderEye
     /// <summary>
     /// Represents a file dialog.
     /// </summary>
-    public abstract class FileDialog
+    public abstract class FileDialog : Dialog
     {
-        /// <summary>
-        /// Gets or sets the dialog title.
-        /// </summary>
-        public string Title
-        {
-            get { return NativeFileDialog.Title; }
-            set { NativeFileDialog.Title = value; }
-        }
-
         /// <summary>
         /// Gets or sets the initial directory.
         /// </summary>
@@ -47,30 +38,17 @@ namespace SpiderEye
         /// </summary>
         internal abstract IFileDialog NativeFileDialog { get; }
 
+        /// <inheritdoc/>
+        internal override IDialog NativeDialog
+        {
+            get { return NativeFileDialog; }
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="FileDialog"/> class.
         /// </summary>
         private protected FileDialog()
         {
-        }
-
-        /// <summary>
-        /// Shows the dialog.
-        /// </summary>
-        /// <returns>The user selection.</returns>
-        public DialogResult Show()
-        {
-            return NativeFileDialog.Show();
-        }
-
-        /// <summary>
-        /// Shows the dialog.
-        /// </summary>
-        /// <param name="parent">The parent window.</param>
-        /// <returns>The user selection.</returns>
-        public DialogResult Show(Window parent)
-        {
-            return NativeFileDialog.Show(parent?.NativeWindow);
         }
     }
 }
