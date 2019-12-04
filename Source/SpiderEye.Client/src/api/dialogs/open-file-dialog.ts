@@ -48,6 +48,6 @@ export class OpenFileDialog {
             multiselect: this.multiselect,
         };
 
-        window._spidereye.invokeApi<FileResult, OpenFileDialogConfig>("Dialog.showOpenFileDialog", config, callback);
+        window._spidereye.invokeApi<FileResult, OpenFileDialogConfig>("f0631cfea99a_Dialog.showOpenFileDialog", config, callback);
     }
 }

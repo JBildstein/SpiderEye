@@ -173,6 +173,9 @@ namespace SpiderEye.Bridge
 
             Type type = handler.GetType();
             string rootName = type.Name;
+            var attribute = type.GetCustomAttribute<BridgeObjectAttribute>();
+            if (attribute != null && !string.IsNullOrWhiteSpace(attribute.Path)) { rootName = attribute.Path; }
+
             if (!apiRootNames.Add(rootName))
             {
                 throw new InvalidOperationException($"Handler with name \"{rootName}\" already exists.");
@@ -196,8 +199,8 @@ namespace SpiderEye.Bridge
 
         private void InitApi()
         {
-            AddApiObject(new BrowserWindow(window));
-            AddApiObject(new Dialog(window));
+            AddApiObject(new WindowApiBridge(window));
+            AddApiObject(new DialogApiBridge(window));
 
             lock (GlobalHandlerLock)
             {

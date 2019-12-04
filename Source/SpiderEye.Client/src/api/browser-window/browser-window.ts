@@ -42,6 +42,6 @@ export class BrowserWindow {
     }
 
     private showBase(callback: ApiCallback<void>): void {
-        window._spidereye.invokeApi<void, BrowserWindowConfig>("BrowserWindow.show", this.config, callback);
+        window._spidereye.invokeApi<void, BrowserWindowConfig>("f0631cfea99a_Window.show", this.config, callback);
     }
 }

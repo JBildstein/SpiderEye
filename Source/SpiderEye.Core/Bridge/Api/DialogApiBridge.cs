@@ -3,11 +3,12 @@ using SpiderEye.Bridge.Models;
 
 namespace SpiderEye.Bridge.Api
 {
-    internal class Dialog
+    [BridgeObject("f0631cfea99a_Dialog")]
+    internal class DialogApiBridge
     {
         private readonly Window parent;
 
-        public Dialog(Window parent)
+        public DialogApiBridge(Window parent)
         {
             this.parent = parent ?? throw new ArgumentNullException(nameof(parent));
         }

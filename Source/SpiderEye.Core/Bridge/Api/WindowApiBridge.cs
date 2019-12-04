@@ -4,12 +4,13 @@ using SpiderEye.Bridge.Models;
 
 namespace SpiderEye.Bridge.Api
 {
-    internal class BrowserWindow
+    [BridgeObject("f0631cfea99a_Window")]
+    internal class WindowApiBridge
     {
         private static readonly WindowCollection WindowStore = new WindowCollection();
         private readonly Window parent;
 
-        public BrowserWindow(Window parent)
+        public WindowApiBridge(Window parent)
         {
             this.parent = parent ?? throw new ArgumentNullException(nameof(parent));
         }
