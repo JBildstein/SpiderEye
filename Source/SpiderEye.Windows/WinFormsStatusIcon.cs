@@ -65,7 +65,7 @@ namespace SpiderEye.Windows
         private void UpdateMenu(Menu menu)
         {
             var nativeMenu = NativeCast.To<WinFormsMenu>(menu?.NativeMenu);
-            notifyIcon.ContextMenu = nativeMenu?.Menu;
+            notifyIcon.ContextMenuStrip = nativeMenu?.Menu;
         }
     }
 }

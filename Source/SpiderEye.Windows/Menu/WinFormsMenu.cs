@@ -6,14 +6,14 @@ namespace SpiderEye.Windows
 {
     internal class WinFormsMenu : IMenu
     {
-        public readonly ContextMenu Menu = new ContextMenu();
+        public readonly ContextMenuStrip Menu = new ContextMenuStrip();
 
         public void AddItem(IMenuItem item)
         {
             if (item == null) { throw new ArgumentNullException(nameof(item)); }
 
             var nativeItem = NativeCast.To<WinFormsMenuItem>(item);
-            Menu.MenuItems.Add(nativeItem.Item);
+            Menu.Items.Add(nativeItem.Item);
         }
 
         public void Dispose()

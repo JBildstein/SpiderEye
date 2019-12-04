@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows.Forms;
 using SpiderEye.Windows.Interop;
 
 namespace SpiderEye.Windows
@@ -7,33 +8,38 @@ namespace SpiderEye.Windows
     {
         public event EventHandler Click
         {
-            add { Item.Click += value; }
-            remove { Item.Click -= value; }
+            add { menuItem.Click += value; }
+            remove { menuItem.Click -= value; }
         }
 
         public bool Enabled
         {
-            get { return Item.Enabled; }
-            set { Item.Enabled = value; }
+            get { return menuItem.Enabled; }
+            set { menuItem.Enabled = value; }
         }
 
         public string Label
         {
-            get { return Item.Text; }
-            set { Item.Text = value; }
+            get { return menuItem.Text; }
+            set { menuItem.Text = value; }
         }
 
-        public override System.Windows.Forms.MenuItem Item { get; }
+        public override ToolStripItem Item
+        {
+            get { return menuItem; }
+        }
+
+        private readonly ToolStripMenuItem menuItem;
 
         public WinFormsLabelMenuItem(string label)
         {
-            Item = new System.Windows.Forms.MenuItem(label);
+            menuItem = new ToolStripMenuItem(label);
         }
 
         public void SetShortcut(ModifierKey modifier, Key key)
         {
             var shortcut = KeyMapper.GetShortcut(modifier, key);
-            Item.Shortcut = shortcut;
+            menuItem.ShortcutKeys = shortcut;
         }
     }
 }
