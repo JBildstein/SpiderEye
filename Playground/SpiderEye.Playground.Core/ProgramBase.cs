@@ -29,9 +29,11 @@ namespace SpiderEye.Playground.Core
 
                 var menu = new Menu();
                 var showItem = menu.MenuItems.AddLabelItem("Hello World");
+                showItem.SetShortcut(ModifierKey.Primary, Key.O);
                 showItem.Click += ShowItem_Click;
 
                 var eventItem = menu.MenuItems.AddLabelItem("Send Event to Webview");
+                eventItem.SetShortcut(ModifierKey.Primary, Key.E);
                 eventItem.Click += async (s, e) => await window.Bridge.InvokeAsync("dateUpdated", DateTime.Now);
 
                 var subMenuItem = menu.MenuItems.AddLabelItem("Open me!");
