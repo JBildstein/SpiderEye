@@ -1,8 +1,8 @@
-﻿<Project>  
+﻿<Project>
   <PropertyGroup>
     <CodeAnalysisRuleSet>..\..\Shared\SpiderEye.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <AdditionalFiles Include="..\..\Shared\stylecop.json" Link="Properties\stylecop.json" />
   </ItemGroup>
