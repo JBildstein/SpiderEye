@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Threading;
 
 namespace SpiderEye
 {
@@ -13,6 +13,11 @@ namespace SpiderEye
         IUiFactory Factory { get; }
 
         /// <summary>
+        /// Gets the synchronization context.
+        /// </summary>
+        SynchronizationContext SynchronizationContext { get; }
+
+        /// <summary>
         /// Starts the main loop and blocks until the application exits.
         /// </summary>
         void Run();
@@ -21,11 +26,5 @@ namespace SpiderEye
         /// Exits the main loop and allows it to return.
         /// </summary>
         void Exit();
-
-        /// <summary>
-        /// Executes the given action on the UI main thread.
-        /// </summary>
-        /// <param name="action">The action to execute.</param>
-        void Invoke(Action action);
     }
 }

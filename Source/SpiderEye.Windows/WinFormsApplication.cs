@@ -9,7 +9,7 @@ namespace SpiderEye.Windows
     {
         public IUiFactory Factory { get; }
 
-        private readonly SynchronizationContext context;
+        public SynchronizationContext SynchronizationContext { get; }
 
         public WinFormsApplication()
         {
@@ -17,7 +17,7 @@ namespace SpiderEye.Windows
             App.SetCompatibleTextRenderingDefault(false);
 
             Factory = new WinFormsUiFactory();
-            context = new WindowsFormsSynchronizationContext();
+            SynchronizationContext = new WindowsFormsSynchronizationContext();
 
             WinFormsWindow.LastWindowClosed += WinFormsWindow_LastWindowClosed;
         }
@@ -30,11 +30,6 @@ namespace SpiderEye.Windows
         public void Exit()
         {
             App.Exit();
-        }
-
-        public void Invoke(Action action)
-        {
-            context.Send(state => action(), null);
         }
 
         private void WinFormsWindow_LastWindowClosed(object sender, EventArgs e)

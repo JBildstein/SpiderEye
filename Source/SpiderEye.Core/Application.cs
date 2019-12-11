@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.ExceptionServices;
+using System.Threading;
 #if !NET462
 using System.Runtime.InteropServices;
 #endif
@@ -136,17 +137,17 @@ namespace SpiderEye
         }
 
         /// <summary>
-        /// Executes the given action on the UI main thread.
+        /// Executes the given function on the UI main thread.
         /// </summary>
         /// <typeparam name="T">The type of the return value.</typeparam>
-        /// <param name="action">The action to execute.</param>
-        /// <returns>The result of the given action.</returns>
-        public static T Invoke<T>(Func<T> action)
+        /// <param name="function">The function to execute.</param>
+        /// <returns>The result of the given function.</returns>
+        public static T Invoke<T>(Func<T> function)
         {
-            if (action == null) { throw new ArgumentNullException(nameof(action)); }
+            if (function == null) { throw new ArgumentNullException(nameof(function)); }
 
             T result = default;
-            InvokeSafely(() => result = action());
+            InvokeSafely(() => result = function());
             return result;
         }
 
@@ -164,6 +165,8 @@ namespace SpiderEye
             }
 
             app = application ?? throw new ArgumentNullException(nameof(application));
+
+            SynchronizationContext.SetSynchronizationContext(app.SynchronizationContext);
         }
 
         private static void InvokeSafely(Action action)
@@ -171,11 +174,12 @@ namespace SpiderEye
             CheckInitialized();
 
             ExceptionDispatchInfo exception = null;
-            app.Invoke(() =>
-            {
-                try { action(); }
-                catch (Exception ex) { exception = ExceptionDispatchInfo.Capture(ex); }
-            });
+            app.SynchronizationContext.Send(
+                state =>
+                {
+                    try { action(); }
+                    catch (Exception ex) { exception = ExceptionDispatchInfo.Capture(ex); }
+                }, null);
 
             exception?.Throw();
         }

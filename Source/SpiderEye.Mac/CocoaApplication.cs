@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using SpiderEye.Mac.Interop;
 using SpiderEye.Mac.Native;
 
@@ -8,6 +9,8 @@ namespace SpiderEye.Mac
     {
         public IUiFactory Factory { get; }
 
+        public SynchronizationContext SynchronizationContext { get; }
+
         public IntPtr Handle { get; }
 
         private readonly ShouldTerminateDelegate shouldTerminateDelegateRef;
@@ -16,6 +19,7 @@ namespace SpiderEye.Mac
         public CocoaApplication()
         {
             Factory = new CocoaUiFactory();
+            SynchronizationContext = new CocoaSynchronizationContext();
 
             // need to keep the delegates around or they will get garbage collected
             shouldTerminateDelegateRef = ShouldTerminateCallback;
@@ -53,18 +57,6 @@ namespace SpiderEye.Mac
         public void Exit()
         {
             ObjC.Call(Handle, "terminate:", Handle);
-        }
-
-        public void Invoke(Action action)
-        {
-            if (action == null) { throw new ArgumentNullException(nameof(action)); }
-
-            bool isMainThread = Foundation.Call("NSThread", "isMainThread") != IntPtr.Zero;
-            if (isMainThread) { action(); }
-            else
-            {
-                Dispatch.SyncFunction(Dispatch.MainQueue, IntPtr.Zero, ctx => action());
-            }
         }
 
         private byte ShouldTerminateCallback(IntPtr self, IntPtr op, IntPtr notification)

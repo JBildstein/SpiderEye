@@ -8,6 +8,8 @@ namespace SpiderEye.Linux
     {
         public IUiFactory Factory { get; }
 
+        public SynchronizationContext SynchronizationContext { get; }
+
         private bool hasExited = false;
 
         public GtkApplication()
@@ -15,6 +17,8 @@ namespace SpiderEye.Linux
             Init();
 
             Factory = new GtkUiFactory();
+            SynchronizationContext = new GtkSynchronizationContext();
+
             GtkWindow.LastWindowClosed += GtkWindow_LastWindowClosed;
         }
 
@@ -29,28 +33,6 @@ namespace SpiderEye.Linux
             {
                 hasExited = true;
                 Gtk.Quit();
-            }
-        }
-
-        public void Invoke(Action action)
-        {
-            using (var mre = new ManualResetEventSlim(false))
-            {
-                // if on main thread, callback is executed immediately
-                // and mre is set before calling Wait().
-                // Otherwise we block the calling thread until the action is executed.
-                GLib.ContextInvoke(
-                    IntPtr.Zero,
-                    data =>
-                    {
-                        try { action(); }
-                        finally { mre.Set(); }
-
-                        return false;
-                    },
-                    IntPtr.Zero);
-
-                mre.Wait();
             }
         }
 
