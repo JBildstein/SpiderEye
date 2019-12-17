@@ -19,7 +19,7 @@ namespace SpiderEye.Linux
             Factory = new GtkUiFactory();
             SynchronizationContext = new GtkSynchronizationContext();
 
-            GtkWindow.LastWindowClosed += GtkWindow_LastWindowClosed;
+            Application.OpenWindows.AllWindowsClosed += Application_AllWindowsClosed;
         }
 
         public void Run()
@@ -46,7 +46,7 @@ namespace SpiderEye.Linux
             }
         }
 
-        private void GtkWindow_LastWindowClosed(object sender, EventArgs e)
+        private void Application_AllWindowsClosed(object sender, EventArgs e)
         {
             if (Application.ExitWithLastWindow) { Exit(); }
         }

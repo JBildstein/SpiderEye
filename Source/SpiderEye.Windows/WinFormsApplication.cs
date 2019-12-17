@@ -19,7 +19,7 @@ namespace SpiderEye.Windows
             Factory = new WinFormsUiFactory();
             SynchronizationContext = new WindowsFormsSynchronizationContext();
 
-            WinFormsWindow.LastWindowClosed += WinFormsWindow_LastWindowClosed;
+            Application.OpenWindows.AllWindowsClosed += Application_AllWindowsClosed;
         }
 
         public void Run()
@@ -32,7 +32,7 @@ namespace SpiderEye.Windows
             App.Exit();
         }
 
-        private void WinFormsWindow_LastWindowClosed(object sender, EventArgs e)
+        private void Application_AllWindowsClosed(object sender, EventArgs e)
         {
             if (Application.ExitWithLastWindow) { Exit(); }
         }

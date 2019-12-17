@@ -8,6 +8,11 @@ namespace SpiderEye
     internal interface IWindow : IDisposable
     {
         /// <summary>
+        /// Fires when the window is shown.
+        /// </summary>
+        event EventHandler Shown;
+
+        /// <summary>
         /// Fires before the window gets closed.
         /// </summary>
         event CancelableEventHandler Closing;

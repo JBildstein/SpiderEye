@@ -6,7 +6,7 @@ namespace SpiderEye.Linux.Interop
     internal delegate bool GSourceDelegate(IntPtr userdata);
     internal delegate void WebKitUriSchemeRequestDelegate(IntPtr request, IntPtr userdata);
     internal delegate void MenuActivateDelegate(IntPtr menu, IntPtr userdata);
-    internal delegate void DestroyCallbackDelegate(IntPtr widget, IntPtr userdata);
+    internal delegate void WidgetCallbackDelegate(IntPtr widget, IntPtr userdata);
     internal delegate bool DeleteCallbackDelegate(IntPtr widget, IntPtr eventData, IntPtr userdata);
     internal delegate void WebviewDelegate(IntPtr webview, IntPtr userdata);
     internal delegate void ScriptDelegate(IntPtr manager, IntPtr jsResult, IntPtr userdata);

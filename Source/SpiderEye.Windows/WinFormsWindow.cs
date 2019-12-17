@@ -13,22 +13,13 @@ namespace SpiderEye.Windows
 {
     internal class WinFormsWindow : Form, IWindow
     {
-        public static event EventHandler LastWindowClosed;
-
         event CancelableEventHandler IWindow.Closing
         {
             add { ClosingBackingEvent += value; }
             remove { ClosingBackingEvent -= value; }
         }
 
-        event EventHandler IWindow.Closed
-        {
-            add { ClosedBackingEvent += value; }
-            remove { ClosedBackingEvent -= value; }
-        }
-
         private event CancelableEventHandler ClosingBackingEvent;
-        private event EventHandler ClosedBackingEvent;
 
         public string Title
         {
@@ -95,8 +86,6 @@ namespace SpiderEye.Windows
         {
             get { return webview; }
         }
-
-        private static int windowCount = 0;
 
         private readonly ContentServer server;
         private readonly IWinFormsWebview webview;
@@ -166,13 +155,6 @@ namespace SpiderEye.Windows
             }
         }
 
-        protected override void OnShown(EventArgs e)
-        {
-            Interlocked.Increment(ref windowCount);
-
-            base.OnShown(e);
-        }
-
         protected override void OnClosing(CancelEventArgs e)
         {
             var args = new CancelableEventArgs();
@@ -180,21 +162,6 @@ namespace SpiderEye.Windows
             e.Cancel = args.Cancel;
 
             base.OnClosing(e);
-        }
-
-        protected override void OnClosed(EventArgs e)
-        {
-            try
-            {
-                ClosedBackingEvent?.Invoke(this, EventArgs.Empty);
-                base.OnClosed(e);
-                Dispose();
-            }
-            finally
-            {
-                int count = Interlocked.Decrement(ref windowCount);
-                if (count <= 0) { LastWindowClosed?.Invoke(this, EventArgs.Empty); }
-            }
         }
 
         protected override void Dispose(bool disposing)

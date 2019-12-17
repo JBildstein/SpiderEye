@@ -18,6 +18,15 @@ namespace SpiderEye
         }
 
         /// <summary>
+        /// Fires when the window is shown.
+        /// </summary>
+        public event EventHandler Shown
+        {
+            add { NativeWindow.Shown += value; }
+            remove { NativeWindow.Shown -= value; }
+        }
+
+        /// <summary>
         /// Fires before the window gets closed.
         /// </summary>
         public event CancelableEventHandler Closing
@@ -168,6 +177,7 @@ namespace SpiderEye
             EnableDevTools = DefaultConfig.EnableDevTools;
 
             bridge.TitleChanged += Bridge_TitleChanged;
+            NativeWindow.Shown += NativeWindow_Shown;
             NativeWindow.Closed += NativeWindow_Closed;
         }
 
@@ -221,6 +231,12 @@ namespace SpiderEye
             {
                 Application.Invoke(() => Title = title ?? string.Empty);
             }
+        }
+
+        private void NativeWindow_Shown(object sender, EventArgs e)
+        {
+            NativeWindow.Shown -= NativeWindow_Shown;
+            Application.OpenWindows.Add(this);
         }
 
         private void NativeWindow_Closed(object sender, EventArgs e)

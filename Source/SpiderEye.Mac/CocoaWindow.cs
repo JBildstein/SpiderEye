@@ -11,6 +11,7 @@ namespace SpiderEye.Mac
     {
         public event CancelableEventHandler Closing;
         public event EventHandler Closed;
+        public event EventHandler Shown;
 
         public string Title
         {
@@ -114,6 +115,7 @@ namespace SpiderEye.Mac
 
         private readonly CocoaWebview webview;
 
+        private readonly NotificationDelegate windowShownDelegate;
         private readonly WindowShouldCloseDelegate windowShouldCloseDelegate;
         private readonly NotificationDelegate windowWillCloseDelegate;
 
@@ -128,6 +130,7 @@ namespace SpiderEye.Mac
             Interlocked.Increment(ref count);
 
             // need to keep the delegates around or they will get garbage collected
+            windowShownDelegate = WindowShownCallback;
             windowShouldCloseDelegate = WindowShouldCloseCallback;
             windowWillCloseDelegate = WindowWillCloseCallback;
 
@@ -205,6 +208,12 @@ namespace SpiderEye.Mac
 
             ObjC.AddMethod(
                 windowDelegateClass,
+                ObjC.RegisterName("windowDidExpose:"),
+                windowShownDelegate,
+                "v@:@");
+
+            ObjC.AddMethod(
+                windowDelegateClass,
                 ObjC.RegisterName("windowShouldClose:"),
                 windowShouldCloseDelegate,
                 "c@:@");
@@ -219,6 +228,11 @@ namespace SpiderEye.Mac
 
             IntPtr windowDelegate = ObjC.Call(windowDelegateClass, "new");
             ObjC.Call(window, "setDelegate:", windowDelegate);
+        }
+
+        private void WindowShownCallback(IntPtr self, IntPtr op, IntPtr notification)
+        {
+            Shown?.Invoke(this, EventArgs.Empty);
         }
 
         private byte WindowShouldCloseCallback(IntPtr self, IntPtr op, IntPtr window)

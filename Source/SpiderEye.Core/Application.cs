@@ -20,6 +20,11 @@ namespace SpiderEye
         public static bool ExitWithLastWindow { get; set; }
 
         /// <summary>
+        /// Gets a collection of windows that are currently open.
+        /// </summary>
+        public static WindowCollection OpenWindows { get; }
+
+        /// <summary>
         /// Gets or sets the content provider for loading webview files.
         /// </summary>
         public static IContentProvider ContentProvider
@@ -64,6 +69,7 @@ namespace SpiderEye
             ExitWithLastWindow = true;
             contentProvider = NoopContentProvider.Instance;
             uriWatcher = NoopUriWatcher.Instance;
+            OpenWindows = new WindowCollection();
         }
 
         /// <summary>

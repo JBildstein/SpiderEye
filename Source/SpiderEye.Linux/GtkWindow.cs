@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 using SpiderEye.Bridge;
 using SpiderEye.Linux.Interop;
 using SpiderEye.Linux.Native;
@@ -8,10 +7,9 @@ namespace SpiderEye.Linux
 {
     internal class GtkWindow : IWindow
     {
-        public static event EventHandler LastWindowClosed;
-
         public event CancelableEventHandler Closing;
         public event EventHandler Closed;
+        public event EventHandler Shown;
 
         public string Title
         {
@@ -110,13 +108,12 @@ namespace SpiderEye.Linux
 
         public readonly IntPtr Handle;
 
-        private static int windowCount = 0;
-
         private readonly GtkWebview webview;
         private readonly WebviewBridge bridge;
 
+        private readonly WidgetCallbackDelegate showDelegate;
         private readonly DeleteCallbackDelegate deleteDelegate;
-        private readonly DestroyCallbackDelegate destroyDelegate;
+        private readonly WidgetCallbackDelegate destroyDelegate;
 
         private Size minSizeField;
         private Size maxSizeField;
@@ -135,9 +132,11 @@ namespace SpiderEye.Linux
             Gtk.Widget.ContainerAdd(scroller, webview.Handle);
 
             // need to keep the delegates around or they will get garbage collected
+            showDelegate = ShowCallback;
             deleteDelegate = DeleteCallback;
             destroyDelegate = DestroyCallback;
 
+            GLib.ConnectSignal(Handle, "show", destroyDelegate, IntPtr.Zero);
             GLib.ConnectSignal(Handle, "delete-event", deleteDelegate, IntPtr.Zero);
             GLib.ConnectSignal(Handle, "destroy", destroyDelegate, IntPtr.Zero);
 
@@ -149,8 +148,6 @@ namespace SpiderEye.Linux
         {
             Gtk.Widget.ShowAll(Handle);
             Gtk.Window.Present(Handle);
-
-            Interlocked.Increment(ref windowCount);
         }
 
         public void Close()
@@ -238,6 +235,11 @@ namespace SpiderEye.Linux
             }
         }
 
+        private void ShowCallback(IntPtr widget, IntPtr userdata)
+        {
+            Shown?.Invoke(this, EventArgs.Empty);
+        }
+
         private bool DeleteCallback(IntPtr widget, IntPtr eventData, IntPtr userdata)
         {
             var args = new CancelableEventArgs();
@@ -248,18 +250,10 @@ namespace SpiderEye.Linux
 
         private void DestroyCallback(IntPtr widget, IntPtr userdata)
         {
-            try
-            {
-                webview.TitleChanged -= Webview_TitleChanged;
-                bridge.TitleChanged -= Webview_TitleChanged;
+            webview.TitleChanged -= Webview_TitleChanged;
+            bridge.TitleChanged -= Webview_TitleChanged;
 
-                Closed?.Invoke(this, EventArgs.Empty);
-            }
-            finally
-            {
-                int count = Interlocked.Decrement(ref windowCount);
-                if (count <= 0) { LastWindowClosed?.Invoke(this, EventArgs.Empty); }
-            }
+            Closed?.Invoke(this, EventArgs.Empty);
         }
 
         private void Webview_TitleChanged(object sender, string title)
