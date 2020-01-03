@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
-using System.Threading;
 using System.Windows.Forms;
 using SpiderEye.Bridge;
 using SpiderEye.Tools;
@@ -87,7 +86,6 @@ namespace SpiderEye.Windows
             get { return webview; }
         }
 
-        private readonly ContentServer server;
         private readonly IWinFormsWebview webview;
 
         private AppIcon icon;
@@ -100,11 +98,7 @@ namespace SpiderEye.Windows
             switch (webviewType)
             {
                 case WebviewType.InternetExplorer:
-                    server = new ContentServer(); // TODO: every window has its own server. is that good?
-                    server.Start();
-                    string hostAddress = server.HostAddress;
-
-                    webview = new WinFormsLegacyWebview(hostAddress, bridge);
+                    webview = new WinFormsLegacyWebview(WindowsApplication.ContentServerAddress, bridge);
                     break;
 
                 case WebviewType.Edge:
@@ -169,7 +163,6 @@ namespace SpiderEye.Windows
             base.Dispose(disposing);
 
             webview.Dispose();
-            server?.Dispose();
         }
 
         private WebviewType ChooseWebview()

@@ -10,6 +10,11 @@
         /// </summary>
         public static WebviewType WebviewType { get; set; }
 
+        internal static string ContentServerAddress
+        {
+            get { return app.ContentServer.HostAddress; }
+        }
+
         private static WinFormsApplication app;
 
         /// <summary>
