@@ -6,7 +6,6 @@ namespace SpiderEye.Example.Spa
 {
     class Program : ProgramBase
     {
-        [STAThread]
         public static void Main(string[] args)
         {
             MacApplication.Init();

@@ -6,7 +6,6 @@ namespace SpiderEye.Example.Simple
 {
     class Program : ProgramBase
     {
-        [STAThread]
         public static void Main(string[] args)
         {
             LinuxApplication.Init();

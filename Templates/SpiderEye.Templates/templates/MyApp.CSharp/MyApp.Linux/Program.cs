@@ -6,7 +6,6 @@ namespace MyApp
 {
     class Program : ProgramBase
     {
-        [STAThread]
         public static void Main(string[] args)
         {
             LinuxApplication.Init();
