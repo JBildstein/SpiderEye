@@ -152,6 +152,8 @@ namespace SpiderEye.Mac
         {
             ObjC.Call(Handle, "center");
             ObjC.Call(Handle, "makeKeyAndOrderFront:", IntPtr.Zero);
+
+            MacApplication.SynchronizationContext.Post(s => Shown?.Invoke(this, EventArgs.Empty), null);
         }
 
         public void Close()
@@ -192,15 +194,6 @@ namespace SpiderEye.Mac
         private static NativeClassDefinition CreateWindowDelegate()
         {
             var definition = new NativeClassDefinition("SpiderEyeWindowDelegate", "NSWindowDelegate");
-
-            definition.AddMethod<NotificationDelegate>(
-                "windowDidExpose:",
-                "v@:@",
-                (self, op, notification) =>
-                {
-                    var instance = definition.GetParent<CocoaWindow>(self);
-                    instance.Shown?.Invoke(instance, EventArgs.Empty);
-                });
 
             definition.AddMethod<WindowShouldCloseDelegate>(
                 "windowShouldClose:",

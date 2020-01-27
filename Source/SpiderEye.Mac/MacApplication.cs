@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using SpiderEye.Mac.Native;
 using SpiderEye.Tools;
 
@@ -25,6 +26,11 @@ namespace SpiderEye.Mac
         internal static IntPtr Handle
         {
             get { return app.Handle; }
+        }
+
+        internal static SynchronizationContext SynchronizationContext
+        {
+            get { return app.SynchronizationContext; }
         }
 
         private static CocoaApplication app;
