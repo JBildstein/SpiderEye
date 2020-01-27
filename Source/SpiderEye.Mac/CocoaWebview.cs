@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using SpiderEye.Bridge;
 using SpiderEye.Mac.Interop;
@@ -29,42 +28,39 @@ namespace SpiderEye.Mac
 
         public readonly IntPtr Handle;
 
-        private static int count = 0;
+        private static readonly NativeClassDefinition CallbackClassDefinition;
+        private static readonly NativeClassDefinition SchemeHandlerDefinition;
+
+        private readonly NativeClassInstance callbackClass;
+        private readonly NativeClassInstance schemeHandler;
 
         private readonly WebviewBridge bridge;
         private readonly Uri customHost;
         private readonly IntPtr preferences;
 
-        private readonly LoadFinishedDelegate loadDelegate;
-        private readonly LoadFailedDelegate loadFailedDelegate;
-        private readonly ObserveValueDelegate observedValueChangedDelegate;
-        private readonly ScriptCallbackDelegate scriptDelegate;
-        private readonly SchemeHandlerDelegate uriSchemeStartDelegate;
-        private readonly SchemeHandlerDelegate uriSchemeStopDelegate;
-
         private bool enableDevToolsField;
+
+        static CocoaWebview()
+        {
+            CallbackClassDefinition = CreateCallbackClass();
+            SchemeHandlerDefinition = CreateSchemeHandler();
+        }
 
         public CocoaWebview(WebviewBridge bridge)
         {
             this.bridge = bridge ?? throw new ArgumentNullException(nameof(bridge));
 
-            Interlocked.Increment(ref count);
-
-            // need to keep the delegates around or they will get garbage collected
-            loadDelegate = LoadCallback;
-            loadFailedDelegate = LoadFailedCallback;
-            observedValueChangedDelegate = ObservedValueChanged;
-            scriptDelegate = ScriptCallback;
-            uriSchemeStartDelegate = UriSchemeStartCallback;
-            uriSchemeStopDelegate = UriSchemeStopCallback;
-
             IntPtr configuration = WebKit.Call("WKWebViewConfiguration", "new");
             IntPtr manager = ObjC.Call(configuration, "userContentController");
-            IntPtr callbackClass = CreateCallbackClass();
 
-            customHost = CreateSchemeHandler(configuration);
+            callbackClass = CallbackClassDefinition.CreateInstance(this);
+            schemeHandler = SchemeHandlerDefinition.CreateInstance(this);
 
-            ObjC.Call(manager, "addScriptMessageHandler:name:", callbackClass, NSString.Create("external"));
+            const string scheme = "spidereye";
+            customHost = new Uri(UriTools.GetRandomResourceUrl(scheme));
+            ObjC.Call(configuration, "setURLSchemeHandler:forURLScheme:", schemeHandler.Handle, NSString.Create(scheme));
+
+            ObjC.Call(manager, "addScriptMessageHandler:name:", callbackClass.Handle, NSString.Create("external"));
             IntPtr script = WebKit.Call("WKUserScript", "alloc");
             ObjC.Call(
                 script,
@@ -76,11 +72,11 @@ namespace SpiderEye.Mac
 
             Handle = WebKit.Call("WKWebView", "alloc");
             ObjC.Call(Handle, "initWithFrame:configuration:", CGRect.Zero, configuration);
-            ObjC.Call(Handle, "setNavigationDelegate:", callbackClass);
+            ObjC.Call(Handle, "setNavigationDelegate:", callbackClass.Handle);
 
             IntPtr boolValue = Foundation.Call("NSNumber", "numberWithBool:", false);
             ObjC.Call(Handle, "setValue:forKey:", boolValue, NSString.Create("drawsBackground"));
-            ObjC.Call(Handle, "addObserver:forKeyPath:options:context:", callbackClass, NSString.Create("title"), IntPtr.Zero, IntPtr.Zero);
+            ObjC.Call(Handle, "addObserver:forKeyPath:options:context:", callbackClass.Handle, NSString.Create("title"), IntPtr.Zero, IntPtr.Zero);
 
             preferences = ObjC.Call(configuration, "preferences");
         }
@@ -137,87 +133,104 @@ namespace SpiderEye.Mac
 
         public void Dispose()
         {
-            // will be released automatically
+            // webview will be released automatically
+            callbackClass.Dispose();
+            schemeHandler.Dispose();
         }
 
-        private IntPtr CreateCallbackClass()
+        private static NativeClassDefinition CreateCallbackClass()
         {
-            IntPtr callbackClass = ObjC.AllocateClassPair(ObjC.GetClass("NSObject"), "CallbackClass" + count, IntPtr.Zero);
-            ObjC.AddProtocol(callbackClass, ObjC.GetProtocol("WKNavigationDelegate"));
-            ObjC.AddProtocol(callbackClass, ObjC.GetProtocol("WKScriptMessageHandler"));
+            var definition = new NativeClassDefinition("SpiderEyeWebviewCallbacks", "WKNavigationDelegate", "WKScriptMessageHandler");
 
-            ObjC.AddMethod(
-                callbackClass,
-                ObjC.RegisterName("webView:didFinishNavigation:"),
-                loadDelegate,
-                "v@:@@");
+            definition.AddMethod<LoadFinishedDelegate>(
+                "webView:didFinishNavigation:",
+                "v@:@@",
+                (self, op, view, navigation) =>
+                {
+                    var instance = definition.GetParent<CocoaWebview>(self);
+                    instance.PageLoaded?.Invoke(instance, PageLoadEventArgs.Successful);
+                });
 
-            ObjC.AddMethod(
-                callbackClass,
-                ObjC.RegisterName("webView:didFailNavigation:withError:"),
-                loadFailedDelegate,
-                "v@:@@@");
+            definition.AddMethod<LoadFailedDelegate>(
+                "webView:didFailNavigation:withError:",
+                "v@:@@@",
+                (self, op, view, navigation, error) =>
+                {
+                    var instance = definition.GetParent<CocoaWebview>(self);
+                    instance.PageLoaded?.Invoke(instance, PageLoadEventArgs.Failed);
+                });
 
-            ObjC.AddMethod(
-                callbackClass,
-                ObjC.RegisterName("observeValueForKeyPath:ofObject:change:context:"),
-                observedValueChangedDelegate,
-                "v@:@@@@");
+            definition.AddMethod<ObserveValueDelegate>(
+                "observeValueForKeyPath:ofObject:change:context:",
+                "v@:@@@@",
+                (self, op, keyPath, obj, change, context) =>
+                {
+                    var instance = definition.GetParent<CocoaWebview>(self);
+                    ObservedValueChanged(instance, keyPath);
+                });
 
-            ObjC.AddMethod(
-                callbackClass,
-                ObjC.RegisterName("userContentController:didReceiveScriptMessage:"),
-                scriptDelegate,
-                "v@:@@");
+            definition.AddMethod<ScriptCallbackDelegate>(
+                "userContentController:didReceiveScriptMessage:",
+                "v@:@@",
+                (self, op, notification, message) =>
+                {
+                    var instance = definition.GetParent<CocoaWebview>(self);
+                    ScriptCallback(instance, message);
+                });
 
-            ObjC.RegisterClassPair(callbackClass);
+            definition.FinishDeclaration();
 
-            return ObjC.Call(callbackClass, "new");
+            return definition;
         }
 
-        private Uri CreateSchemeHandler(IntPtr configuration)
+        private static NativeClassDefinition CreateSchemeHandler()
         {
-            const string scheme = "spidereye";
-            string host = UriTools.GetRandomResourceUrl(scheme);
+            var definition = new NativeClassDefinition("SpiderEyeSchemeHandler", "WKURLSchemeHandler");
 
-            IntPtr handlerClass = ObjC.AllocateClassPair(ObjC.GetClass("NSObject"), "SchemeHandler" + count, IntPtr.Zero);
-            ObjC.AddProtocol(handlerClass, ObjC.GetProtocol("WKURLSchemeHandler"));
+            definition.AddMethod<SchemeHandlerDelegate>(
+                "webView:startURLSchemeTask:",
+                "v@:@@",
+                (self, op, view, schemeTask) =>
+                {
+                    var instance = definition.GetParent<CocoaWebview>(self);
+                    UriSchemeStartCallback(instance, schemeTask);
+                });
 
-            ObjC.AddMethod(
-                handlerClass,
-                ObjC.RegisterName("webView:startURLSchemeTask:"),
-                uriSchemeStartDelegate,
-                "v@:@@");
+            definition.AddMethod<SchemeHandlerDelegate>(
+                "webView:stopURLSchemeTask:",
+                "v@:@@",
+                (self, op, view, schemeTask) => { /* don't think anything needs to be done here */ });
 
-            ObjC.AddMethod(
-                handlerClass,
-                ObjC.RegisterName("webView:stopURLSchemeTask:"),
-                uriSchemeStopDelegate,
-                "v@:@@");
+            definition.FinishDeclaration();
 
-            ObjC.RegisterClassPair(handlerClass);
-
-            IntPtr handler = ObjC.Call(handlerClass, "new");
-            ObjC.Call(configuration, "setURLSchemeHandler:forURLScheme:", handler, NSString.Create(scheme));
-
-            return new Uri(host);
+            return definition;
         }
 
-        private async void ScriptCallback(IntPtr self, IntPtr op, IntPtr notification, IntPtr message)
+        private static void ObservedValueChanged(CocoaWebview instance, IntPtr keyPath)
         {
-            if (EnableScriptInterface)
+            string key = NSString.GetString(keyPath);
+            if (key == "title" && instance.UseBrowserTitle)
+            {
+                string title = NSString.GetString(ObjC.Call(instance.Handle, "title"));
+                instance.TitleChanged?.Invoke(instance, title ?? string.Empty);
+            }
+        }
+
+        private static async void ScriptCallback(CocoaWebview instance, IntPtr message)
+        {
+            if (instance.EnableScriptInterface)
             {
                 IntPtr body = ObjC.Call(message, "body");
                 IntPtr isString = ObjC.Call(body, "isKindOfClass:", Foundation.GetClass("NSString"));
                 if (isString != IntPtr.Zero)
                 {
                     string data = NSString.GetString(body);
-                    await bridge.HandleScriptCall(data);
+                    await instance.bridge.HandleScriptCall(data);
                 }
             }
         }
 
-        private void UriSchemeStartCallback(IntPtr self, IntPtr op, IntPtr view, IntPtr schemeTask)
+        private static void UriSchemeStartCallback(CocoaWebview instance, IntPtr schemeTask)
         {
             try
             {
@@ -226,7 +239,7 @@ namespace SpiderEye.Mac
 
                 var uri = new Uri(NSString.GetString(ObjC.Call(url, "absoluteString")));
                 var host = new Uri(uri.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped));
-                if (host == customHost)
+                if (host == instance.customHost)
                 {
                     using (var contentStream = Application.ContentProvider.GetStreamAsync(uri).GetAwaiter().GetResult())
                     {
@@ -279,32 +292,7 @@ namespace SpiderEye.Mac
             catch { FinishUriSchemeCallbackWithError(schemeTask, 500); }
         }
 
-        private void UriSchemeStopCallback(IntPtr self, IntPtr op, IntPtr view, IntPtr schemeTask)
-        {
-            // don't think anything needs to be done here
-        }
-
-        private void ObservedValueChanged(IntPtr self, IntPtr op, IntPtr keyPath, IntPtr obj, IntPtr change, IntPtr context)
-        {
-            string key = NSString.GetString(keyPath);
-            if (key == "title" && UseBrowserTitle)
-            {
-                string title = NSString.GetString(ObjC.Call(Handle, "title"));
-                TitleChanged?.Invoke(this, title ?? string.Empty);
-            }
-        }
-
-        private void LoadFailedCallback(IntPtr self, IntPtr op, IntPtr view, IntPtr navigation, IntPtr error)
-        {
-            PageLoaded?.Invoke(this, PageLoadEventArgs.Failed);
-        }
-
-        private void LoadCallback(IntPtr self, IntPtr op, IntPtr view, IntPtr navigation)
-        {
-            PageLoaded?.Invoke(this, PageLoadEventArgs.Successful);
-        }
-
-        private void FinishUriSchemeCallback(IntPtr url, IntPtr schemeTask, IntPtr data, long contentLength, Uri uri)
+        private static void FinishUriSchemeCallback(IntPtr url, IntPtr schemeTask, IntPtr data, long contentLength, Uri uri)
         {
             IntPtr response = Foundation.Call("NSURLResponse", "alloc");
             ObjC.Call(
@@ -328,7 +316,7 @@ namespace SpiderEye.Mac
             ObjC.Call(schemeTask, "didFinish");
         }
 
-        private void FinishUriSchemeCallbackWithError(IntPtr schemeTask, int errorCode)
+        private static void FinishUriSchemeCallbackWithError(IntPtr schemeTask, int errorCode)
         {
             var error = Foundation.Call(
                 "NSError",

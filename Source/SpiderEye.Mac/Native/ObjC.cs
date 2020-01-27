@@ -26,6 +26,18 @@ namespace SpiderEye.Mac.Native
         [DllImport(ObjCLib, EntryPoint = "class_addMethod", CharSet = CharSet.Ansi)]
         public static extern bool AddMethod(IntPtr cls, IntPtr name, Delegate imp, string types);
 
+        [DllImport(ObjCLib, EntryPoint = "class_addIvar", CharSet = CharSet.Ansi)]
+        public static extern bool AddVariable(IntPtr cls, string name, IntPtr size, byte alignment, string types);
+
+        [DllImport(ObjCLib, EntryPoint = "class_getInstanceVariable", CharSet = CharSet.Ansi)]
+        public static extern IntPtr GetVariable(IntPtr cls, string name);
+
+        [DllImport(ObjCLib, EntryPoint = "object_getIvar")]
+        public static extern IntPtr GetVariableValue(IntPtr obj, IntPtr ivar);
+
+        [DllImport(ObjCLib, EntryPoint = "object_setIvar")]
+        public static extern IntPtr SetVariableValue(IntPtr obj, IntPtr ivar, IntPtr value);
+
         [DllImport(ObjCLib, EntryPoint = "sel_registerName", CharSet = CharSet.Ansi)]
         public static extern IntPtr RegisterName(string name);
 

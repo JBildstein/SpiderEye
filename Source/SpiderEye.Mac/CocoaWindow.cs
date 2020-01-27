@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using System.Threading;
 using SpiderEye.Bridge;
 using SpiderEye.Mac.Interop;
 using SpiderEye.Mac.Native;
@@ -111,28 +110,23 @@ namespace SpiderEye.Mac
 
         public readonly IntPtr Handle;
 
-        private static int count = 0;
+        private static readonly NativeClassDefinition WindowDelegateDefinition;
 
+        private readonly NativeClassInstance windowDelegate;
         private readonly CocoaWebview webview;
-
-        private readonly NotificationDelegate windowShownDelegate;
-        private readonly WindowShouldCloseDelegate windowShouldCloseDelegate;
-        private readonly NotificationDelegate windowWillCloseDelegate;
 
         private bool canResizeField;
         private string backgroundColorField;
+
+        static CocoaWindow()
+        {
+            WindowDelegateDefinition = CreateWindowDelegate();
+        }
 
         public CocoaWindow(WindowConfiguration config, WebviewBridge bridge)
         {
             if (config == null) { throw new ArgumentNullException(nameof(config)); }
             if (bridge == null) { throw new ArgumentNullException(nameof(bridge)); }
-
-            Interlocked.Increment(ref count);
-
-            // need to keep the delegates around or they will get garbage collected
-            windowShownDelegate = WindowShownCallback;
-            windowShouldCloseDelegate = WindowShouldCloseCallback;
-            windowWillCloseDelegate = WindowWillCloseCallback;
 
             Handle = AppKit.Call("NSWindow", "alloc");
 
@@ -150,7 +144,8 @@ namespace SpiderEye.Mac
 
             webview.TitleChanged += Webview_TitleChanged;
 
-            SetWindowDelegate(Handle);
+            windowDelegate = WindowDelegateDefinition.CreateInstance(this);
+            ObjC.Call(Handle, "setDelegate:", windowDelegate.Handle);
         }
 
         public void Show()
@@ -191,6 +186,47 @@ namespace SpiderEye.Mac
         {
             // window will be released automatically
             webview.Dispose();
+            windowDelegate.Dispose();
+        }
+
+        private static NativeClassDefinition CreateWindowDelegate()
+        {
+            var definition = new NativeClassDefinition("SpiderEyeWindowDelegate", "NSWindowDelegate");
+
+            definition.AddMethod<NotificationDelegate>(
+                "windowDidExpose:",
+                "v@:@",
+                (self, op, notification) =>
+                {
+                    var instance = definition.GetParent<CocoaWindow>(self);
+                    instance.Shown?.Invoke(instance, EventArgs.Empty);
+                });
+
+            definition.AddMethod<WindowShouldCloseDelegate>(
+                "windowShouldClose:",
+                "c@:@",
+                (self, op, window) =>
+                {
+                    var instance = definition.GetParent<CocoaWindow>(self);
+                    var args = new CancelableEventArgs();
+                    instance.Closing?.Invoke(instance, args);
+
+                    return args.Cancel ? (byte)0 : (byte)1;
+                });
+
+            definition.AddMethod<NotificationDelegate>(
+                "windowWillClose:",
+                "v@:@",
+                (self, op, notification) =>
+                {
+                    var instance = definition.GetParent<CocoaWindow>(self);
+                    instance.webview.TitleChanged -= instance.Webview_TitleChanged;
+                    instance.Closed?.Invoke(instance, EventArgs.Empty);
+                });
+
+            definition.FinishDeclaration();
+
+            return definition;
         }
 
         private UIntPtr GetStyleMask(bool canResize)
@@ -199,55 +235,6 @@ namespace SpiderEye.Mac
             if (canResize) { style |= NSWindowStyleMask.Resizable; }
 
             return new UIntPtr((uint)style);
-        }
-
-        private void SetWindowDelegate(IntPtr window)
-        {
-            IntPtr windowDelegateClass = ObjC.AllocateClassPair(ObjC.GetClass("NSObject"), "WindowDelegate" + count, IntPtr.Zero);
-            ObjC.AddProtocol(windowDelegateClass, ObjC.GetProtocol("NSWindowDelegate"));
-
-            ObjC.AddMethod(
-                windowDelegateClass,
-                ObjC.RegisterName("windowDidExpose:"),
-                windowShownDelegate,
-                "v@:@");
-
-            ObjC.AddMethod(
-                windowDelegateClass,
-                ObjC.RegisterName("windowShouldClose:"),
-                windowShouldCloseDelegate,
-                "c@:@");
-
-            ObjC.AddMethod(
-                windowDelegateClass,
-                ObjC.RegisterName("windowWillClose:"),
-                windowWillCloseDelegate,
-                "v@:@");
-
-            ObjC.RegisterClassPair(windowDelegateClass);
-
-            IntPtr windowDelegate = ObjC.Call(windowDelegateClass, "new");
-            ObjC.Call(window, "setDelegate:", windowDelegate);
-        }
-
-        private void WindowShownCallback(IntPtr self, IntPtr op, IntPtr notification)
-        {
-            Shown?.Invoke(this, EventArgs.Empty);
-        }
-
-        private byte WindowShouldCloseCallback(IntPtr self, IntPtr op, IntPtr window)
-        {
-            var args = new CancelableEventArgs();
-            Closing?.Invoke(this, args);
-
-            return args.Cancel ? (byte)0 : (byte)1;
-        }
-
-        private void WindowWillCloseCallback(IntPtr self, IntPtr op, IntPtr notification)
-        {
-            webview.TitleChanged -= Webview_TitleChanged;
-
-            Closed?.Invoke(this, EventArgs.Empty);
         }
 
         private void Webview_TitleChanged(object sender, string title)

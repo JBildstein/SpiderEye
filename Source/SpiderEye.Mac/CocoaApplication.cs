@@ -13,40 +13,24 @@ namespace SpiderEye.Mac
 
         public IntPtr Handle { get; }
 
-        private readonly ShouldTerminateDelegate shouldTerminateDelegateRef;
-        private readonly NotificationDelegate appFinishedLaunchingDelegateRef;
+        private static readonly NativeClassDefinition AppDelegateDefinition;
+        private readonly NativeClassInstance appDelegate;
+
+        static CocoaApplication()
+        {
+            AppDelegateDefinition = CreateAppDelegate();
+        }
 
         public CocoaApplication()
         {
             Factory = new CocoaUiFactory();
             SynchronizationContext = new CocoaSynchronizationContext();
 
-            // need to keep the delegates around or they will get garbage collected
-            shouldTerminateDelegateRef = ShouldTerminateCallback;
-            appFinishedLaunchingDelegateRef = AppFinishedLaunching;
-
             Handle = AppKit.Call("NSApplication", "sharedApplication");
+            appDelegate = AppDelegateDefinition.CreateInstance(this);
+
             ObjC.Call(Handle, "setActivationPolicy:", IntPtr.Zero);
-
-            IntPtr appDelegateClass = ObjC.AllocateClassPair(ObjC.GetClass("NSObject"), "AppDelegate", IntPtr.Zero);
-            ObjC.AddProtocol(appDelegateClass, ObjC.GetProtocol("NSApplicationDelegate"));
-
-            ObjC.AddMethod(
-                appDelegateClass,
-                ObjC.RegisterName("applicationShouldTerminateAfterLastWindowClosed:"),
-                shouldTerminateDelegateRef,
-                "c@:@");
-
-            ObjC.AddMethod(
-                appDelegateClass,
-                ObjC.RegisterName("applicationDidFinishLaunching:"),
-                appFinishedLaunchingDelegateRef,
-                "v@:@");
-
-            ObjC.RegisterClassPair(appDelegateClass);
-
-            IntPtr appDelegate = ObjC.Call(appDelegateClass, "new");
-            ObjC.Call(Handle, "setDelegate:", appDelegate);
+            ObjC.Call(Handle, "setDelegate:", appDelegate.Handle);
         }
 
         public void Run()
@@ -57,16 +41,30 @@ namespace SpiderEye.Mac
         public void Exit()
         {
             ObjC.Call(Handle, "terminate:", Handle);
+            appDelegate.Dispose();
         }
 
-        private byte ShouldTerminateCallback(IntPtr self, IntPtr op, IntPtr notification)
+        private static NativeClassDefinition CreateAppDelegate()
         {
-            return (byte)(Application.ExitWithLastWindow ? 1 : 0);
-        }
+            var definition = new NativeClassDefinition("SpiderEyeAppDelegate", "NSApplicationDelegate");
 
-        private void AppFinishedLaunching(IntPtr self, IntPtr op, IntPtr notification)
-        {
-            ObjC.Call(Handle, "activateIgnoringOtherApps:", true);
+            definition.AddMethod<ShouldTerminateDelegate>(
+                "applicationShouldTerminateAfterLastWindowClosed:",
+                "c@:@",
+                (self, op, notification) => (byte)(Application.ExitWithLastWindow ? 1 : 0));
+
+            definition.AddMethod<NotificationDelegate>(
+                "applicationDidFinishLaunching:",
+                "v@:@",
+                (self, op, notification) =>
+                {
+                    var instance = definition.GetParent<CocoaApplication>(self);
+                    ObjC.Call(instance.Handle, "activateIgnoringOtherApps:", true);
+                });
+
+            definition.FinishDeclaration();
+
+            return definition;
         }
     }
 }
