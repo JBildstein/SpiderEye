@@ -163,20 +163,20 @@ namespace SpiderEye.Mac
 
         public void SetWindowState(WindowState state)
         {
+            // TODO: switching between states isn't perfect. e.g. going from maximized->minimized->normal shows a maximized window
             switch (state)
             {
                 case WindowState.Normal:
-                    // TODO: restore window state when maximized
-                    ObjC.Call(Handle, "deminiaturize", IntPtr.Zero);
+                    if (ObjC.Call(Handle, "isZoomed") != IntPtr.Zero) { ObjC.Call(Handle, "zoom:", Handle); }
+                    ObjC.Call(Handle, "deminiaturize:", IntPtr.Zero);
                     break;
 
                 case WindowState.Maximized:
-                    // TODO: maximize window
-                    // [window setFrame:[[window screen] frame] display YES]
+                    if (ObjC.Call(Handle, "isZoomed") == IntPtr.Zero) { ObjC.Call(Handle, "zoom:", Handle); }
                     break;
 
                 case WindowState.Minimized:
-                    ObjC.Call(Handle, "miniaturize", IntPtr.Zero);
+                    ObjC.Call(Handle, "miniaturize:", IntPtr.Zero);
                     break;
 
                 default:
