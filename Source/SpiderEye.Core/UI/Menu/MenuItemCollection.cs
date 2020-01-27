@@ -32,6 +32,7 @@ namespace SpiderEye
             if (item == null) { throw new ArgumentNullException(nameof(item)); }
 
             menu.AddItem(item.NativeMenuItem);
+            menuItems.Add(item);
         }
 
         /// <summary>
