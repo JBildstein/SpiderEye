@@ -57,7 +57,7 @@ namespace SpiderEye.Bridge.Api
                 windows.Add(window);
 
                 // both this method and the Closed event are run on the main thread,
-                // so it's save to access the windows list without a lock
+                // so it's safe to access the windows list without a lock
                 window.Closed += (s, e) => windows.Remove(window);
             }
         }
