@@ -7,7 +7,7 @@
     <OutputType>Library</OutputType>
     <AssemblyVersion>1.0.0</AssemblyVersion>
     <VersionPrefix>$(AssemblyVersion)</VersionPrefix>
-    <VersionSuffix>alpha.13</VersionSuffix>
+    <VersionSuffix>beta.1</VersionSuffix>
     <PackageId>Bildstein.$(AssemblyName)</PackageId>
     <Description>Write .Net Core applications with a webview UI</Description>
     <IncludeSymbols>true</IncludeSymbols>

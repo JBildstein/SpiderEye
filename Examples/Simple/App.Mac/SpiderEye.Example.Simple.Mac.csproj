@@ -7,6 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Bildstein.SpiderEye.Mac" Version="1.0.0-alpha.13" />
+    <PackageReference Include="Bildstein.SpiderEye.Mac" Version="1.0.0-beta.1" />
   </ItemGroup>
 </Project>

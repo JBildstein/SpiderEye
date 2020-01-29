@@ -45,7 +45,7 @@
       "type": "generated",
       "generator": "constant",
       "parameters": {
-        "value": "1.0.0-alpha.13"
+        "value": "1.0.0-beta.1"
       },
       "replaces": "0.0.0-marker.0"
     }
