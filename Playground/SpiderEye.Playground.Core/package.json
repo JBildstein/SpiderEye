@@ -16,18 +16,18 @@
     "@angular/platform-browser": "~8.2.14",
     "@angular/platform-browser-dynamic": "~8.2.14",
     "@angular/router": "^8.2.14",
-    "rxjs": "~6.5.3",
+    "rxjs": "^6.5.4",
     "spidereye": "file:../../Source/SpiderEye.Client",
     "tslib": "^1.10.0",
     "zone.js": "~0.9.1"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "~0.803.19",
-    "@angular/cli": "~8.3.19",
+    "@angular-devkit/build-angular": "~0.803.23",
+    "@angular/cli": "~8.3.23",
     "@angular/compiler-cli": "~8.2.14",
     "@angular/language-service": "~8.2.14",
     "@types/node": "^12.12.12",
-    "codelyzer": "^5.0.1",
+    "codelyzer": "^5.2.1",
     "ts-node": "^8.5.2",
     "tslint": "^5.20.1",
     "typescript": "~3.5.3"
