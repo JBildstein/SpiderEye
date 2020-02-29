@@ -46,7 +46,12 @@ namespace SpiderEye.Mac
 
         private static NativeClassDefinition CreateAppDelegate()
         {
-            var definition = new NativeClassDefinition("SpiderEyeAppDelegate", "NSApplicationDelegate");
+            var definition = NativeClassDefinition.FromClass(
+                "SpiderEyeAppDelegate",
+                AppKit.GetClass("NSResponder"),
+                // note: NSApplicationDelegate is not available at runtime and returns null
+                AppKit.GetProtocol("NSApplicationDelegate"),
+                AppKit.GetProtocol("NSTouchBarProvider"));
 
             definition.AddMethod<ShouldTerminateDelegate>(
                 "applicationShouldTerminateAfterLastWindowClosed:",

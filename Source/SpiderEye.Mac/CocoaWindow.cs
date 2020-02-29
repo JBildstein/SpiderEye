@@ -193,7 +193,9 @@ namespace SpiderEye.Mac
 
         private static NativeClassDefinition CreateWindowDelegate()
         {
-            var definition = new NativeClassDefinition("SpiderEyeWindowDelegate", "NSWindowDelegate");
+            var definition = NativeClassDefinition.FromObject(
+                "SpiderEyeWindowDelegate",
+                AppKit.GetProtocol("NSWindowDelegate"));
 
             definition.AddMethod<WindowShouldCloseDelegate>(
                 "windowShouldClose:",

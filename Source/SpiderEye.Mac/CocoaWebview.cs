@@ -140,7 +140,11 @@ namespace SpiderEye.Mac
 
         private static NativeClassDefinition CreateCallbackClass()
         {
-            var definition = new NativeClassDefinition("SpiderEyeWebviewCallbacks", "WKNavigationDelegate", "WKScriptMessageHandler");
+            var definition = NativeClassDefinition.FromObject(
+                "SpiderEyeWebviewCallbacks",
+                WebKit.GetProtocol("WKNavigationDelegate"),
+                // note: WKScriptMessageHandler is not available at runtime and returns null
+                WebKit.GetProtocol("WKScriptMessageHandler"));
 
             definition.AddMethod<LoadFinishedDelegate>(
                 "webView:didFinishNavigation:",
@@ -185,7 +189,10 @@ namespace SpiderEye.Mac
 
         private static NativeClassDefinition CreateSchemeHandler()
         {
-            var definition = new NativeClassDefinition("SpiderEyeSchemeHandler", "WKURLSchemeHandler");
+            var definition = NativeClassDefinition.FromObject(
+                "SpiderEyeSchemeHandler",
+                // note: WKURLSchemeHandler is not available at runtime and returns null
+                WebKit.GetProtocol("WKURLSchemeHandler"));
 
             definition.AddMethod<SchemeHandlerDelegate>(
                 "webView:startURLSchemeTask:",

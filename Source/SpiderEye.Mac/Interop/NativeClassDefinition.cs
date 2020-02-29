@@ -7,24 +7,31 @@ namespace SpiderEye.Mac.Interop
 {
     internal class NativeClassDefinition
     {
-        private readonly IntPtr classPtr;
+        public IntPtr Handle { get; private set; }
+
         private readonly List<Delegate> callbacks;
+        private readonly IntPtr[] protocols;
 
         private bool registered;
         private IntPtr ivar;
 
-        public NativeClassDefinition(string name, params string[] protocols)
+        private NativeClassDefinition(string name, IntPtr parent, IntPtr[] protocols)
         {
             if (name == null) { throw new ArgumentNullException(nameof(name)); }
-            if (protocols == null) { throw new ArgumentNullException(nameof(protocols)); }
 
+            this.protocols = protocols ?? throw new ArgumentNullException(nameof(protocols));
             callbacks = new List<Delegate>();
-            classPtr = ObjC.AllocateClassPair(ObjC.GetClass("NSObject"), name, IntPtr.Zero);
+            Handle = ObjC.AllocateClassPair(parent, name, IntPtr.Zero);
+        }
 
-            foreach (string protocol in protocols)
-            {
-                ObjC.AddProtocol(classPtr, ObjC.GetProtocol(protocol));
-            }
+        public static NativeClassDefinition FromObject(string name, params IntPtr[] protocols)
+        {
+            return FromClass(name, ObjC.GetClass("NSObject"), protocols);
+        }
+
+        public static NativeClassDefinition FromClass(string name, IntPtr parent, params IntPtr[] protocols)
+        {
+            return new NativeClassDefinition(name, parent, protocols);
         }
 
         public void AddMethod<T>(string name, string signature, T callback)
@@ -36,7 +43,7 @@ namespace SpiderEye.Mac.Interop
             callbacks.Add(callback);
 
             ObjC.AddMethod(
-                classPtr,
+                Handle,
                 ObjC.RegisterName(name),
                 callback,
                 signature);
@@ -44,23 +51,33 @@ namespace SpiderEye.Mac.Interop
 
         public void FinishDeclaration()
         {
-            if (!registered)
+            if (registered) { throw new InvalidOperationException("Native class is already declared and registered"); }
+            registered = true;
+
+            // variable to hold reference to .NET object that creates an instance
+            const string variableName = "_SEInstance";
+            ObjC.AddVariable(Handle, variableName, new IntPtr(IntPtr.Size), (byte)Math.Log(IntPtr.Size, 2), "@");
+            ivar = ObjC.GetVariable(Handle, variableName);
+
+            foreach (IntPtr protocol in protocols)
             {
-                registered = true;
+                if (protocol == IntPtr.Zero)
+                {
+                    // must not add null protocol, can cause runtime exception with conformsToProtocol check
+                    continue;
+                }
 
-                const string variableName = "_SEInstance";
-                ObjC.AddVariable(classPtr, variableName, new IntPtr(IntPtr.Size), (byte)Math.Log(IntPtr.Size, 2), "@");
-                ivar = ObjC.GetVariable(classPtr, variableName);
-
-                ObjC.RegisterClassPair(classPtr);
+                ObjC.AddProtocol(Handle, protocol);
             }
+
+            ObjC.RegisterClassPair(Handle);
         }
 
         public NativeClassInstance CreateInstance(object parent)
         {
             if (!registered) { throw new InvalidOperationException("Native class is not yet fully declared and registered"); }
 
-            IntPtr instance = ObjC.Call(classPtr, "new");
+            IntPtr instance = ObjC.Call(Handle, "new");
 
             var parentHandle = GCHandle.Alloc(parent, GCHandleType.Normal);
             ObjC.SetVariableValue(instance, ivar, GCHandle.ToIntPtr(parentHandle));

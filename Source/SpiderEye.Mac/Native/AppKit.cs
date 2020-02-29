@@ -10,6 +10,9 @@ namespace SpiderEye.Mac.Native
         [DllImport(AppKitFramework, EntryPoint = "objc_getClass", CharSet = CharSet.Ansi)]
         public static extern IntPtr GetClass(string name);
 
+        [DllImport(AppKitFramework, EntryPoint = "objc_getProtocol", CharSet = CharSet.Ansi)]
+        public static extern IntPtr GetProtocol(string name);
+
         public static IntPtr Call(string id, string sel)
         {
             return ObjC.SendMessage(GetClass(id), ObjC.RegisterName(sel));

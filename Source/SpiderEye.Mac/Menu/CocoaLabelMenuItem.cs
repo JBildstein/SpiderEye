@@ -59,7 +59,7 @@ namespace SpiderEye.Mac
 
         private static NativeClassDefinition CreateCallbackClass()
         {
-            var definition = new NativeClassDefinition("SpiderEyeMenuCallback");
+            var definition = NativeClassDefinition.FromObject("SpiderEyeMenuCallback");
 
             definition.AddMethod<MenuCallbackDelegate>(
                 "menuCallback:",
