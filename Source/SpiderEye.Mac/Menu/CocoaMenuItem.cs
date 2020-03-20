@@ -12,7 +12,7 @@ namespace SpiderEye.Mac
             Handle = handle;
         }
 
-        public IMenu CreateSubMenu()
+        public virtual IMenu CreateSubMenu()
         {
             return new CocoaSubMenu(Handle);
         }
@@ -22,25 +22,53 @@ namespace SpiderEye.Mac
             // don't think anything needs to be done here
         }
 
-        private sealed class CocoaSubMenu : IMenu
+        protected sealed class CocoaSubMenu : IMenu
         {
+            public string Title
+            {
+                get
+                {
+                    if (menu == null) { return title; }
+                    else { return menu.Title; }
+                }
+                set
+                {
+                    if (menu == null) { title = value; }
+                    else { menu.Title = value; }
+                }
+            }
+
+            public CocoaMenu NativeMenu
+            {
+                get { return menu; }
+            }
+
             private readonly IntPtr menuItem;
+            private string title;
             private CocoaMenu menu;
 
             public CocoaSubMenu(IntPtr menuItem)
+                : this(menuItem, null)
+            {
+            }
+
+            public CocoaSubMenu(IntPtr menuItem, string title)
+                : this(menuItem, title, false)
+            {
+            }
+
+            public CocoaSubMenu(IntPtr menuItem, string title, bool createImmediately)
             {
                 this.menuItem = menuItem;
+                this.title = title;
+                if (createImmediately) { SetNativeMenu(); }
             }
 
             public void AddItem(IMenuItem item)
             {
                 if (item == null) { throw new ArgumentNullException(nameof(item)); }
 
-                if (menu == null)
-                {
-                    menu = new CocoaMenu();
-                    ObjC.Call(menuItem, "setSubmenu:", menu.Handle);
-                }
+                if (menu == null) { SetNativeMenu(); }
 
                 menu.AddItem(item);
             }
@@ -48,6 +76,12 @@ namespace SpiderEye.Mac
             public void Dispose()
             {
                 menu.Dispose();
+            }
+
+            private void SetNativeMenu()
+            {
+                menu = new CocoaMenu(title);
+                ObjC.Call(menuItem, "setSubmenu:", menu.Handle);
             }
         }
     }

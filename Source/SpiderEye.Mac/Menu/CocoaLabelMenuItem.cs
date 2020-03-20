@@ -10,11 +10,16 @@ namespace SpiderEye.Mac
 
         public string Label
         {
-            get { return NSString.GetString(GetTitle()); }
+            get
+            {
+                IntPtr title = ObjC.Call(Handle, "title");
+                return NSString.GetString(title);
+            }
             set
             {
                 IntPtr title = NSString.Create(value);
-                SetTitle(Handle, title);
+                ObjC.Call(Handle, "setTitle:", title);
+                if (subMenu != null) { subMenu.Title = value; }
             }
         }
 
@@ -27,6 +32,7 @@ namespace SpiderEye.Mac
         private static readonly NativeClassDefinition CallbackClassDefinition;
 
         private readonly NativeClassInstance callbackClass;
+        private CocoaSubMenu subMenu;
 
         static CocoaLabelMenuItem()
         {
@@ -34,18 +40,34 @@ namespace SpiderEye.Mac
         }
 
         public CocoaLabelMenuItem(string label)
-            : base(AppKit.Call("NSMenuItem", "alloc"))
+            : this(label, "menuCallback:")
         {
             callbackClass = CallbackClassDefinition.CreateInstance(this);
+            SetTarget(callbackClass.Handle);
+        }
 
+        public CocoaLabelMenuItem(string label, string action, string target)
+            : this(label, action)
+        {
+            SetTarget(ObjC.RegisterName(target));
+        }
+
+        public CocoaLabelMenuItem(string label, string action, string target, long tag)
+            : this(label, action)
+        {
+            SetTarget(ObjC.RegisterName(target));
+            SetTag(tag);
+        }
+
+        private CocoaLabelMenuItem(string label, string action)
+            : base(AppKit.Call("NSMenuItem", "alloc"))
+        {
             ObjC.Call(
                 Handle,
                 "initWithTitle:action:keyEquivalent:",
                 NSString.Create(label),
-                ObjC.RegisterName("menuCallback:"),
+                ObjC.RegisterName(action),
                 NSString.Create(string.Empty));
-
-            ObjC.Call(Handle, "setTarget:", callbackClass.Handle);
         }
 
         public void SetShortcut(ModifierKey modifier, Key key)
@@ -55,6 +77,21 @@ namespace SpiderEye.Mac
 
             ObjC.Call(Handle, "setKeyEquivalentModifierMask:", new UIntPtr((ulong)nsModifier));
             ObjC.Call(Handle, "setKeyEquivalent:", NSString.Create(mappedKey));
+        }
+
+        public override IMenu CreateSubMenu()
+        {
+            return subMenu = new CocoaSubMenu(Handle, Label);
+        }
+
+        public CocoaMenu SetSubMenu(string label)
+        {
+            if (label == null) { throw new ArgumentNullException(nameof(label)); }
+            if (subMenu != null) { throw new InvalidOperationException("Submenu is already created"); }
+
+            subMenu = new CocoaSubMenu(Handle, label, true);
+
+            return subMenu.NativeMenu;
         }
 
         private static NativeClassDefinition CreateCallbackClass()
@@ -75,14 +112,14 @@ namespace SpiderEye.Mac
             return definition;
         }
 
-        private IntPtr GetTitle()
+        private void SetTarget(IntPtr target)
         {
-            return ObjC.Call(Handle, "title");
+            ObjC.Call(Handle, "setTarget:", target);
         }
 
-        private void SetTitle(IntPtr handle, IntPtr value)
+        private void SetTag(long tag)
         {
-            ObjC.Call(handle, "setTitle:", value);
+            ObjC.Call(Handle, "setTag:", new IntPtr(tag));
         }
     }
 }

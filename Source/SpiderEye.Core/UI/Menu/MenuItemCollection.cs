@@ -15,12 +15,16 @@ namespace SpiderEye
             get { return menuItems.Count; }
         }
 
+        /// <summary>
+        /// Gets the native menu.
+        /// </summary>
+        internal IMenu NativeMenu { get; }
+
         private readonly List<MenuItem> menuItems = new List<MenuItem>();
-        private readonly IMenu menu;
 
         internal MenuItemCollection(IMenu menu)
         {
-            this.menu = menu;
+            NativeMenu = menu;
         }
 
         /// <summary>
@@ -31,7 +35,7 @@ namespace SpiderEye
         {
             if (item == null) { throw new ArgumentNullException(nameof(item)); }
 
-            menu.AddItem(item.NativeMenuItem);
+            NativeMenu.AddItem(item.NativeMenuItem);
             menuItems.Add(item);
         }
 

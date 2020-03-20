@@ -52,9 +52,18 @@ namespace SpiderEye
         /// </summary>
         /// <param name="label">Gets or sets the label of this menu item.</param>
         public LabelMenuItem(string label)
-            : base(Application.Factory.CreateLabelMenu(label))
+            : this(Application.Factory.CreateLabelMenu(label))
         {
-            NativeLabelMenuItem = NativeMenuItem as ILabelMenuItem;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LabelMenuItem"/> class.
+        /// </summary>
+        /// <param name="nativeMenu">Gets or sets the native menu item.</param>
+        internal LabelMenuItem(ILabelMenuItem nativeMenu)
+            : base(nativeMenu)
+        {
+            NativeLabelMenuItem = nativeMenu;
         }
 
         /// <summary>
