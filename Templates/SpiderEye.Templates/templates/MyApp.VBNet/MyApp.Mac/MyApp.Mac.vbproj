@@ -2,7 +2,7 @@
   <Import Project="..\Shared\MyApp.Shared.proj" />
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netframework-marker</TargetFramework>
     <DefineConstants>$(DefineConstants)MAC</DefineConstants>
   </PropertyGroup>
 

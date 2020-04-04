@@ -2,7 +2,7 @@
   <Import Project="..\Shared\SpiderEye.Example.Spa.Shared.proj" />
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <DefineConstants>$(DefineConstants);LINUX</DefineConstants>
   </PropertyGroup>
 

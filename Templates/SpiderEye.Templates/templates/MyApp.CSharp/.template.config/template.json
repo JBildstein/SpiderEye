@@ -48,6 +48,22 @@
         "value": "1.0.0-beta.1"
       },
       "replaces": "0.0.0-marker.0"
+    },
+    "framework-core-version": {
+      "type": "generated",
+      "generator": "constant",
+      "parameters": {
+        "value": "netstandard2.0"
+      },
+      "replaces": "netframework-core-marker"
+    },
+    "framework-version": {
+      "type": "generated",
+      "generator": "constant",
+      "parameters": {
+        "value": "netcoreapp3.1"
+      },
+      "replaces": "netframework-marker"
     }
   },
   "sources": [
