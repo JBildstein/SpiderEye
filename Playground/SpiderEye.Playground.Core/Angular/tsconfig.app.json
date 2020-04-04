@@ -4,7 +4,11 @@
     "outDir": "../bin/tsc/app",
     "types": []
   },
-  "exclude": [
-    "dist"
+  "files": [
+    "main.ts",
+    "polyfills.ts"
+  ],
+  "include": [
+    "Angular/**/*.d.ts"
   ]
 }

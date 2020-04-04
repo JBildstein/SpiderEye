@@ -27,7 +27,7 @@
     "dts/"
   ],
   "devDependencies": {
-    "@types/node": "^12.12.14",
+    "@types/node": "^13.11.0",
     "del": "^5.1.0",
     "gulp": "^4.0.2",
     "gulp-cli": "^2.2.0",
@@ -35,7 +35,7 @@
     "gulp-typescript": "^5.0.1",
     "ts-loader": "^6.2.1",
     "ts-node": "^8.5.4",
-    "tslint": "^5.20.1",
+    "tslint": "^6.1.1",
     "typescript": "^3.5.3"
   }
 }
