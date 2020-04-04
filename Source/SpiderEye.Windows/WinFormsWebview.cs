@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using SpiderEye.Bridge;
+using SpiderEye.Windows.Interop;
 using Windows.Foundation;
 using Windows.UI;
 using Windows.Web.UI;
@@ -25,11 +26,15 @@ namespace SpiderEye.Windows
         }
 
         private readonly WebviewBridge bridge;
+        private readonly bool supportsInitializeScript;
         private WebViewControl webview;
 
         public WinFormsWebview(WebviewBridge bridge)
         {
             this.bridge = bridge ?? throw new ArgumentNullException(nameof(bridge));
+
+            var version = Native.GetOsVersion();
+            supportsInitializeScript = version.MajorVersion >= 10 && version.BuildNumber >= 17763;
 
             var process = new WebViewControlProcess();
             var bounds = new Rect(Bounds.X, Bounds.Y, Bounds.Width, Bounds.Height);
@@ -42,8 +47,12 @@ namespace SpiderEye.Windows
 
             UpdateSize();
 
-            // TODO: needs Win10 1809 - 10.0.17763.0
-            // webview.AddInitializeScript(initScript);
+            if (supportsInitializeScript)
+            {
+                string initScript = Resources.GetInitScript("Windows");
+                webview.AddInitializeScript(initScript);
+            }
+
             webview.ScriptNotify += Webview_ScriptNotify;
 
             webview.NavigationCompleted += Webview_NavigationCompleted;
@@ -105,7 +114,7 @@ namespace SpiderEye.Windows
 
         private async void Webview_NavigationCompleted(object sender, WebViewControlNavigationCompletedEventArgs e)
         {
-            if (e.IsSuccess)
+            if (e.IsSuccess && !supportsInitializeScript)
             {
                 string initScript = Resources.GetInitScript("Windows");
                 await ExecuteScriptAsync(initScript);
