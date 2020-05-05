@@ -185,7 +185,7 @@ namespace SpiderEye.Windows
         private bool IsEdgeAvailable()
         {
             string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "edgehtml.dll");
-            var version = Native.GetOsVersion();
+            var version = WinNative.GetOsVersion();
 
             return File.Exists(path) && version.MajorVersion >= 10 && version.BuildNumber >= 17134;
         }

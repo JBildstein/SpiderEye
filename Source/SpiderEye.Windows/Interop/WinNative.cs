@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace SpiderEye.Windows.Interop
 {
-    internal class Native
+    internal class WinNative
     {
         private const string NtDll = "ntdll.dll";
 

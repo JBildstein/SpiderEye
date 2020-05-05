@@ -18,6 +18,15 @@ namespace SpiderEye
         }
 
         /// <summary>
+        /// Fires each time the uri of the window changes.
+        /// </summary>
+        public event EventHandler<Uri> UriChanged
+        {
+            add { NativeWindow.Webview.UriChanged += value; }
+            remove { NativeWindow.Webview.UriChanged -= value; }
+        }
+
+        /// <summary>
         /// Fires when the window is shown.
         /// </summary>
         public event EventHandler Shown

@@ -60,6 +60,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{4770A3
 		Source\Shared\SpiderEye.Shared.proj = Source\Shared\SpiderEye.Shared.proj
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpiderEye.Native", "Source\SpiderEye.Native\SpiderEye.Native.csproj", "{C8F4D016-8673-4FAC-8647-4E3AF8CB97D8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -106,6 +108,10 @@ Global
 		{758B656F-9FF6-4F58-9690-06D0C267159E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{758B656F-9FF6-4F58-9690-06D0C267159E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{758B656F-9FF6-4F58-9690-06D0C267159E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C8F4D016-8673-4FAC-8647-4E3AF8CB97D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C8F4D016-8673-4FAC-8647-4E3AF8CB97D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C8F4D016-8673-4FAC-8647-4E3AF8CB97D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C8F4D016-8673-4FAC-8647-4E3AF8CB97D8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -123,6 +129,7 @@ Global
 		{8C1EE929-3D6E-4E33-99A4-46D329447CDB} = {000A4847-8DB3-4836-8D86-C2D65D55E496}
 		{758B656F-9FF6-4F58-9690-06D0C267159E} = {9B71F506-6648-4E17-ADF8-A586875055D7}
 		{4770A3C6-12A4-49E3-BC59-D669B50F189C} = {E31A3241-D926-405D-B557-79C9EBFF0134}
+		{C8F4D016-8673-4FAC-8647-4E3AF8CB97D8} = {E31A3241-D926-405D-B557-79C9EBFF0134}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6943C0B5-C688-4621-AF2B-62F999BC9AB3}

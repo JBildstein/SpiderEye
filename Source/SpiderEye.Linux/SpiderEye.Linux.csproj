@@ -2,6 +2,8 @@
   <Import Project="..\Shared\SpiderEye.Shared.Platform.proj" />
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AssemblyName>SpiderEye.Native</AssemblyName>
+    <RootNamespace>SpiderEye.Linux</RootNamespace>
   </PropertyGroup>
 </Project>

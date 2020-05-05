@@ -10,6 +10,8 @@ namespace SpiderEye.Windows
     {
         public event PageLoadEventHandler PageLoaded;
 
+        public event EventHandler<Uri> UriChanged;
+
         public Control Control
         {
             get { return webview; }
@@ -44,6 +46,18 @@ namespace SpiderEye.Windows
 
             scriptInterface = new ScriptInterface(bridge);
             webview.DocumentCompleted += Webview_DocumentCompleted;
+            webview.Navigated += Webview_Navigated;
+            webview.Navigating += Webview_Navigating;
+        }
+
+        private void Webview_Navigating(object sender, WebBrowserNavigatingEventArgs e)
+        {
+            UriChanged?.Invoke(this, e.Url);
+        }
+
+        private void Webview_Navigated(object sender, WebBrowserNavigatedEventArgs e)
+        {
+            UriChanged?.Invoke(this, e.Url);
         }
 
         public void UpdateBackgroundColor(byte r, byte g, byte b)

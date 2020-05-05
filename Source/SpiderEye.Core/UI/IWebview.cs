@@ -14,6 +14,11 @@ namespace SpiderEye
         event PageLoadEventHandler PageLoaded;
 
         /// <summary>
+        /// Fires each time the uri of the window changes.
+        /// </summary>
+        event EventHandler<Uri> UriChanged;
+
+        /// <summary>
         /// Loads the given URI.
         /// </summary>
         /// <param name="uri">The URI to load.</param>

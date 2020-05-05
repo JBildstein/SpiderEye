@@ -13,6 +13,9 @@ namespace SpiderEye.Linux
     internal class GtkWebview : IWebview
     {
         public event PageLoadEventHandler PageLoaded;
+
+        public event EventHandler<Uri> UriChanged;
+
         public event EventHandler CloseRequested;
         public event EventHandler<string> TitleChanged;
 
@@ -287,6 +290,9 @@ namespace SpiderEye.Linux
                 loadEventHandled = true;
                 PageLoaded?.Invoke(this, PageLoadEventArgs.Successful);
             }
+
+            string uri = GLibString.FromPointer(WebKit.GetTitle(webview));
+            UriChanged?.Invoke(this, new Uri(uri));
         }
 
         private bool ContextMenuCallback(IntPtr webview, IntPtr default_menu, IntPtr hit_test_result, bool triggered_with_keyboard, IntPtr arg)

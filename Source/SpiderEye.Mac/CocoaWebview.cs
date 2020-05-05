@@ -11,6 +11,7 @@ namespace SpiderEye.Mac
     internal class CocoaWebview : IWebview
     {
         public event PageLoadEventHandler PageLoaded;
+        public event EventHandler<Uri> UriChanged;
         public event EventHandler<string> TitleChanged;
 
         public bool EnableScriptInterface { get; set; }
@@ -147,11 +148,23 @@ namespace SpiderEye.Mac
                 WebKit.GetProtocol("WKScriptMessageHandler"));
 
             definition.AddMethod<LoadFinishedDelegate>(
+                "webView:didStartProvisionalNavigation:",
+                "v@:@@",
+                (self, op, view, navigation) =>
+                {
+                    var instance = definition.GetParent<CocoaWebview>(self);
+                    var uri = new Uri(NSString.GetString(ObjC.Call(ObjC.Call(view, "URL"), "absoluteString")));
+                    instance.UriChanged?.Invoke(instance, uri);
+                });
+
+            definition.AddMethod<LoadFinishedDelegate>(
                 "webView:didFinishNavigation:",
                 "v@:@@",
                 (self, op, view, navigation) =>
                 {
                     var instance = definition.GetParent<CocoaWebview>(self);
+                    var uri = new Uri(NSString.GetString(ObjC.Call(ObjC.Call(view, "URL"), "absoluteString")));
+                    instance.UriChanged?.Invoke(instance, uri);
                     instance.PageLoaded?.Invoke(instance, PageLoadEventArgs.Successful);
                 });
 
@@ -161,6 +174,8 @@ namespace SpiderEye.Mac
                 (self, op, view, navigation, error) =>
                 {
                     var instance = definition.GetParent<CocoaWebview>(self);
+                    var uri = new Uri(NSString.GetString(ObjC.Call(ObjC.Call(view, "URL"), "absoluteString")));
+                    instance.UriChanged?.Invoke(instance, uri);
                     instance.PageLoaded?.Invoke(instance, PageLoadEventArgs.Failed);
                 });
 

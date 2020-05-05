@@ -53,7 +53,7 @@
       "type": "generated",
       "generator": "constant",
       "parameters": {
-        "value": "netstandard2.0"
+        "value": "netcoreapp3.1"
       },
       "replaces": "netframework-core-marker"
     },

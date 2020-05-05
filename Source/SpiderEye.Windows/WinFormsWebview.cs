@@ -14,6 +14,8 @@ namespace SpiderEye.Windows
     {
         public event PageLoadEventHandler PageLoaded;
 
+        public event EventHandler<Uri> UriChanged;
+
         public Control Control
         {
             get { return this; }
@@ -33,7 +35,7 @@ namespace SpiderEye.Windows
         {
             this.bridge = bridge ?? throw new ArgumentNullException(nameof(bridge));
 
-            var version = Native.GetOsVersion();
+            var version = WinNative.GetOsVersion();
             supportsInitializeScript = version.MajorVersion >= 10 && version.BuildNumber >= 17763;
 
             var process = new WebViewControlProcess();
@@ -56,6 +58,7 @@ namespace SpiderEye.Windows
             webview.ScriptNotify += Webview_ScriptNotify;
 
             webview.NavigationCompleted += Webview_NavigationCompleted;
+            webview.NavigationStarting += Webview_NavigationStarting;
             Layout += (s, e) => UpdateSize();
         }
 
@@ -121,6 +124,12 @@ namespace SpiderEye.Windows
             }
 
             PageLoaded?.Invoke(this, PageLoadEventArgs.GetFor(e.IsSuccess));
+            UriChanged?.Invoke(this, e.Uri);
+        }
+
+        private void Webview_NavigationStarting(IWebViewControl sender, WebViewControlNavigationStartingEventArgs e)
+        {
+            UriChanged?.Invoke(this, e.Uri);
         }
 
         private void UpdateSize()

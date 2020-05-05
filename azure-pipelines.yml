@@ -1,0 +1,91 @@
+trigger:
+  - master
+
+variables:
+  versionprefix: 0.1.0
+  buildConfiguration: 'Release'
+
+jobs:
+  - job: 'BuildPackage'
+    strategy:
+      matrix:
+        linux:
+          imageName: 'ubuntu-18.04'
+          rid: 'linux-x64'
+        mac:
+          imageName: 'macos-10.14'
+          rid: 'osx-x64'
+        windows:
+          rid: 'windows-x64'
+          imageName: 'windows-2019'
+
+    pool:
+      vmImage: $(imageName)
+
+    steps:
+      - task: UseDotNet@2
+        displayName: 'Use .NET Core sdk'
+        inputs:
+          packageType: sdk
+          version: 3.1.201
+          installationPath: $(Agent.ToolsDirectory)/dotnet
+      - task: CmdLine@2
+        displayName: 'Install linux dependencies'
+        condition: eq(variables.rid, 'linux-x64')
+        inputs:
+          script: 'sudo apt-get update && sudo apt-get install libgtk-3-dev libwebkit2gtk-4.0-dev'
+      - task: CmdLine@2
+        displayName: 'dotnet pack SpiderEye.Native'
+        inputs:
+          script: 'dotnet pack --include-symbols --include-source -c $(buildConfiguration) Source/SpiderEye.Native/SpiderEye.Native.csproj -o ./artifacts /p:VersionPrefix=$(versionprefix) /p:VersionSuffix=$(Build.BuildNumber)'
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: 'artifacts'
+          ArtifactName: 'artifacts-$(rid)'
+          publishLocation: 'Container'
+  - job: 'CombinePackages'
+    dependsOn: 'BuildPackage'
+    pool:
+      vmImage: 'ubuntu-18.04'
+    steps:
+      - task: DownloadBuildArtifacts@0
+        inputs:
+          downloadPath: 'artifacts'
+          artifactName: 'artifacts-windows-x64'
+      - task: DownloadBuildArtifacts@0
+        inputs:
+          downloadPath: 'artifacts'
+          artifactName: 'artifacts-linux-x64'
+      - task: DownloadBuildArtifacts@0
+        inputs:
+          downloadPath: 'artifacts'
+          artifactName: 'artifacts-osx-x64'
+      - task: CmdLine@2
+        inputs:
+          script: 'ls -R artifacts'
+      - task: CmdLine@2
+        displayName: 'Merge .nupkg files'
+        inputs:
+          script: 'sudo apt update && sudo apt -y install zipmerge && mkdir combined && zipmerge combined/Bildstein.SpiderEye.Native.$(versionprefix)-$(Build.BuildNumber).nupkg artifacts/*/Bildstein.SpiderEye.Native.$(versionprefix)-$(Build.BuildNumber).nupkg && zip --delete ./combined/Bildstein.SpiderEye.Native.$(versionprefix)-$(Build.BuildNumber).nupkg "lib/*"'
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: 'combined'
+          ArtifactName: 'artifacts-combined'
+          publishLocation: 'Container'
+  - job: 'BuildCore'
+    steps:
+      - task: UseDotNet@2
+        displayName: 'Use .NET Core sdk'
+        inputs:
+          packageType: sdk
+          version: 3.1.201
+          installationPath: $(Agent.ToolsDirectory)/dotnet
+      - task: CmdLine@2
+        displayName: 'dotnet pack SpiderEye.Core'
+        inputs:
+          script: 'dotnet pack --include-symbols --include-source -c $(buildConfiguration) Source/SpiderEye.Core/SpiderEye.Core.csproj -o ./artifacts /p:VersionPrefix=$(versionprefix) /p:VersionSuffix=$(Build.BuildNumber)'
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: 'artifacts'
+          ArtifactName: 'artifacts-core'
+          publishLocation: 'Container'

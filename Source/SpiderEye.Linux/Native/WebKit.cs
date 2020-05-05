@@ -122,5 +122,8 @@ namespace SpiderEye.Linux.Native
 
         [DllImport(WebkitNativeDll, EntryPoint = "webkit_web_view_get_title", CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr GetTitle(IntPtr webview);
+
+        [DllImport(WebkitNativeDll, EntryPoint = "webkit_web_view_get_uri", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr GetUri(IntPtr webview);
     }
 }

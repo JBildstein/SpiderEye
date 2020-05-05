@@ -21,6 +21,7 @@ namespace SpiderEye.Playground.Core
                 window.MinSize = new Size(300, 200);
                 window.MaxSize = new Size(1200, 900);
                 window.Icon = icon;
+                window.UriChanged += (sender, uri) => Console.WriteLine("uri changed: " + uri);
 
                 statusIcon.Icon = icon;
                 statusIcon.Title = window.Title;

@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <Import Project="..\Shared\SpiderEye.Shared.proj" />
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+        <IsWindows Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">true</IsWindows>
+        <IsMacOs Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">true</IsMacOs>
+        <IsLinux Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">true</IsLinux>
+
+        <NativeAssetRuntimeIdentifier Condition="'$(IsWindows)' == 'true'">win</NativeAssetRuntimeIdentifier>
+        <NativeAssetRuntimeIdentifier Condition="'$(IsLinux)' == 'true'">linux</NativeAssetRuntimeIdentifier>
+        <NativeAssetRuntimeIdentifier Condition="'$(IsMacOs)' == 'true'">osx</NativeAssetRuntimeIdentifier>
+        
+        <NativeProjectName Condition="'$(IsWindows)' == 'true'">Windows</NativeProjectName>
+        <NativeProjectName Condition="'$(IsLinux)' == 'true'">Linux</NativeProjectName>
+        <NativeProjectName Condition="'$(IsMacOs)' == 'true'">Mac</NativeProjectName>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\SpiderEye.Core\SpiderEye.Core.csproj" />
+        <ProjectReference Condition="'$(IsWindows)' == 'true'" PrivateAssets="all" Include="..\SpiderEye.Windows\SpiderEye.Windows.csproj" />
+        <ProjectReference Condition="'$(IsMacOs)' == 'true'" PrivateAssets="all" Include="..\SpiderEye.Mac\SpiderEye.Mac.csproj" />
+        <ProjectReference Condition="'$(IsLinux)' == 'true'" PrivateAssets="all" Include="..\SpiderEye.Linux\SpiderEye.Linux.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="$(OutputPath)SpiderEye.Native.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>SpiderEye.Native.dll</Link>
+            <Pack>true</Pack>
+            <PackagePath>ref/$(TargetFramework)/SpiderEye.Native.dll</PackagePath>
+        </Content>
+        <Content Include="..\SpiderEye.$(NativeProjectName)\bin\$(Configuration)\$(TargetFramework)\SpiderEye.Native.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>SpiderEye.Native.dll</Link>
+            <Pack>true</Pack>
+            <PackagePath>runtimes/$(NativeAssetRuntimeIdentifier)/lib/$(TargetFramework)/SpiderEye.Native.dll</PackagePath>
+        </Content>
+    </ItemGroup>
+</Project>
