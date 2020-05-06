@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using SpiderEye.Bridge.Api;
@@ -46,6 +47,11 @@ namespace SpiderEye.Bridge
         public void AddHandler(object handler)
         {
             AddApiObject(handler);
+        }
+
+        public void AddOrReplaceHandler(object handler)
+        {
+            AddApiObject(handler, true);
         }
 
         public void AddGlobalHandler(object handler)
@@ -167,7 +173,7 @@ namespace SpiderEye.Bridge
             else { return ApiResultModel.FromError($"Unknown API call \"{id}\"."); }
         }
 
-        private void AddApiObject(object handler)
+        private void AddApiObject(object handler, bool replaceIfExisting = false)
         {
             if (handler == null) { throw new ArgumentNullException(nameof(handler)); }
 
@@ -176,7 +182,7 @@ namespace SpiderEye.Bridge
             var attribute = type.GetCustomAttribute<BridgeObjectAttribute>();
             if (attribute != null && !string.IsNullOrWhiteSpace(attribute.Path)) { rootName = attribute.Path; }
 
-            if (!apiRootNames.Add(rootName))
+            if (!apiRootNames.Add(rootName) && !replaceIfExisting)
             {
                 throw new InvalidOperationException($"Handler with name \"{rootName}\" already exists.");
             }
@@ -188,12 +194,12 @@ namespace SpiderEye.Bridge
                 var info = new ApiMethod(handler, method);
                 string fullName = $"{rootName}.{info.Name}";
 
-                if (apiMethods.ContainsKey(fullName))
+                if (!replaceIfExisting && apiMethods.ContainsKey(fullName))
                 {
                     throw new InvalidOperationException($"Method with name \"{fullName}\" already exists.");
                 }
 
-                apiMethods.Add(fullName, info);
+                apiMethods[fullName] = info;
             }
         }
 

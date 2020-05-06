@@ -14,6 +14,12 @@ namespace SpiderEye.Bridge
         void AddHandler(object handler);
 
         /// <summary>
+        /// Adds or replaces a custom handler to be called from the webview.
+        /// </summary>
+        /// <param name="handler">The handler instance.</param>
+        void AddOrReplaceHandler(object handler);
+
+        /// <summary>
         /// Adds a custom handler to be called from any webview of the application.
         /// </summary>
         /// <param name="handler">The handler instance.</param>
