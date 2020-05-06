@@ -26,6 +26,11 @@ namespace SpiderEye.Playground.Core
                 statusIcon.Icon = icon;
                 statusIcon.Title = window.Title;
 
+                if (window.MacOsOptions != null)
+                {
+                    window.MacOsOptions.Appearance = MacOsAppearance.DarkAqua;
+                }
+
                 SetDevSettings(window);
 
                 var menu = new Menu();

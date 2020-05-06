@@ -85,6 +85,8 @@ namespace SpiderEye.Windows
         {
             get { return webview; }
         }
+        
+        object IWindow.NativeOptions => this;
 
         private readonly IWinFormsWebview webview;
 

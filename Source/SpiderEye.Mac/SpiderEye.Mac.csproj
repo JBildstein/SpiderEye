@@ -4,5 +4,6 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>SpiderEye.Native</AssemblyName>
+    <LangVersion>8</LangVersion>
   </PropertyGroup>
 </Project>

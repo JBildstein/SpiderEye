@@ -106,6 +106,8 @@ namespace SpiderEye.Linux
             get { return webview; }
         }
 
+        object IWindow.NativeOptions => this;
+
         public readonly IntPtr Handle;
 
         private readonly GtkWebview webview;

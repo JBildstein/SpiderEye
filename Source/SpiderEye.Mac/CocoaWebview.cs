@@ -22,8 +22,7 @@ namespace SpiderEye.Mac
             set
             {
                 enableDevToolsField = value;
-                IntPtr boolValue = Foundation.Call("NSNumber", "numberWithBool:", value);
-                ObjC.Call(preferences, "setValue:forKey:", boolValue, NSString.Create("developerExtrasEnabled"));
+                ObjC.SetProperty(preferences, "developerExtrasEnabled", value);
             }
         }
 

@@ -6,7 +6,7 @@ using SpiderEye.Mac.Native;
 
 namespace SpiderEye.Mac
 {
-    internal class CocoaWindow : IWindow
+    internal class CocoaWindow : IWindow, IMacOsWindowOptions
     {
         public event CancelableEventHandler Closing;
         public event EventHandler Closed;
@@ -103,10 +103,40 @@ namespace SpiderEye.Mac
             set { webview.EnableDevTools = value; }
         }
 
+        public MacOsAppearance? Appearance
+        {
+            get => macOsAppearanceField;
+            set
+            {
+                macOsAppearanceField = value;
+                var appearance = value switch
+                {
+                    MacOsAppearance.Aqua => NSAppearanceName.NSAppearanceNameAqua,
+                    MacOsAppearance.DarkAqua => NSAppearanceName.NSAppearanceNameDarkAqua,
+                    MacOsAppearance.VibrantLight => NSAppearanceName.NSAppearanceNameVibrantLight,
+                    MacOsAppearance.VibrantDark => NSAppearanceName.NSAppearanceNameVibrantDark,
+                    _ => throw new InvalidOperationException("unsupported appearance"),
+                };
+                ObjC.SetProperty(Handle, "appearance", AppKit.Call("NSAppearance", "appearanceNamed:", appearance));
+            }
+        }
+
+        public bool TransparentTitleBar
+        {
+            get => titleBarTransparentField;
+            set
+            {
+                titleBarTransparentField = value;
+                ObjC.SetProperty(Handle, "titlebarAppearsTransparent", true);
+            }
+        }
+
         public IWebview Webview
         {
             get { return webview; }
         }
+
+        object IWindow.NativeOptions => this;
 
         public readonly IntPtr Handle;
 
@@ -117,6 +147,8 @@ namespace SpiderEye.Mac
 
         private bool canResizeField;
         private string backgroundColorField;
+        private bool titleBarTransparentField;
+        private MacOsAppearance? macOsAppearanceField;
 
         static CocoaWindow()
         {

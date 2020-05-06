@@ -133,5 +133,15 @@ namespace SpiderEye.Mac.Native
         {
             return SendMessage(id, RegisterName(sel), size);
         }
+
+        public static IntPtr SetProperty(IntPtr id, string propertyName, bool value)
+        {
+            return SetProperty(id, propertyName, Foundation.Call("NSNumber", "numberWithBool:", true));
+        }
+
+        public static IntPtr SetProperty(IntPtr id, string propertyName, IntPtr value)
+        {
+            return ObjC.Call(id, "setValue:forKey:", value, NSString.Create(propertyName));
+        }
     }
 }

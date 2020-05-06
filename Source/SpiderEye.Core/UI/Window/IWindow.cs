@@ -80,6 +80,11 @@ namespace SpiderEye
         IWebview Webview { get; }
 
         /// <summary>
+        /// Gets the native options.
+        /// </summary>
+        object NativeOptions { get; }
+
+        /// <summary>
         /// Shows this window.
         /// </summary>
         void Show();

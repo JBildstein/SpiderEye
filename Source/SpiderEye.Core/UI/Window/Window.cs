@@ -151,6 +151,11 @@ namespace SpiderEye
         }
 
         /// <summary>
+        /// Gets mac os related window options.
+        /// </summary>
+        public IMacOsWindowOptions MacOsOptions => NativeWindow.NativeOptions as IMacOsWindowOptions;
+
+        /// <summary>
         /// Gets a bridge to the webview.
         /// </summary>
         public IWebviewBridge Bridge
