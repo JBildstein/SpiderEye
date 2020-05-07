@@ -59,19 +59,25 @@ namespace SpiderEye.Bridge
             AddGlobalHandlerStatic(handler);
         }
 
-        public async Task InvokeAsync(string id, object data)
+        Task IWebviewBridge.InvokeAsync(string id, object data) => InvokeAsync(id, data);
+
+        public async Task<EventResultModel> InvokeAsync(string id, object data)
         {
             string script = GetInvokeScript(id, data);
             string resultJson = await Application.Invoke(() => Webview.ExecuteScriptAsync(script));
-            ResolveEventResult(id, resultJson);
+            return ResolveEventResult(id, resultJson);
         }
 
         public async Task<T> InvokeAsync<T>(string id, object data)
         {
-            string script = GetInvokeScript(id, data);
-            string resultJson = await Application.Invoke(() => Webview.ExecuteScriptAsync(script));
-            var result = ResolveEventResult(id, resultJson);
+            var result = await InvokeAsync(id, data);
             return ResolveInvokeResult<T>(result);
+        }
+
+        public async Task<object> InvokeAsync(string id, object data, Type returnType)
+        {
+            var result = await InvokeAsync(id, data);
+            return ResolveInvokeResult(result, returnType);
         }
 
         public async Task HandleScriptCall(string data)
@@ -128,6 +134,12 @@ namespace SpiderEye.Bridge
             }
 
             return result;
+        }
+
+        private object ResolveInvokeResult(EventResultModel result, Type t)
+        {
+            if (!result.HasResult) { return default; }
+            else { return JsonConverter.Deserialize(result.Result, t); }
         }
 
         private T ResolveInvokeResult<T>(EventResultModel result)

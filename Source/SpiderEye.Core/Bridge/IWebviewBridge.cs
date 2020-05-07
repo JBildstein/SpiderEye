@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
+using SpiderEye.Bridge.Models;
 
 namespace SpiderEye.Bridge
 {
@@ -41,5 +43,14 @@ namespace SpiderEye.Bridge
         /// <param name="data">Optional event data.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         Task<T> InvokeAsync<T>(string id, object data);
+
+        /// <summary>
+        /// Asynchronously invokes an event in the webview and get the result.
+        /// </summary>
+        /// <param name="id">The event ID.</param>
+        /// <param name="data">Optional event data.</param>
+        /// <param name="returnType">The result type.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        Task<object> InvokeAsync(string id, object data, Type returnType);
     }
 }
