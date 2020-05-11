@@ -21,6 +21,7 @@ namespace SpiderEye.Mac
             ObjC.Call(dialog.Handle, "setTitle:", NSString.Create(Title));
             ObjC.Call(dialog.Handle, "setCanCreateDirectories:", true);
 
+            BeforeShow(dialog);
             int result = dialog.Run(window);
             var mappedResult = MapResult(result);
             BeforeReturn(dialog, mappedResult);

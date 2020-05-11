@@ -1,6 +1,3 @@
-trigger:
-  - master
-
 variables:
   versionprefix: 0.1.0
   buildConfiguration: 'Release'
