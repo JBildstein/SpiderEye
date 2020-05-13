@@ -6,7 +6,7 @@ namespace SpiderEye.Bridge
 {
     internal class JsonNetJsonConverter : IJsonConverter
     {
-        private static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
+        internal static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
         {
             ContractResolver = new DefaultContractResolver
             {

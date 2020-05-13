@@ -1,6 +1,7 @@
 using System;
 using System.Runtime.ExceptionServices;
 using System.Threading;
+using Newtonsoft.Json;
 #if !NET462
 using System.Runtime.InteropServices;
 #endif
@@ -79,6 +80,25 @@ namespace SpiderEye
         public static void AddGlobalHandler(object handler)
         {
             WebviewBridge.AddGlobalHandlerStatic(handler);
+        }
+
+        /// <summary>
+        /// Adds a custom json converter.
+        /// </summary>
+        /// <param name="converter">The converter.</param>
+        /// <typeparam name="T">The type of the converted object.</typeparam>
+        public static void AddJsonConverter<T>(JsonConverter<T> converter)
+        {
+            JsonNetJsonConverter.Settings.Converters.Add(converter);
+        }
+
+        /// <summary>
+        /// Adds a custom json converter.
+        /// </summary>
+        /// <param name="converter">the converter.</param>
+        public static void AddJsonConverter(JsonConverter converter)
+        {
+            JsonNetJsonConverter.Settings.Converters.Add(converter);
         }
 
         /// <summary>
