@@ -103,6 +103,16 @@ namespace SpiderEye.Mac
             set { webview.EnableDevTools = value; }
         }
 
+        public Menu Menu
+        {
+            get => windowMenu;
+            set
+            {
+                windowMenu = value;
+                SetMenu();
+            }
+        }
+
         public MacOsAppearance? Appearance
         {
             get => macOsAppearanceField;
@@ -149,6 +159,9 @@ namespace SpiderEye.Mac
         private string backgroundColorField;
         private bool titleBarTransparentField;
         private MacOsAppearance? macOsAppearanceField;
+        private Menu windowMenu;
+
+        private bool IsKeyWindow => ObjC.Call(Handle, "isKeyWindow") != IntPtr.Zero;
 
         static CocoaWindow()
         {
@@ -242,6 +255,15 @@ namespace SpiderEye.Mac
                 });
 
             definition.AddMethod<NotificationDelegate>(
+                "windowDidBecomeKey:",
+                "v@:@",
+                (self, op, notification) =>
+                {
+                    var instance = definition.GetParent<CocoaWindow>(self);
+                    instance.SetMenu();
+                });
+
+            definition.AddMethod<NotificationDelegate>(
                 "windowWillClose:",
                 "v@:@",
                 (self, op, notification) =>
@@ -254,6 +276,14 @@ namespace SpiderEye.Mac
             definition.FinishDeclaration();
 
             return definition;
+        }
+
+        private void SetMenu()
+        {
+            if (IsKeyWindow)
+            {
+                MacApplication.WindowMenu = Menu;
+            }
         }
 
         private UIntPtr GetStyleMask(bool canResize)

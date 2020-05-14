@@ -22,6 +22,20 @@ namespace SpiderEye.Playground.Core
                 window.MaxSize = new Size(1200, 900);
                 window.Icon = icon;
                 window.UriChanged += (sender, uri) => Console.WriteLine("uri changed: " + uri);
+                
+                window.Menu = new Menu();
+                var appMenu = window.Menu.MenuItems.AddLabelItem(string.Empty);
+                var quitMenu = appMenu.MenuItems.AddLabelItem("Quit");
+                quitMenu.SetShortcut(ModifierKey.Super, Key.Q);
+                quitMenu.Click += (s, e) => Application.Exit();
+
+                var mainMenu = window.Menu.MenuItems.AddLabelItem("Main Menu");
+                mainMenu.MenuItems.AddLabelItem("Entry 1");
+                mainMenu.MenuItems.AddSeparatorItem();
+                mainMenu.MenuItems.AddLabelItem("Entry 2");
+
+                var helpMenu = window.Menu.MenuItems.AddLabelItem("Help");
+                helpMenu.MenuItems.AddLabelItem("MyHelp");
 
                 statusIcon.Icon = icon;
                 statusIcon.Title = window.Title;

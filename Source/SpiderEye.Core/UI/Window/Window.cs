@@ -151,6 +151,15 @@ namespace SpiderEye
         }
 
         /// <summary>
+        /// Gets or sets the window menu.
+        /// </summary>
+        public Menu Menu
+        {
+            get => NativeWindow.Menu;
+            set => NativeWindow.Menu = value;
+        }
+
+        /// <summary>
         /// Gets mac os related window options.
         /// </summary>
         public IMacOsWindowOptions MacOsOptions => NativeWindow.NativeOptions as IMacOsWindowOptions;

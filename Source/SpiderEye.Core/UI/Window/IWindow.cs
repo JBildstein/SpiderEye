@@ -75,6 +75,11 @@ namespace SpiderEye
         bool EnableDevTools { get; set; }
 
         /// <summary>
+        /// Gets or sets the window menu.
+        /// </summary>
+        Menu Menu { get; set; }
+
+        /// <summary>
         /// Gets the webview of this window.
         /// </summary>
         IWebview Webview { get; }
