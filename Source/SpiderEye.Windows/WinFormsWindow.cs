@@ -87,6 +87,12 @@ namespace SpiderEye.Windows
         {
             get { return webview; }
         }
+
+        public void ShowModal(IWindow modalWindow)
+        {
+            // TODO implement this
+            throw new NotImplementedException();
+        }
         
         object IWindow.NativeOptions => this;
 

@@ -213,6 +213,15 @@ namespace SpiderEye
         }
 
         /// <summary>
+        /// Shows a modal window. This method blocks until the modal is closed.
+        /// </summary>
+        /// <param name="modal">The modal window.</param>
+        public void ShowModal(Window modal)
+        {
+            NativeWindow.ShowModal(modal.NativeWindow);
+        }
+
+        /// <summary>
         /// Closes this window.
         /// </summary>
         public void Close()

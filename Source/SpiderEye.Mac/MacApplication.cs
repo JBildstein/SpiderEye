@@ -42,6 +42,23 @@ namespace SpiderEye.Mac
             Application.Register(app, OperatingSystem.MacOS);
         }
 
+        internal static void ShowModal(CocoaWindow modal)
+        {
+            modal.Closed += ExitModal;
+            ObjC.Call(Handle, "runModalForWindow:", modal.Handle);
+        }
+
+        private static void ExitModal(object sender, EventArgs eventArgs)
+        {
+            if (!(sender is CocoaWindow window))
+            {
+                return;
+            }
+
+            window.Closed -= ExitModal;
+            ObjC.Call(Handle, "stopModal");
+        }
+
         private static void SetMenu()
         {
             var menu = windowMenu ?? new Menu();

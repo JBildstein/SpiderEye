@@ -154,6 +154,12 @@ namespace SpiderEye.Linux
             Gtk.Window.Present(Handle);
         }
 
+        public void ShowModal(IWindow modalWindow)
+        {
+            // TODO implement this
+            throw new NotImplementedException();
+        }
+
         public void Close()
         {
             Gtk.Window.Close(Handle);

@@ -95,6 +95,12 @@ namespace SpiderEye
         void Show();
 
         /// <summary>
+        /// Shows a modal window. This method blocks until the modal is closed.
+        /// </summary>
+        /// <param name="modalWindow">The modal to be shown.</param>
+        void ShowModal(IWindow modalWindow);
+
+        /// <summary>
         /// Closes this window.
         /// </summary>
         void Close();
