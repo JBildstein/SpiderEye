@@ -100,7 +100,7 @@ namespace SpiderEye
                     {
                         if (stream != null)
                         {
-                            context.Response.ContentType = MimeTypes.FindForUri(context.Request.Url);
+                            context.Response.ContentType = Application.ContentProvider.GetMimeType(context.Request.Url);
                             using (var responseStream = context.Response.OutputStream)
                             {
                                 await stream.CopyToAsync(responseStream);

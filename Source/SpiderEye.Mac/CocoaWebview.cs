@@ -320,7 +320,7 @@ namespace SpiderEye.Mac
                 response,
                 "initWithURL:MIMEType:expectedContentLength:textEncodingName:",
                 url,
-                NSString.Create(MimeTypes.FindForUri(uri)),
+                NSString.Create(Application.ContentProvider.GetMimeType(uri)),
                 new IntPtr(contentLength),
                 IntPtr.Zero);
 

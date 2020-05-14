@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using SpiderEye.Tools;
 
 namespace SpiderEye
 {
@@ -19,5 +20,8 @@ namespace SpiderEye
         {
             return Task.FromResult<Stream>(null);
         }
+
+        /// <inheritdoc/>
+        public string GetMimeType(Uri uri) => MimeTypes.FindForUri(uri);
     }
 }
