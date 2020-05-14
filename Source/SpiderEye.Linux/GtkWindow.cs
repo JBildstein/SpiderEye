@@ -101,6 +101,8 @@ namespace SpiderEye.Linux
             set { webview.EnableDevTools = value; }
         }
 
+        public Menu Menu { get; set; } // TODO implement this
+
         public IWebview Webview
         {
             get { return webview; }

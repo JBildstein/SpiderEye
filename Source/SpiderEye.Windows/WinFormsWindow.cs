@@ -81,6 +81,8 @@ namespace SpiderEye.Windows
 
         public bool EnableDevTools { get; set; }
 
+        public Menu Menu { get; set; } // TODO implement this
+
         public IWebview Webview
         {
             get { return webview; }
