@@ -314,7 +314,7 @@ namespace SpiderEye.Linux
 
         private void FinishUriSchemeCallback(IntPtr request, IntPtr stream, long streamLength, Uri uri)
         {
-            using (GLibString mimetype = MimeTypes.FindForUri(uri))
+            using (GLibString mimetype = Application.ContentProvider.GetMimeType(uri))
             {
                 WebKit.UriScheme.FinishSchemeRequest(request, stream, streamLength, mimetype);
             }

@@ -15,5 +15,12 @@ namespace SpiderEye
         /// <param name="uri">The URI of the resource.</param>
         /// <returns>A Task with the <see cref="Stream"/> to the resource or null if not found.</returns>
         Task<Stream> GetStreamAsync(Uri uri);
+
+        /// <summary>
+        /// Gets the mime type to a resource given an URI.
+        /// </summary>
+        /// <param name="uri">The URI of the resource.</param>
+        /// <returns>The mime type.</returns>
+        string GetMimeType(Uri uri);
     }
 }
