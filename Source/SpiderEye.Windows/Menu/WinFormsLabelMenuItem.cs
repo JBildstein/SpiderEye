@@ -41,5 +41,11 @@ namespace SpiderEye.Windows
             var shortcut = KeyMapper.GetShortcut(modifier, key);
             menuItem.ShortcutKeys = shortcut;
         }
+
+        public void SetSystemShorcut(SystemShortcut shortcut)
+        {
+            (var modifier, var key) = KeyMapper.ResolveSystemShortcut(shortcut);
+            SetShortcut(modifier, key);
+        }
     }
 }

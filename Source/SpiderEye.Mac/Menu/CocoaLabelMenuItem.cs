@@ -79,6 +79,12 @@ namespace SpiderEye.Mac
             ObjC.Call(Handle, "setKeyEquivalent:", NSString.Create(mappedKey));
         }
 
+        public void SetSystemShorcut(SystemShortcut shortcut)
+        {
+            (var modifier, var key) = KeyMapper.ResolveSystemShortcut(shortcut);
+            SetShortcut(modifier, key);
+        }
+
         public override IMenu CreateSubMenu()
         {
             return subMenu = new CocoaSubMenu(Handle, Label);

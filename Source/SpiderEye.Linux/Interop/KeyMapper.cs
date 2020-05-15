@@ -18,6 +18,16 @@ namespace SpiderEye.UI.Platforms.Linux.Interop
             return builder.ToString();
         }
 
+        public static (ModifierKey ModifierKey, Key Key) ResolveSystemShortcut(SystemShortcut systemShortcut)
+        {
+            return systemShortcut switch
+            {
+                SystemShortcut.Close => (ModifierKey.Control, Key.Q),
+                SystemShortcut.Help => (ModifierKey.None, Key.F1),
+                _ => throw new NotSupportedException($"Unsupported system shortcut: \"{systemShortcut}\""),
+            };
+        }
+
         private static void MapModifier(StringBuilder builder, ModifierKey modifier)
         {
             foreach (var flag in EnumTools.GetFlags(modifier))
@@ -112,6 +122,7 @@ namespace SpiderEye.UI.Platforms.Linux.Interop
             { Key.Z, "Z" },
             { Key.Insert, "<Insert>" },
             { Key.Delete, "<Delete>" },
+            { Key.QuestionMark, "?" },
         };
     }
 }

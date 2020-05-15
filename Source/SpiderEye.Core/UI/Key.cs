@@ -58,5 +58,6 @@ namespace SpiderEye
         Z = KeyMask.Alphabet | 26,
         Insert = KeyMask.Additional | 1,
         Delete = KeyMask.Additional | 2,
+        QuestionMark = KeyMask.Additional | 3,
     }
 }

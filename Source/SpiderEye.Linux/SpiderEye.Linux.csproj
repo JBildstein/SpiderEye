@@ -5,5 +5,6 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>SpiderEye.Native</AssemblyName>
     <RootNamespace>SpiderEye.Linux</RootNamespace>
+    <LangVersion>8</LangVersion>
   </PropertyGroup>
 </Project>

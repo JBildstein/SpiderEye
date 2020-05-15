@@ -26,21 +26,24 @@ namespace SpiderEye.Playground.Core
                 window.Icon = icon;
                 window.UriChanged += (sender, uri) => Console.WriteLine("uri changed: " + uri);
 
-                window.Menu = new Menu();
-                var appMenu = window.Menu.MenuItems.AddLabelItem(string.Empty);
+                var windowMenu = new Menu();
+                var appMenu = windowMenu.MenuItems.AddLabelItem(string.Empty);
                 var quitMenu = appMenu.MenuItems.AddLabelItem("Quit");
-                quitMenu.SetShortcut(ModifierKey.Super, Key.Q);
+                quitMenu.SetSystemShortcut(SystemShortcut.Close);
                 quitMenu.Click += (s, e) => Application.Exit();
 
-                var mainMenu = window.Menu.MenuItems.AddLabelItem("Main Menu");
+                var mainMenu = windowMenu.MenuItems.AddLabelItem("Main Menu");
                 mainMenu.MenuItems.AddLabelItem("Entry 1");
                 mainMenu.MenuItems.AddSeparatorItem();
                 mainMenu.MenuItems.AddLabelItem("Entry 2");
                 var showModalMenu = mainMenu.MenuItems.AddLabelItem("Show Modal");
                 showModalMenu.Click += ShowModalMenu_Click;
 
-                var helpMenu = window.Menu.MenuItems.AddLabelItem("Help");
-                helpMenu.MenuItems.AddLabelItem("MyHelp");
+                var helpMenu = windowMenu.MenuItems.AddLabelItem("Help");
+                var helpItem = helpMenu.MenuItems.AddLabelItem("MyHelp");
+                helpItem.SetSystemShortcut(SystemShortcut.Help);
+
+                window.Menu = windowMenu;
 
                 statusIcon.Icon = icon;
                 statusIcon.Title = window.Title;
@@ -92,8 +95,10 @@ namespace SpiderEye.Playground.Core
 
         private static void DisposeWindow(object sender, EventArgs e)
         {
-            if (!(sender is Window d)) 
+            if (!(sender is Window d))
+            {
                 return;
+            }
 
             d.Closed -= DisposeWindow;
             d.Dispose();

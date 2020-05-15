@@ -75,5 +75,14 @@ namespace SpiderEye
         {
             NativeLabelMenuItem.SetShortcut(modifier, key);
         }
+
+        /// <summary>
+        /// Sets a platform dependent keyboard shortcut to the menu item.
+        /// </summary>
+        /// <param name="systemShortcut">The shortcut.</param>
+        public void SetSystemShortcut(SystemShortcut systemShortcut)
+        {
+            NativeLabelMenuItem.SetSystemShorcut(systemShortcut);
+        }
     }
 }

@@ -46,6 +46,12 @@ namespace SpiderEye.Linux
             }
         }
 
+        public void SetSystemShorcut(SystemShortcut shortcut)
+        {
+            (var modifier, var key) = KeyMapper.ResolveSystemShortcut(shortcut);
+            SetShortcut(modifier, key);
+        }
+
         private static IntPtr CreateHandle(string label)
         {
             using (GLibString glabel = label)

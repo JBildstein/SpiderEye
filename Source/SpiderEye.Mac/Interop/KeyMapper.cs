@@ -42,6 +42,16 @@ namespace SpiderEye.Mac.Interop
             return result;
         }
 
+        public static (ModifierKey ModifierKey, Key Key) ResolveSystemShortcut(SystemShortcut systemShortcut)
+        {
+            return systemShortcut switch
+            {
+                SystemShortcut.Close => (ModifierKey.Super, Key.Q),
+                SystemShortcut.Help => (ModifierKey.Super, Key.QuestionMark),
+                _ => throw new NotSupportedException($"Unsupported system shortcut: \"{systemShortcut}\""),
+            };
+        }
+
         public static string GetKey(Key key)
         {
             if (Keymap.TryGetValue(key, out string value)) { return value; }
@@ -101,6 +111,7 @@ namespace SpiderEye.Mac.Interop
             { Key.Z, "z" },
             { Key.Insert, NSKey.Insert },
             { Key.Delete, "\0x007f" }, // Note: different than NSKey.Delete
+            { Key.QuestionMark, "?" },
         };
     }
 }

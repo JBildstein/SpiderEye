@@ -16,6 +16,19 @@ namespace SpiderEye.Windows.Interop
             return mappedModifier | mappedKey;
         }
 
+        public static (ModifierKey ModifierKey, Key Key) ResolveSystemShortcut(SystemShortcut systemShortcut)
+        {
+            switch (systemShortcut)
+            {
+                case SystemShortcut.Close:
+                    return (ModifierKey.Alt, Key.F4);
+                case SystemShortcut.Help:
+                    return (ModifierKey.None, Key.F1);
+                default:
+                    throw new NotSupportedException($"Unsupported system shortcut: \"{systemShortcut}\"");
+            }
+        }
+
         private static Keys MapModifier(ModifierKey modifier)
         {
             switch (modifier)
@@ -35,7 +48,9 @@ namespace SpiderEye.Windows.Interop
                 case ModifierKey.Primary:
                     return Keys.Control;
 
-                case ModifierKey.Super: // there is Keys.LWin but it's not a modifier key
+                case ModifierKey.Super:
+                    return Keys.LWin;
+
                 default:
                     throw new NotSupportedException($"Unsupported modifier key: \"{modifier}\"");
             }
@@ -100,6 +115,7 @@ namespace SpiderEye.Windows.Interop
             { Key.Z, Keys.Z },
             { Key.Insert, Keys.Insert },
             { Key.Delete, Keys.Delete },
+            { Key.QuestionMark, Keys.OemQuestion },
         };
     }
 }

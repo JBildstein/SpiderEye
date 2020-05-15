@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
@@ -18,6 +19,8 @@ namespace SpiderEye.Windows
             remove { ClosingBackingEvent -= value; }
         }
 
+        private bool hasExistingMenu;
+        private Menu menu;
         private event CancelableEventHandler ClosingBackingEvent;
 
         public string Title
@@ -81,7 +84,18 @@ namespace SpiderEye.Windows
 
         public bool EnableDevTools { get; set; }
 
-        public Menu Menu { get; set; } // TODO implement this
+        public Menu Menu
+        {
+            get
+            {
+                return menu;
+            }
+            set
+            {
+                SetMenu(value);
+                menu = value;
+            }
+        }
 
         public IWebview Webview
         {
@@ -90,10 +104,9 @@ namespace SpiderEye.Windows
 
         public void ShowModal(IWindow modalWindow)
         {
-            // TODO implement this
-            throw new NotImplementedException();
+            ((Form)modalWindow).ShowDialog(this);
         }
-        
+
         object IWindow.NativeOptions => this;
 
         private readonly IWinFormsWebview webview;
@@ -198,6 +211,40 @@ namespace SpiderEye.Windows
             var version = WinNative.GetOsVersion();
 
             return File.Exists(path) && version.MajorVersion >= 10 && version.BuildNumber >= 17134;
+        }
+
+        private void SetMenu(Menu menu)
+        {
+            MenuStrip mainMenu;
+            if (!hasExistingMenu)
+            {
+                mainMenu = new MenuStrip();
+                MainMenuStrip = mainMenu;
+                Controls.Add(MainMenuStrip);
+                hasExistingMenu = true;
+            }
+            else
+            {
+                mainMenu = MainMenuStrip;
+                mainMenu.Items.Clear();
+            }
+
+            if (menu == null)
+            {
+                return;
+            }
+
+            var nativeMenu = NativeCast.To<WinFormsMenu>(menu.NativeMenu).Menu;
+
+            // the native menu behaves strange if you try to iterate over the items and add them to the menu
+            // it almost behaves like a stack, calling mainMenu.Items.AddRange(nativeMenu.Menu.Items) throws because of this
+            var menuItems = new List<ToolStripItem>();
+            foreach (ToolStripItem i in nativeMenu.Items)
+            {
+                menuItems.Add(i);
+            }
+
+            mainMenu.Items.AddRange(menuItems.ToArray());
         }
     }
 }

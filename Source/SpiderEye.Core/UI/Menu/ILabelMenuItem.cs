@@ -28,5 +28,11 @@ namespace SpiderEye
         /// <param name="modifier">The shortcut modifier key.</param>
         /// <param name="key">The shortcut key.</param>
         void SetShortcut(ModifierKey modifier, Key key);
+
+        /// <summary>
+        /// Sets a platform dependent keyboard shortcut to the menu item.
+        /// </summary>
+        /// <param name="shortcut">The shortcut.</param>
+        void SetSystemShorcut(SystemShortcut shortcut);
     }
 }
