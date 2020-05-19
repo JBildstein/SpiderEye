@@ -8,50 +8,32 @@ namespace SpiderEye
     /// </summary>
     public sealed class Window : IDisposable
     {
+        private bool hasInitiallyShown;
+
         /// <summary>
         /// Fires once the content in the webview has loaded.
         /// </summary>
-        public event PageLoadEventHandler PageLoaded
-        {
-            add { NativeWindow.Webview.PageLoaded += value; }
-            remove { NativeWindow.Webview.PageLoaded -= value; }
-        }
+        public event PageLoadEventHandler PageLoaded;
 
         /// <summary>
         /// Fires each time the uri of the window changes.
         /// </summary>
-        public event EventHandler<Uri> UriChanged
-        {
-            add { NativeWindow.Webview.UriChanged += value; }
-            remove { NativeWindow.Webview.UriChanged -= value; }
-        }
+        public event EventHandler<Uri> UriChanged;
 
         /// <summary>
         /// Fires when the window is shown.
         /// </summary>
-        public event EventHandler Shown
-        {
-            add { NativeWindow.Shown += value; }
-            remove { NativeWindow.Shown -= value; }
-        }
+        public event EventHandler Shown;
 
         /// <summary>
         /// Fires before the window gets closed.
         /// </summary>
-        public event CancelableEventHandler Closing
-        {
-            add { NativeWindow.Closing += value; }
-            remove { NativeWindow.Closing -= value; }
-        }
+        public event CancelableEventHandler Closing;
 
         /// <summary>
         /// Fires after the window has closed.
         /// </summary>
-        public event EventHandler Closed
-        {
-            add { NativeWindow.Closed += value; }
-            remove { NativeWindow.Closed -= value; }
-        }
+        public event EventHandler Closed;
 
         /// <summary>
         /// Gets or sets the window title.
@@ -200,8 +182,13 @@ namespace SpiderEye
             EnableDevTools = DefaultConfig.EnableDevTools;
 
             bridge.TitleChanged += Bridge_TitleChanged;
+
+            NativeWindow.Webview.PageLoaded += NativeWindow_PageLoaded;
+            NativeWindow.Webview.UriChanged += NativeWindow_UriChanged;
+
             NativeWindow.Shown += NativeWindow_Shown;
             NativeWindow.Closed += NativeWindow_Closed;
+            NativeWindow.Closing += NativeWindow_Closing;
         }
 
         /// <summary>
@@ -265,16 +252,46 @@ namespace SpiderEye
             }
         }
 
+        private void NativeWindow_PageLoaded(object sender, PageLoadEventArgs e)
+        {
+            PageLoaded?.Invoke(this, e);
+        }
+
+        private void NativeWindow_UriChanged(object sender, Uri e)
+        {
+            UriChanged?.Invoke(this, e);
+        }
+
         private void NativeWindow_Shown(object sender, EventArgs e)
         {
-            NativeWindow.Shown -= NativeWindow_Shown;
+            Shown?.Invoke(this, e);
+
+            if (hasInitiallyShown)
+            {
+                return;
+            }
+
             Application.OpenWindows.Add(this);
+            hasInitiallyShown = true;
+        }
+
+        private void NativeWindow_Closing(object sender, CancelableEventArgs e)
+        {
+            Closing?.Invoke(this, e);
         }
 
         private void NativeWindow_Closed(object sender, EventArgs e)
         {
+            Closed?.Invoke(this, e);
+
             bridge.TitleChanged -= Bridge_TitleChanged;
+
             NativeWindow.Closed -= NativeWindow_Closed;
+            NativeWindow.Closing -= NativeWindow_Closing;
+            NativeWindow.Shown -= NativeWindow_Shown;
+
+            NativeWindow.Webview.PageLoaded -= NativeWindow_PageLoaded;
+            NativeWindow.Webview.UriChanged -= NativeWindow_UriChanged;
         }
     }
 }
