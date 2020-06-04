@@ -38,6 +38,7 @@ namespace SpiderEye.Playground.Core
                 mainMenu.MenuItems.AddLabelItem("Entry 2");
                 var showModalMenu = mainMenu.MenuItems.AddLabelItem("Show Modal");
                 showModalMenu.Click += ShowModalMenu_Click;
+                showModalMenu.SetShortcut(ModifierKey.Control | ModifierKey.Shift, Key.M);
 
                 var helpMenu = windowMenu.MenuItems.AddLabelItem("Help");
                 var helpItem = helpMenu.MenuItems.AddLabelItem("MyHelp");

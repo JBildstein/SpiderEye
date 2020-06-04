@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using SpiderEye.Tools;
 
 namespace SpiderEye.Windows.Interop
 {
@@ -31,29 +32,38 @@ namespace SpiderEye.Windows.Interop
 
         private static Keys MapModifier(ModifierKey modifier)
         {
-            switch (modifier)
+            var result = Keys.None;
+
+            foreach (var flag in EnumTools.GetFlags(modifier))
             {
-                case ModifierKey.None:
-                    return Keys.None;
+                switch (flag)
+                {
+                    case ModifierKey.None:
+                        continue;
 
-                case ModifierKey.Shift:
-                    return Keys.Shift;
+                    case ModifierKey.Shift:
+                        result |= Keys.Shift;
+                        break;
 
-                case ModifierKey.Control:
-                    return Keys.Control;
+                    case ModifierKey.Control:
+                    case ModifierKey.Primary:
+                        result |= Keys.Control;
+                        break;
 
-                case ModifierKey.Alt:
-                    return Keys.Alt;
+                    case ModifierKey.Alt:
+                        result |= Keys.Alt;
+                        break;
 
-                case ModifierKey.Primary:
-                    return Keys.Control;
+                    case ModifierKey.Super:
+                        result |= Keys.LWin;
+                        break;
 
-                case ModifierKey.Super:
-                    return Keys.LWin;
-
-                default:
-                    throw new NotSupportedException($"Unsupported modifier key: \"{modifier}\"");
+                    default:
+                        throw new NotSupportedException($"Unsupported modifier key: \"{flag}\"");
+                }
             }
+
+            return result;
         }
 
         private static Keys MapKey(Key key)
