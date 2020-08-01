@@ -42,7 +42,13 @@ namespace SpiderEye.Mac.Interop
 
             if (parent == null) { return ObjC.Call(Handle, "runModal").ToInt32(); }
 
-            var block = new NSBlock((Callback)((s, r) => ObjC.Call(MacApplication.Handle, "stopModalWithCode:", r))); // TODO: should block be disposed?
+            NSBlock block = null;
+            block = new NSBlock((Callback)((s, r) =>
+            {
+                ObjC.Call(MacApplication.Handle, "stopModalWithCode:", r);
+                block.Dispose();
+            }));
+
             ObjC.Call(Handle, "beginSheetModalForWindow:completionHandler:", parent.Handle, block.Handle);
             return ObjC.Call(MacApplication.Handle, "runModalForWindow:", window).ToInt32();
         }
