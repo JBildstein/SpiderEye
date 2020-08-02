@@ -10,19 +10,14 @@ namespace SpiderEye
     public delegate void PageLoadEventHandler(object sender, PageLoadEventArgs e);
 
     /// <summary>
-    /// Represents the event arguments for page load event.
+    /// Represents the event arguments for a page load event.
     /// </summary>
     public sealed class PageLoadEventArgs : EventArgs
     {
         /// <summary>
-        /// An instance of the <see cref="PageLoadEventArgs"/> that states success.
+        /// Gets the loaded URL.
         /// </summary>
-        internal static readonly PageLoadEventArgs Successful = new PageLoadEventArgs(true);
-
-        /// <summary>
-        /// An instance of the <see cref="PageLoadEventArgs"/> that states failure.
-        /// </summary>
-        internal static readonly PageLoadEventArgs Failed = new PageLoadEventArgs(false);
+        public Uri Url { get; }
 
         /// <summary>
         /// Gets a value indicating whether the page loaded or not.
@@ -32,20 +27,12 @@ namespace SpiderEye
         /// <summary>
         /// Initializes a new instance of the <see cref="PageLoadEventArgs"/> class.
         /// </summary>
+        /// <param name="url">The loaded URL.</param>
         /// <param name="success">A value indicating whether the page loaded or not.</param>
-        internal PageLoadEventArgs(bool success)
+        internal PageLoadEventArgs(Uri url, bool success)
         {
+            Url = url;
             Success = success;
-        }
-
-        /// <summary>
-        /// Gets the <see cref="PageLoadEventArgs"/> for the given state.
-        /// </summary>
-        /// <param name="success">A value indicating whether the page loaded or not.</param>
-        /// <returns>The appropriate <see cref="PageLoadEventArgs"/>.</returns>
-        internal static PageLoadEventArgs GetFor(bool success)
-        {
-            return success ? Successful : Failed;
         }
     }
 }

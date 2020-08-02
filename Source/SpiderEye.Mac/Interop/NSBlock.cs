@@ -39,22 +39,35 @@ namespace SpiderEye.Mac.Interop
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        private unsafe struct BlockLiteral
+        public unsafe struct BlockLiteral
         {
             public IntPtr Isa;
-            public int Flags;
+            public BlockFlags Flags;
             public int Reserved;
             public IntPtr Invoke;
             public BlockDescriptor* Descriptor;
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        private struct BlockDescriptor
+        public struct BlockDescriptor
         {
             public IntPtr Reserved;
             public IntPtr Size;
             public IntPtr CopyHelper;
             public IntPtr DisposeHelper;
+        }
+
+        [Flags]
+        public enum BlockFlags : int
+        {
+            RefcountMask = 0xFFFF,
+            NeedsFree = 1 << 24,
+            HasCopyDispose = 1 << 25,
+            HasCxxObj = 1 << 26,
+            IsGC = 1 << 27,
+            IsGlobal = 1 << 28,
+            HasDescriptor = 1 << 29,
+            HasSignature = 1 << 30,
         }
     }
 }

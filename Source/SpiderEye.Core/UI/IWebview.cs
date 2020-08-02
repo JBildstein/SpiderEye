@@ -9,6 +9,11 @@ namespace SpiderEye
     internal interface IWebview : IDisposable
     {
         /// <summary>
+        /// Fires before the webview navigates to an new URL.
+        /// </summary>
+        event NavigatingEventHandler Navigating;
+
+        /// <summary>
         /// Fires once the content in this webview has loaded.
         /// </summary>
         event PageLoadEventHandler PageLoaded;

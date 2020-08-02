@@ -9,6 +9,15 @@ namespace SpiderEye
     public sealed class Window : IDisposable
     {
         /// <summary>
+        /// Fires before the webview navigates to an new URL.
+        /// </summary>
+        public event NavigatingEventHandler Navigating
+        {
+            add { NativeWindow.Webview.Navigating += value; }
+            remove { NativeWindow.Webview.Navigating -= value; }
+        }
+
+        /// <summary>
         /// Fires once the content in the webview has loaded.
         /// </summary>
         public event PageLoadEventHandler PageLoaded

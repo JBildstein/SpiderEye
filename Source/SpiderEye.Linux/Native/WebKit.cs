@@ -117,10 +117,16 @@ namespace SpiderEye.Linux.Native
         [DllImport(WebkitNativeDll, EntryPoint = "webkit_web_view_load_uri", CallingConvention = CallingConvention.Cdecl)]
         public static extern void LoadUri(IntPtr webview, IntPtr uri);
 
+        [DllImport(WebkitNativeDll, EntryPoint = "webkit_web_view_stop_loading", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void StopLoading(IntPtr webview);
+
         [DllImport(WebkitNativeDll, EntryPoint = "webkit_web_view_set_background_color", CallingConvention = CallingConvention.Cdecl)]
         public static extern void SetBackgroundColor(IntPtr webview, ref GdkColor color);
 
         [DllImport(WebkitNativeDll, EntryPoint = "webkit_web_view_get_title", CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr GetTitle(IntPtr webview);
+
+        [DllImport(WebkitNativeDll, EntryPoint = "webkit_web_view_get_uri", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr GetCurrentUri(IntPtr webview);
     }
 }

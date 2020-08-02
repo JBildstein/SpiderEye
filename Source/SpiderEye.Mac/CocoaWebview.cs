@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using SpiderEye.Bridge;
 using SpiderEye.Mac.Interop;
@@ -10,7 +11,9 @@ namespace SpiderEye.Mac
 {
     internal class CocoaWebview : IWebview
     {
+        public event NavigatingEventHandler Navigating;
         public event PageLoadEventHandler PageLoaded;
+
         public event EventHandler<string> TitleChanged;
 
         public bool EnableScriptInterface { get; set; }
@@ -24,6 +27,11 @@ namespace SpiderEye.Mac
                 IntPtr boolValue = Foundation.Call("NSNumber", "numberWithBool:", value);
                 ObjC.Call(preferences, "setValue:forKey:", boolValue, NSString.Create("developerExtrasEnabled"));
             }
+        }
+
+        private Uri Uri
+        {
+            get { return URL.GetAsUri(ObjC.Call(Handle, "URL")); }
         }
 
         public readonly IntPtr Handle;
@@ -146,13 +154,27 @@ namespace SpiderEye.Mac
                 // note: WKScriptMessageHandler is not available at runtime and returns null
                 WebKit.GetProtocol("WKScriptMessageHandler"));
 
+            definition.AddMethod<NavigationDecideDelegate>(
+                "webView:decidePolicyForNavigationAction:decisionHandler:",
+                "v@:@@@",
+                (self, op, view, navigationAction, decisionHandler) =>
+                {
+                    var instance = definition.GetParent<CocoaWebview>(self);
+                    var args = new NavigatingEventArgs(instance.Uri);
+                    instance.Navigating?.Invoke(instance, args);
+
+                    var block = Marshal.PtrToStructure<NSBlock.BlockLiteral>(decisionHandler);
+                    var callback = Marshal.GetDelegateForFunctionPointer<NavigationDecisionDelegate>(block.Invoke);
+                    callback(decisionHandler, args.Cancel ? IntPtr.Zero : new IntPtr(1));
+                });
+
             definition.AddMethod<LoadFinishedDelegate>(
                 "webView:didFinishNavigation:",
                 "v@:@@",
                 (self, op, view, navigation) =>
                 {
                     var instance = definition.GetParent<CocoaWebview>(self);
-                    instance.PageLoaded?.Invoke(instance, PageLoadEventArgs.Successful);
+                    instance.PageLoaded?.Invoke(instance, new PageLoadEventArgs(instance.Uri, true));
                 });
 
             definition.AddMethod<LoadFailedDelegate>(
@@ -161,7 +183,7 @@ namespace SpiderEye.Mac
                 (self, op, view, navigation, error) =>
                 {
                     var instance = definition.GetParent<CocoaWebview>(self);
-                    instance.PageLoaded?.Invoke(instance, PageLoadEventArgs.Failed);
+                    instance.PageLoaded?.Invoke(instance, new PageLoadEventArgs(instance.Uri, false));
                 });
 
             definition.AddMethod<ObserveValueDelegate>(
@@ -244,7 +266,7 @@ namespace SpiderEye.Mac
                 IntPtr request = ObjC.Call(schemeTask, "request");
                 IntPtr url = ObjC.Call(request, "URL");
 
-                var uri = new Uri(NSString.GetString(ObjC.Call(url, "absoluteString")));
+                var uri = URL.GetAsUri(url);
                 var host = new Uri(uri.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped));
                 if (host == instance.customHost)
                 {

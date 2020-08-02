@@ -12,7 +12,9 @@ namespace SpiderEye.Linux
 {
     internal class GtkWebview : IWebview
     {
+        public event NavigatingEventHandler Navigating;
         public event PageLoadEventHandler PageLoaded;
+
         public event EventHandler CloseRequested;
         public event EventHandler<string> TitleChanged;
 
@@ -269,14 +271,31 @@ namespace SpiderEye.Linux
             // this event is called when there is an error, immediately afterwards the LoadCallback is called with state Finished.
             // to indicate that there was an error and the PageLoaded event has been invoked, the loadEventHandled variable is set to true.
             loadEventHandled = true;
-            PageLoaded?.Invoke(this, PageLoadEventArgs.Failed);
+            string url = GLibString.FromPointer(failingUrl);
+            PageLoaded?.Invoke(this, new PageLoadEventArgs(new Uri(url), false));
 
             return false;
         }
 
         private async void LoadCallback(IntPtr webview, WebKitLoadEvent type, IntPtr userdata)
         {
-            if (type == WebKitLoadEvent.Started) { loadEventHandled = false; }
+            if (type == WebKitLoadEvent.Started)
+            {
+                loadEventHandled = false;
+            }
+
+            // this callback gets called in this order:
+            // Started: initially defined URL
+            // Redirected (optional, multiple): new URL to which the redirect points
+            // Committed: final URL that gets loaded, either initial URL or same as last redirect URL
+            // Finished: same URL as committed, page has fully loaded
+            if (type == WebKitLoadEvent.Started || type == WebKitLoadEvent.Redirected)
+            {
+                string url = GLibString.FromPointer(WebKit.GetCurrentUri(webview));
+                var args = new NavigatingEventArgs(new Uri(url));
+                Navigating?.Invoke(this, args);
+                if (args.Cancel) { WebKit.StopLoading(webview); }
+            }
             else if (type == WebKitLoadEvent.Finished && !loadEventHandled)
             {
                 string initScript = Resources.GetInitScript("Linux");
@@ -285,7 +304,8 @@ namespace SpiderEye.Linux
                 if (EnableDevTools) { ShowDevTools(); }
 
                 loadEventHandled = true;
-                PageLoaded?.Invoke(this, PageLoadEventArgs.Successful);
+                string url = GLibString.FromPointer(WebKit.GetCurrentUri(webview));
+                PageLoaded?.Invoke(this, new PageLoadEventArgs(new Uri(url), true));
             }
         }
 
