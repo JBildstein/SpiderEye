@@ -136,7 +136,7 @@ namespace SpiderEye.Linux
             deleteDelegate = DeleteCallback;
             destroyDelegate = DestroyCallback;
 
-            GLib.ConnectSignal(Handle, "show", destroyDelegate, IntPtr.Zero);
+            GLib.ConnectSignal(Handle, "show", showDelegate, IntPtr.Zero);
             GLib.ConnectSignal(Handle, "delete-event", deleteDelegate, IntPtr.Zero);
             GLib.ConnectSignal(Handle, "destroy", destroyDelegate, IntPtr.Zero);
 
