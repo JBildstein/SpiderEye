@@ -5,7 +5,7 @@ namespace SpiderEye.Windows.Interop
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     internal struct OsVersionInfo
     {
-        public int OSVersionInfoSize;
+        public int Size;
         public int MajorVersion;
         public int MinorVersion;
         public int BuildNumber;
@@ -18,10 +18,14 @@ namespace SpiderEye.Windows.Interop
         public ProductType ProductType;
         private byte reserved;
 
-        public OsVersionInfo(int structSize)
-            : this()
+        public static OsVersionInfo Default
         {
-            OSVersionInfoSize = structSize;
+            get
+            {
+                OsVersionInfo result = default;
+                result.Size = Marshal.SizeOf(result);
+                return result;
+            }
         }
     }
 }

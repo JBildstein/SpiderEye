@@ -53,6 +53,11 @@ namespace SpiderEye
         bool CanResize { get; set; }
 
         /// <summary>
+        /// Gets or sets the border style of the window.
+        /// </summary>
+        WindowBorderStyle BorderStyle { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether the window title
         /// should be updated when the browser title does.
         /// </summary>
@@ -90,9 +95,33 @@ namespace SpiderEye
         void Close();
 
         /// <summary>
-        /// Sets the window state.
+        /// Puts the window into full screen mode.
         /// </summary>
-        /// <param name="state">The state to set.</param>
-        void SetWindowState(WindowState state);
+        void EnterFullscreen();
+
+        /// <summary>
+        /// Exits full screen mode if the window is in full screen mode.
+        /// </summary>
+        void ExitFullscreen();
+
+        /// <summary>
+        /// Maximizes the window.
+        /// </summary>
+        void Maximize();
+
+        /// <summary>
+        /// Restores the window size if it was maximized.
+        /// </summary>
+        void Unmaximize();
+
+        /// <summary>
+        /// Minimizes the window.
+        /// </summary>
+        void Minimize();
+
+        /// <summary>
+        /// Restores the window if it was minimized.
+        /// </summary>
+        void Unminimize();
     }
 }

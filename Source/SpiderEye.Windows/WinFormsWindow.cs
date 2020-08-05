@@ -2,10 +2,12 @@
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using SpiderEye.Bridge;
 using SpiderEye.Tools;
 using SpiderEye.Windows.Interop;
+using Windows.Phone.Management.Deployment;
 using SDSize = System.Drawing.Size;
 
 namespace SpiderEye.Windows
@@ -46,11 +48,22 @@ namespace SpiderEye.Windows
 
         public bool CanResize
         {
-            get { return FormBorderStyle == FormBorderStyle.Sizable; }
+            get { return canResizeField; }
             set
             {
-                FormBorderStyle = value ? FormBorderStyle.Sizable : FormBorderStyle.FixedSingle;
                 MaximizeBox = value;
+                canResizeField = value;
+                SetBorderStyle();
+            }
+        }
+
+        public WindowBorderStyle BorderStyle
+        {
+            get { return borderStyleField; }
+            set
+            {
+                borderStyleField = value;
+                SetBorderStyle();
             }
         }
 
@@ -89,6 +102,11 @@ namespace SpiderEye.Windows
         private readonly IWinFormsWebview webview;
 
         private AppIcon icon;
+        private bool canResizeField = true;
+        private WindowBorderStyle borderStyleField;
+
+        private WindowPlacement prevPlacement;
+        private SDSize maxSize;
 
         public WinFormsWindow(WebviewBridge bridge)
         {
@@ -109,30 +127,68 @@ namespace SpiderEye.Windows
                     throw new InvalidOperationException($"Invalid webview type of {webviewType}");
             }
 
-            webview.Control.Location = new Point(0, 0);
+            webview.Control.Location = new System.Drawing.Point(0, 0);
             webview.Control.Dock = DockStyle.Fill;
             Controls.Add(webview.Control);
         }
 
-        public void SetWindowState(WindowState state)
+        public void EnterFullscreen()
         {
-            switch (state)
+            var style = Native.GetWindowStyle(this);
+            if (!IsFullscreen(style))
             {
-                case SpiderEye.WindowState.Normal:
-                    WindowState = FormWindowState.Normal;
-                    break;
+                maxSize = MaximumSize;
+                MaximumSize = SDSize.Empty;
 
-                case SpiderEye.WindowState.Maximized:
-                    WindowState = FormWindowState.Maximized;
-                    break;
-
-                case SpiderEye.WindowState.Minimized:
-                    WindowState = FormWindowState.Minimized;
-                    break;
-
-                default:
-                    throw new ArgumentException($"Invalid window state of \"{state}\"", nameof(state));
+                prevPlacement = Native.GetWindowPlacement(this);
+                var mi = Native.GetMonitorInfo(this, Monitor.DefaultToNearest);
+                Native.SetWindowStyle(this, style & ~WS.OVERLAPPEDWINDOW);
+                Native.SetWindowPos(
+                    this,
+                    mi.Monitor.Left,
+                    mi.Monitor.Top,
+                    mi.Monitor.Right - mi.Monitor.Left,
+                    mi.Monitor.Bottom - mi.Monitor.Top,
+                    SWP.NOOWNERZORDER | SWP.FRAMECHANGED);
             }
+        }
+
+        public void ExitFullscreen()
+        {
+            var style = Native.GetWindowStyle(this);
+            if (IsFullscreen(style))
+            {
+                Native.SetWindowStyle(this, style | WS.OVERLAPPEDWINDOW);
+                Native.SetWindowPlacement(this, prevPlacement);
+                Native.SetWindowPos(this, 0, 0, 0, 0, SWP.NOMOVE | SWP.NOSIZE | SWP.NOZORDER | SWP.NOOWNERZORDER | SWP.FRAMECHANGED);
+
+                MaximumSize = maxSize;
+            }
+        }
+
+        public void Maximize()
+        {
+            var style = Native.GetWindowStyle(this);
+            if (IsFullscreen(style)) { prevPlacement.ShowCommand = SW.MAXIMIZE; }
+            else { Native.SetWindowState(this, SW.MAXIMIZE); }
+        }
+
+        public void Unmaximize()
+        {
+            var style = Native.GetWindowStyle(this);
+            if (IsFullscreen(style)) { prevPlacement.ShowCommand = SW.SHOWNORMAL; }
+            else { Native.SetWindowState(this, SW.RESTORE); }
+        }
+
+        public void Minimize()
+        {
+            Native.SetWindowState(this, SW.MINIMIZE);
+        }
+
+        public void Unminimize()
+        {
+            var style = Native.GetWindowStyle(this);
+            if (IsMinimized(style)) { Native.SetWindowState(this, SW.RESTORE); }
         }
 
         public void SetIcon(AppIcon icon)
@@ -163,6 +219,33 @@ namespace SpiderEye.Windows
             base.Dispose(disposing);
 
             webview.Dispose();
+        }
+
+        private static bool IsFullscreen(WS style)
+        {
+            return !style.HasFlag(WS.OVERLAPPEDWINDOW);
+        }
+
+        private static bool IsMinimized(WS style)
+        {
+            return style.HasFlag(WS.MINIMIZE);
+        }
+
+        private void SetBorderStyle()
+        {
+            switch (borderStyleField)
+            {
+                case WindowBorderStyle.Default:
+                    FormBorderStyle = canResizeField ? FormBorderStyle.Sizable : FormBorderStyle.FixedSingle;
+                    break;
+
+                case WindowBorderStyle.None:
+                    FormBorderStyle = FormBorderStyle.None;
+                    break;
+
+                default:
+                    throw new ArgumentException($"Invalid border style value of {borderStyleField}", nameof(BorderStyle));
+            }
         }
 
         private WebviewType ChooseWebview()

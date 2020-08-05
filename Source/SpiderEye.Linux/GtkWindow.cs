@@ -62,6 +62,16 @@ namespace SpiderEye.Linux
             set { Gtk.Window.SetResizable(Handle, value); }
         }
 
+        public WindowBorderStyle BorderStyle
+        {
+            get { return borderStyleField; }
+            set
+            {
+                borderStyleField = value;
+                Gtk.Window.SetDecorated(Handle, value != WindowBorderStyle.None);
+            }
+        }
+
         public string BackgroundColor
         {
             get { return backgroundColorField; }
@@ -117,6 +127,7 @@ namespace SpiderEye.Linux
 
         private Size minSizeField;
         private Size maxSizeField;
+        private WindowBorderStyle borderStyleField;
         private string backgroundColorField;
         private AppIcon iconField;
 
@@ -155,26 +166,34 @@ namespace SpiderEye.Linux
             Gtk.Window.Close(Handle);
         }
 
-        public void SetWindowState(WindowState state)
+        public void EnterFullscreen()
         {
-            switch (state)
-            {
-                case WindowState.Normal:
-                    Gtk.Window.Unmaximize(Handle);
-                    Gtk.Window.Unminimize(Handle);
-                    break;
+            Gtk.Window.Fullscreen(Handle);
+        }
 
-                case WindowState.Maximized:
-                    Gtk.Window.Maximize(Handle);
-                    break;
+        public void ExitFullscreen()
+        {
+            Gtk.Window.Unfullscreen(Handle);
+        }
 
-                case WindowState.Minimized:
-                    Gtk.Window.Minimize(Handle);
-                    break;
+        public void Maximize()
+        {
+            Gtk.Window.Maximize(Handle);
+        }
 
-                default:
-                    throw new ArgumentException($"Invalid window state of \"{state}\"", nameof(state));
-            }
+        public void Unmaximize()
+        {
+            Gtk.Window.Unmaximize(Handle);
+        }
+
+        public void Minimize()
+        {
+            Gtk.Window.Minimize(Handle);
+        }
+
+        public void Unminimize()
+        {
+            Gtk.Window.Unminimize(Handle);
         }
 
         public void Dispose()

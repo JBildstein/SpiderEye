@@ -90,6 +90,15 @@ namespace SpiderEye
         }
 
         /// <summary>
+        /// Gets or sets the border style of the window.
+        /// </summary>
+        public WindowBorderStyle BorderStyle
+        {
+            get { return NativeWindow.BorderStyle; }
+            set { NativeWindow.BorderStyle = value; }
+        }
+
+        /// <summary>
         /// Gets or sets the background color of the window.
         /// </summary>
         public string BackgroundColor
@@ -207,12 +216,51 @@ namespace SpiderEye
         }
 
         /// <summary>
-        /// Sets the window state.
+        /// Puts the window into full screen mode.
         /// </summary>
-        /// <param name="state">The state to set.</param>
-        public void SetWindowState(WindowState state)
+        public void EnterFullscreen()
         {
-            NativeWindow.SetWindowState(state);
+            NativeWindow.EnterFullscreen();
+        }
+
+        /// <summary>
+        /// Exits full screen mode if the window is in full screen mode.
+        /// </summary>
+        public void ExitFullscreen()
+        {
+            NativeWindow.ExitFullscreen();
+        }
+
+        /// <summary>
+        /// Maximizes the window.
+        /// </summary>
+        public void Maximize()
+        {
+            NativeWindow.Maximize();
+        }
+
+        /// <summary>
+        /// Restores the window size if it was maximized.
+        /// </summary>
+        public void Unmaximize()
+        {
+            NativeWindow.Unmaximize();
+        }
+
+        /// <summary>
+        /// Minimizes the window.
+        /// </summary>
+        public void Minimize()
+        {
+            NativeWindow.Minimize();
+        }
+
+        /// <summary>
+        /// Restores the window if it was minimized.
+        /// </summary>
+        public void Unminimize()
+        {
+            NativeWindow.Unminimize();
         }
 
         /// <summary>

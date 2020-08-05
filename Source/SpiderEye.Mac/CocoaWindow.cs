@@ -65,8 +65,22 @@ namespace SpiderEye.Mac
             set
             {
                 canResizeField = value;
-                var style = GetStyleMask(value);
-                ObjC.Call(Handle, "setStyleMask:", style);
+                StyleMask = GetWantedStyleMask();
+            }
+        }
+
+        public WindowBorderStyle BorderStyle
+        {
+            get { return borderStyleField; }
+            set
+            {
+                borderStyleField = value;
+
+                // the title gets reset when setting it to borderless
+                // so we just store the title, set the border and set the title back again
+                string title = Title;
+                StyleMask = GetWantedStyleMask();
+                Title = title;
             }
         }
 
@@ -108,6 +122,12 @@ namespace SpiderEye.Mac
             get { return webview; }
         }
 
+        private NSWindowStyleMask StyleMask
+        {
+            get { return (NSWindowStyleMask)ObjC.Call(Handle, "styleMask"); }
+            set { ObjC.Call(Handle, "setStyleMask:", new IntPtr((int)value)); }
+        }
+
         public readonly IntPtr Handle;
 
         private static readonly NativeClassDefinition WindowDelegateDefinition;
@@ -116,6 +136,7 @@ namespace SpiderEye.Mac
         private readonly CocoaWebview webview;
 
         private bool canResizeField;
+        private WindowBorderStyle borderStyleField;
         private string backgroundColorField;
 
         static CocoaWindow()
@@ -130,12 +151,13 @@ namespace SpiderEye.Mac
 
             Handle = AppKit.Call("NSWindow", "alloc");
 
-            var style = GetStyleMask(config.CanResize);
+            canResizeField = config.CanResize;
+            var style = GetWantedStyleMask();
             ObjC.SendMessage(
                 Handle,
                 ObjC.RegisterName("initWithContentRect:styleMask:backing:defer:"),
                 new CGRect(0, 0, config.Size.Width, config.Size.Height),
-                style,
+                new UIntPtr((uint)style),
                 new UIntPtr(2),
                 false);
 
@@ -161,27 +183,40 @@ namespace SpiderEye.Mac
             ObjC.Call(Handle, "close", IntPtr.Zero);
         }
 
-        public void SetWindowState(WindowState state)
+        public void EnterFullscreen()
         {
-            // TODO: switching between states isn't perfect. e.g. going from maximized->minimized->normal shows a maximized window
-            switch (state)
+            if (!StyleMask.HasFlag(NSWindowStyleMask.FullScreen))
             {
-                case WindowState.Normal:
-                    if (ObjC.Call(Handle, "isZoomed") != IntPtr.Zero) { ObjC.Call(Handle, "zoom:", Handle); }
-                    ObjC.Call(Handle, "deminiaturize:", IntPtr.Zero);
-                    break;
-
-                case WindowState.Maximized:
-                    if (ObjC.Call(Handle, "isZoomed") == IntPtr.Zero) { ObjC.Call(Handle, "zoom:", Handle); }
-                    break;
-
-                case WindowState.Minimized:
-                    ObjC.Call(Handle, "miniaturize:", IntPtr.Zero);
-                    break;
-
-                default:
-                    throw new ArgumentException($"Invalid window state of \"{state}\"", nameof(state));
+                ObjC.Call(Handle, "toggleFullScreen:", Handle);
             }
+        }
+
+        public void ExitFullscreen()
+        {
+            if (StyleMask.HasFlag(NSWindowStyleMask.FullScreen))
+            {
+                ObjC.Call(Handle, "toggleFullScreen:", Handle);
+            }
+        }
+
+        public void Maximize()
+        {
+            if (ObjC.Call(Handle, "isZoomed") == IntPtr.Zero) { ObjC.Call(Handle, "zoom:", Handle); }
+        }
+
+        public void Unmaximize()
+        {
+            if (ObjC.Call(Handle, "isZoomed") != IntPtr.Zero) { ObjC.Call(Handle, "zoom:", Handle); }
+        }
+
+        public void Minimize()
+        {
+            ObjC.Call(Handle, "miniaturize:", IntPtr.Zero);
+        }
+
+        public void Unminimize()
+        {
+            ObjC.Call(Handle, "deminiaturize:", IntPtr.Zero);
         }
 
         public void Dispose()
@@ -224,12 +259,28 @@ namespace SpiderEye.Mac
             return definition;
         }
 
-        private UIntPtr GetStyleMask(bool canResize)
+        private NSWindowStyleMask GetWantedStyleMask()
         {
-            var style = NSWindowStyleMask.Titled | NSWindowStyleMask.Closable | NSWindowStyleMask.Miniaturizable;
-            if (canResize) { style |= NSWindowStyleMask.Resizable; }
+            bool isFullscreen = StyleMask.HasFlag(NSWindowStyleMask.FullScreen);
+            NSWindowStyleMask style = NSWindowStyleMask.Closable | NSWindowStyleMask.Miniaturizable;
+            switch (borderStyleField)
+            {
+                case WindowBorderStyle.Default:
+                    style |= NSWindowStyleMask.Titled;
+                    break;
 
-            return new UIntPtr((uint)style);
+                case WindowBorderStyle.None:
+                    style |= NSWindowStyleMask.Borderless;
+                    break;
+
+                default:
+                    throw new ArgumentException($"Invalid border style value of {borderStyleField}", nameof(BorderStyle));
+            }
+
+            if (canResizeField) { style |= NSWindowStyleMask.Resizable; }
+            if (isFullscreen) { style |= NSWindowStyleMask.FullScreen; }
+
+            return style;
         }
 
         private void Webview_TitleChanged(object sender, string title)

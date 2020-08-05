@@ -64,6 +64,9 @@ namespace SpiderEye.Linux.Native
             [DllImport(GtkNativeDll, EntryPoint = "gtk_window_set_resizable", CallingConvention = CallingConvention.Cdecl)]
             public static extern void SetResizable(IntPtr window, bool resizable);
 
+            [DllImport(GtkNativeDll, EntryPoint = "gtk_window_set_decorated", CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetDecorated(IntPtr window, bool resizable);
+
             [DllImport(GtkNativeDll, EntryPoint = "gtk_window_set_type_hint", CallingConvention = CallingConvention.Cdecl)]
             public static extern void SetTypeHint(IntPtr window, GdkWindowTypeHint hint);
 

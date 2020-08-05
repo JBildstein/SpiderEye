@@ -39,6 +39,27 @@ namespace SpiderEye.Playground.Core
                 var subMenuItem = menu.MenuItems.AddLabelItem("Open me!");
                 subMenuItem.MenuItems.AddLabelItem("Boo!");
 
+                var borderItem = menu.MenuItems.AddLabelItem("Window Border");
+                var def = borderItem.MenuItems.AddLabelItem("Default");
+                def.Click += (s, e) => { window.BorderStyle = WindowBorderStyle.Default; };
+                var none = borderItem.MenuItems.AddLabelItem("None");
+                none.Click += (s, e) => { window.BorderStyle = WindowBorderStyle.None; };
+
+                var sizeItem = menu.MenuItems.AddLabelItem("Window Size");
+                var max = sizeItem.MenuItems.AddLabelItem("Maximize");
+                max.Click += (s, e) => { window.Maximize(); };
+                var unmax = sizeItem.MenuItems.AddLabelItem("Unmaximize");
+                unmax.Click += (s, e) => { window.Unmaximize(); };
+                var min = sizeItem.MenuItems.AddLabelItem("Minimize");
+                min.Click += (s, e) => { window.Minimize(); };
+                var unmin = sizeItem.MenuItems.AddLabelItem("Unminimize");
+                unmin.Click += (s, e) => { window.Unminimize(); };
+                var full = sizeItem.MenuItems.AddLabelItem("Enter Fullscreen");
+                full.Click += (s, e) => { window.EnterFullscreen(); };
+                var unfull = sizeItem.MenuItems.AddLabelItem("Exit Fullscreen");
+                unfull.SetShortcut(ModifierKey.Primary, Key.F11);
+                unfull.Click += (s, e) => { window.ExitFullscreen(); };
+
                 menu.MenuItems.AddSeparatorItem();
 
                 var exitItem = menu.MenuItems.AddLabelItem("Exit");
