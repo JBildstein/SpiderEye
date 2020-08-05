@@ -8,6 +8,7 @@ namespace SpiderEye.Windows
 {
     internal class WinFormsLegacyWebview : IWebview, IWinFormsWebview
     {
+        public event NavigatingEventHandler Navigating;
         public event PageLoadEventHandler PageLoaded;
 
         public Control Control
@@ -43,6 +44,7 @@ namespace SpiderEye.Windows
             };
 
             scriptInterface = new ScriptInterface(bridge);
+            webview.Navigating += Webview_Navigating;
             webview.DocumentCompleted += Webview_DocumentCompleted;
         }
 
@@ -71,6 +73,13 @@ namespace SpiderEye.Windows
             webview.Dispose();
         }
 
+        private void Webview_Navigating(object sender, WebBrowserNavigatingEventArgs e)
+        {
+            var args = new NavigatingEventArgs(e.Url);
+            Navigating?.Invoke(this, args);
+            e.Cancel = args.Cancel;
+        }
+
         private async void Webview_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
         {
             if (webview.ReadyState == WebBrowserReadyState.Complete)
@@ -80,7 +89,7 @@ namespace SpiderEye.Windows
 
                 // TODO: figure out how to get success state
                 // it may require some ActiveX Voodoo: https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.webbrowser.createsink
-                PageLoaded?.Invoke(this, PageLoadEventArgs.Successful);
+                PageLoaded?.Invoke(this, new PageLoadEventArgs(e.Url, true));
             }
         }
     }

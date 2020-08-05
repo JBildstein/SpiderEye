@@ -12,6 +12,7 @@ namespace SpiderEye.Windows
 {
     internal class WinFormsWebview : Control, IWebview, IWinFormsWebview
     {
+        public event NavigatingEventHandler Navigating;
         public event PageLoadEventHandler PageLoaded;
 
         public Control Control
@@ -37,7 +38,7 @@ namespace SpiderEye.Windows
             supportsInitializeScript = version.MajorVersion >= 10 && version.BuildNumber >= 17763;
 
             var process = new WebViewControlProcess();
-            var bounds = new Rect(Bounds.X, Bounds.Y, Bounds.Width, Bounds.Height);
+            var bounds = new global::Windows.Foundation.Rect(Bounds.X, Bounds.Y, Bounds.Width, Bounds.Height);
 
             webview = process.CreateWebViewControlAsync(Handle.ToInt64(), bounds)
                 .AsTask()
@@ -55,6 +56,7 @@ namespace SpiderEye.Windows
 
             webview.ScriptNotify += Webview_ScriptNotify;
 
+            webview.NavigationStarting += Webview_NavigationStarting;
             webview.NavigationCompleted += Webview_NavigationCompleted;
             Layout += (s, e) => UpdateSize();
         }
@@ -112,6 +114,13 @@ namespace SpiderEye.Windows
             await bridge.HandleScriptCall(e.Value);
         }
 
+        private void Webview_NavigationStarting(IWebViewControl sender, WebViewControlNavigationStartingEventArgs e)
+        {
+            var args = new NavigatingEventArgs(e.Uri);
+            Navigating?.Invoke(this, args);
+            e.Cancel = args.Cancel;
+        }
+
         private async void Webview_NavigationCompleted(object sender, WebViewControlNavigationCompletedEventArgs e)
         {
             if (e.IsSuccess && !supportsInitializeScript)
@@ -120,14 +129,14 @@ namespace SpiderEye.Windows
                 await ExecuteScriptAsync(initScript);
             }
 
-            PageLoaded?.Invoke(this, PageLoadEventArgs.GetFor(e.IsSuccess));
+            PageLoaded?.Invoke(this, new PageLoadEventArgs(e.Uri, e.IsSuccess));
         }
 
         private void UpdateSize()
         {
             if (webview != null)
             {
-                var rect = new Rect(
+                var rect = new global::Windows.Foundation.Rect(
                     (float)ClientRectangle.X,
                     (float)ClientRectangle.Y,
                     (float)ClientRectangle.Width,
