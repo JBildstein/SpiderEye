@@ -9,7 +9,10 @@ using Windows.Web.UI.Interop;
 
 namespace SpiderEye.Windows
 {
-    internal class WinFormsWebview : Control, IWebview, IWinFormsWebview
+    /// <summary>
+    /// EdgeHTML based webview.
+    /// </summary>
+    internal class EdgeHtmlWebview : Control, IWebview, IWinFormsWebview
     {
         public event NavigatingEventHandler Navigating;
         public event PageLoadEventHandler PageLoaded;
@@ -25,11 +28,13 @@ namespace SpiderEye.Windows
             set { webview.Settings.IsScriptNotifyAllowed = value; }
         }
 
+        public bool EnableDevTools { get; set; }
+
         private readonly WebviewBridge bridge;
         private readonly bool supportsInitializeScript;
         private WebViewControl webview;
 
-        public WinFormsWebview(WebviewBridge bridge)
+        public EdgeHtmlWebview(WebviewBridge bridge)
         {
             this.bridge = bridge ?? throw new ArgumentNullException(nameof(bridge));
 
@@ -41,9 +46,7 @@ namespace SpiderEye.Windows
 
             webview = process.CreateWebViewControlAsync(Handle.ToInt64(), bounds)
                 .AsTask()
-                .ConfigureAwait(false)
-                .GetAwaiter()
-                .GetResult();
+                .RunSyncWithPump();
 
             UpdateSize();
 

@@ -2,12 +2,11 @@
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using Microsoft.Web.WebView2.Core;
 using SpiderEye.Bridge;
 using SpiderEye.Tools;
 using SpiderEye.Windows.Interop;
-using Windows.Phone.Management.Deployment;
 using SDSize = System.Drawing.Size;
 
 namespace SpiderEye.Windows
@@ -92,7 +91,11 @@ namespace SpiderEye.Windows
             set { webview.EnableScriptInterface = value; }
         }
 
-        public bool EnableDevTools { get; set; }
+        public bool EnableDevTools
+        {
+            get { return webview.EnableDevTools; }
+            set { webview.EnableDevTools = value; }
+        }
 
         public IWebview Webview
         {
@@ -116,11 +119,17 @@ namespace SpiderEye.Windows
             switch (webviewType)
             {
                 case WebviewType.InternetExplorer:
-                    webview = new WinFormsLegacyWebview(WindowsApplication.ContentServerAddress, bridge);
+                    webview = new IeLegacyWebview(WindowsApplication.ContentServerAddress, bridge);
                     break;
 
                 case WebviewType.Edge:
-                    webview = new WinFormsWebview(bridge);
+                    webview = new EdgeHtmlWebview(bridge);
+                    break;
+
+                case WebviewType.EdgeChromium:
+                    var edgium = new EdgiumWebview(bridge);
+                    edgium.TitleChanged += Webview_TitleChanged;
+                    webview = edgium;
                     break;
 
                 default:
@@ -231,6 +240,14 @@ namespace SpiderEye.Windows
             return style.HasFlag(WS.MINIMIZE);
         }
 
+        private void Webview_TitleChanged(object sender, string title)
+        {
+            if (UseBrowserTitle)
+            {
+                Application.Invoke(() => Title = title ?? string.Empty);
+            }
+        }
+
         private void SetBorderStyle()
         {
             switch (borderStyleField)
@@ -252,8 +269,12 @@ namespace SpiderEye.Windows
         {
             switch (WindowsApplication.WebviewType)
             {
-                case WebviewType.Edge:
+                case WebviewType.EdgeChromium:
                 case WebviewType.Latest:
+                    if (IsEdgiumAvailable()) { return WebviewType.EdgeChromium; }
+                    else { goto case WebviewType.Edge; }
+
+                case WebviewType.Edge:
                     if (IsEdgeAvailable()) { return WebviewType.Edge; }
                     else { return WebviewType.InternetExplorer; }
 
@@ -263,6 +284,12 @@ namespace SpiderEye.Windows
                 default:
                     return WindowsApplication.WebviewType;
             }
+        }
+
+        private bool IsEdgiumAvailable()
+        {
+            string edgeVersion = CoreWebView2Environment.GetAvailableBrowserVersionString();
+            return !string.IsNullOrEmpty(edgeVersion);
         }
 
         private bool IsEdgeAvailable()

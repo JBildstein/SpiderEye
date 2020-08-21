@@ -19,6 +19,11 @@ namespace SpiderEye.Windows
         bool EnableScriptInterface { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether dev tools are enabled or not.
+        /// </summary>
+        bool EnableDevTools { get; set; }
+
+        /// <summary>
         /// Updates the background color of the webview.
         /// </summary>
         /// <param name="r">The red channel.</param>

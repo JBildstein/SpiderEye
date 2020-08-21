@@ -8,6 +8,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Scripts\InitEdgium.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Web.WebView2" Version="0.9.579-prerelease" />
     <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.18362.2005" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Scripts\InitEdgium.js">
+      <LogicalName>$(AssemblyName).Scripts.%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>

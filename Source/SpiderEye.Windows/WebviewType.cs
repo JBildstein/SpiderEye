@@ -19,5 +19,10 @@
         /// Edge based on EdgeHTML and Chakra.
         /// </summary>
         Edge,
+
+        /// <summary>
+        /// Edge based on Chromium.
+        /// </summary>
+        EdgeChromium,
     }
 }

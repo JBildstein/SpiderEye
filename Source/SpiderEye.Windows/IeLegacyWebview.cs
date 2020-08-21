@@ -6,7 +6,10 @@ using SpiderEye.Windows.Internal;
 
 namespace SpiderEye.Windows
 {
-    internal class WinFormsLegacyWebview : IWebview, IWinFormsWebview
+    /// <summary>
+    /// Internet Explorer based webview.
+    /// </summary>
+    internal class IeLegacyWebview : IWebview, IWinFormsWebview
     {
         public event NavigatingEventHandler Navigating;
         public event PageLoadEventHandler PageLoaded;
@@ -22,11 +25,13 @@ namespace SpiderEye.Windows
             set { webview.ObjectForScripting = value ? scriptInterface : null; }
         }
 
+        public bool EnableDevTools { get; set; }
+
         private readonly WebBrowser webview;
         private readonly ScriptInterface scriptInterface;
         private readonly Uri hostAddress;
 
-        public WinFormsLegacyWebview(string hostAddress, WebviewBridge bridge)
+        public IeLegacyWebview(string hostAddress, WebviewBridge bridge)
         {
             if (hostAddress == null) { throw new ArgumentNullException(nameof(hostAddress)); }
             if (bridge == null) { throw new ArgumentNullException(nameof(bridge)); }
