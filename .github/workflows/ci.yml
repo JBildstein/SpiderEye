@@ -3,30 +3,40 @@ name: CI
 on:
   push:
     branches: [ master ]
+    
+env:
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
 
 jobs:
   build:
     runs-on: windows-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 3.1
-    - name: Add Nuget Credentials
-      run: dotnet nuget add source --username JBildstein --password ${{ secrets.GITHUB_TOKEN }} --name github https://nuget.pkg.github.com/JBildstein/index.json
+        dotnet-version: 3.1.x
     - name: Install dependencies
       run: dotnet restore
     - name: Test
       run: dotnet test --no-restore --verbosity minimal
     - name: Pack Core
-      run: dotnet pack Source\SpiderEye.Core -c Release -o Publish --no-restore --version-suffix "ci-${{ github.sha }}"
+      run: dotnet pack Source\SpiderEye.Core -c Release -o Publish --no-restore --version-suffix ci-${{ github.sha }}
     - name: Pack Windows
-      run: dotnet pack Source\SpiderEye.Windows -c Release -o Publish --no-restore --version-suffix "ci-${{ github.sha }}"
+      run: dotnet pack Source\SpiderEye.Windows -c Release -o Publish --no-restore --version-suffix ci-${{ github.sha }}
     - name: Pack Linux
-      run: dotnet pack Source\SpiderEye.Linux -c Release -o Publish --no-restore --version-suffix "ci-${{ github.sha }}"
+      run: dotnet pack Source\SpiderEye.Linux -c Release -o Publish --no-restore --version-suffix ci-${{ github.sha }}
     - name: Pack macOS
-      run: dotnet pack Source\SpiderEye.Mac -c Release -o Publish --no-restore --version-suffix "ci-${{ github.sha }}"
+      run: dotnet pack Source\SpiderEye.Mac -c Release -o Publish --no-restore --version-suffix ci-${{ github.sha }}
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: Packages
+        path: Publish/**
+    - name: Add Nuget Credentials
+      run: dotnet nuget add source --username ${{ github.repository_owner }} --password ${{ secrets.GITHUB_TOKEN }} --name github https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
     - name: Publish NuGet
       run: dotnet nuget push Publish\*.nupkg -s github
+      env:
+        DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER: 0
