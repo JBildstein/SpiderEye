@@ -8,7 +8,7 @@ namespace SpiderEye.Tools
 
         public static string GetRandomResourceUrl(string scheme)
         {
-            return $"{scheme}://resources.{CreateRandomString(8)}.internal";
+            return $"{scheme}://resources.{CreateRandomString(12)}.spidereye";
         }
 
         private static string CreateRandomString(int length)
