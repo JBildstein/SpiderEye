@@ -34,6 +34,7 @@ jobs:
       with:
         name: Packages
         path: Publish/**
-    - name: Publish NuGet
+    - name: Setup gpr
       run: dotnet tool update gpr -g
+    - name: Publish NuGet
       run: gpr push Publish\*.nupkg -k ${{ secrets.GITHUB_TOKEN }}
