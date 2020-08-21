@@ -261,9 +261,9 @@ namespace SpiderEye.Linux
                     }
                 }
 
-                FinishUriSchemeCallbackWithError(request);
+                FinishUriSchemeCallbackWithError(request, 4); // 4 = file not found
             }
-            catch { FinishUriSchemeCallbackWithError(request); }
+            catch { FinishUriSchemeCallbackWithError(request, 24); } // 24 = failed for unspecified reason
         }
 
         private bool LoadFailedCallback(IntPtr webview, WebKitLoadEvent type, IntPtr failingUrl, IntPtr error, IntPtr userdata)
@@ -334,10 +334,10 @@ namespace SpiderEye.Linux
             }
         }
 
-        private void FinishUriSchemeCallbackWithError(IntPtr request)
+        private void FinishUriSchemeCallbackWithError(IntPtr request, int errorCode)
         {
             uint domain = GLib.GetFileErrorQuark();
-            var error = new GError(domain, 4, IntPtr.Zero); // error code 4 = not found
+            var error = new GError(domain, errorCode, IntPtr.Zero);
             WebKit.UriScheme.FinishSchemeRequestWithError(request, ref error);
         }
     }
