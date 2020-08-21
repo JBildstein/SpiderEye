@@ -1,5 +1,4 @@
-﻿using System;
-using Xunit;
+﻿using Xunit;
 
 namespace SpiderEye.Tools
 {
@@ -10,7 +9,7 @@ namespace SpiderEye.Tools
         {
             string result = UriTools.GetRandomResourceUrl("somescheme");
 
-            Assert.Matches(@"somescheme://resources\.[0-9a-z]{8}\.internal", result);
+            Assert.Matches(@"somescheme://resources\.[0-9a-z]{12}\.spidereye", result);
         }
     }
 }
