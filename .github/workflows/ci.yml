@@ -34,9 +34,6 @@ jobs:
       with:
         name: Packages
         path: Publish/**
-    - name: Add Nuget Credentials
-      run: dotnet nuget add source --username ${{ github.repository_owner }} --password ${{ secrets.GITHUB_TOKEN }} --name github https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
     - name: Publish NuGet
-      run: dotnet nuget push Publish\*.nupkg -s github
-      env:
-        DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER: 0
+      run: dotnet tool update gpr -g
+      run: gpr push Publish\*.nupkg -k ${{ secrets.GITHUB_TOKEN }}
