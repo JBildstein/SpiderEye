@@ -19,7 +19,7 @@ jobs:
     - name: Install dependencies
       run: dotnet restore
     - name: Test
-      run: dotnet test --no-restore --verbosity normal
+      run: dotnet test --no-restore --verbosity minimal
     - name: Pack Core
       run: dotnet pack Source\SpiderEye.Core -c Release -o Publish --no-restore --version-suffix "ci-${{ github.sha }}"
     - name: Pack Windows
