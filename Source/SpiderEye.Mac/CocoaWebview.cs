@@ -148,10 +148,10 @@ namespace SpiderEye.Mac
 
         private static NativeClassDefinition CreateCallbackClass()
         {
+            // note: WKScriptMessageHandler is not available at runtime and returns null, it's kept for completeness
             var definition = NativeClassDefinition.FromObject(
                 "SpiderEyeWebviewCallbacks",
                 WebKit.GetProtocol("WKNavigationDelegate"),
-                // note: WKScriptMessageHandler is not available at runtime and returns null
                 WebKit.GetProtocol("WKScriptMessageHandler"));
 
             definition.AddMethod<NavigationDecideDelegate>(
@@ -211,9 +211,9 @@ namespace SpiderEye.Mac
 
         private static NativeClassDefinition CreateSchemeHandler()
         {
+            // note: WKURLSchemeHandler is not available at runtime and returns null, it's kept for completeness
             var definition = NativeClassDefinition.FromObject(
                 "SpiderEyeSchemeHandler",
-                // note: WKURLSchemeHandler is not available at runtime and returns null
                 WebKit.GetProtocol("WKURLSchemeHandler"));
 
             definition.AddMethod<SchemeHandlerDelegate>(

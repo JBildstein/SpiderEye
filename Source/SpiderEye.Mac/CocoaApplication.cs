@@ -46,10 +46,10 @@ namespace SpiderEye.Mac
 
         private static NativeClassDefinition CreateAppDelegate()
         {
+            // note: NSApplicationDelegate is not available at runtime and returns null, it's kept for completeness
             var definition = NativeClassDefinition.FromClass(
                 "SpiderEyeAppDelegate",
                 AppKit.GetClass("NSResponder"),
-                // note: NSApplicationDelegate is not available at runtime and returns null
                 AppKit.GetProtocol("NSApplicationDelegate"),
                 AppKit.GetProtocol("NSTouchBarProvider"));
 
