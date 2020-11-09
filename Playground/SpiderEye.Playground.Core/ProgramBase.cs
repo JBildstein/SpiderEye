@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Threading.Channels;
 
 namespace SpiderEye.Playground.Core
 {
@@ -24,7 +25,7 @@ namespace SpiderEye.Playground.Core
                 window.MinSize = new Size(300, 200);
                 window.MaxSize = new Size(1200, 900);
                 window.Icon = icon;
-                window.UriChanged += (sender, uri) => Console.WriteLine("uri changed: " + uri);
+                window.Navigating += (sender, uri) => Console.WriteLine("uri changed: " + uri);
 
                 var windowMenu = new Menu();
                 var appMenu = windowMenu.MenuItems.AddLabelItem(string.Empty);
@@ -82,7 +83,6 @@ namespace SpiderEye.Playground.Core
                 // note that you have to run the angular dev server first (npm run watch)
                 Application.UriWatcher = new AngularDevUriWatcher("http://localhost:65400");
                 Application.ContentProvider = new EmbeddedContentProvider("Angular/dist");
-
                 Application.Run(window, "/index.html");
             }
         }
@@ -91,6 +91,17 @@ namespace SpiderEye.Playground.Core
         {
             var modal = new Window { Title = "this is a modal" };
             modal.Closed += DisposeWindow;
+            modal.UseBrowserTitle = true;
+            modal.LoadUrl("https://www.google.com/search?q=foo%20bar");
+
+            modal.Navigating += (x, args) =>
+            {
+                if (args.Url.Host.EndsWith("wikipedia.org", StringComparison.Ordinal))
+                {
+                    args.Cancel = true;
+                    modal.Close();
+                }
+            };
             _mainWindow.ShowModal(modal);
         }
 

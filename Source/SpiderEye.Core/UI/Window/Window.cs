@@ -11,14 +11,14 @@ namespace SpiderEye
         private bool hasInitiallyShown;
 
         /// <summary>
+        /// Fires before the webview navigates to an new URL.
+        /// </summary>
+        public event NavigatingEventHandler Navigating;
+
+        /// <summary>
         /// Fires once the content in the webview has loaded.
         /// </summary>
         public event PageLoadEventHandler PageLoaded;
-
-        /// <summary>
-        /// Fires each time the uri of the window changes.
-        /// </summary>
-        public event EventHandler<Uri> UriChanged;
 
         /// <summary>
         /// Fires when the window is shown.
@@ -184,7 +184,7 @@ namespace SpiderEye
             bridge.TitleChanged += Bridge_TitleChanged;
 
             NativeWindow.Webview.PageLoaded += NativeWindow_PageLoaded;
-            NativeWindow.Webview.UriChanged += NativeWindow_UriChanged;
+            NativeWindow.Webview.Navigating += NativeWindow_Navigating;
 
             NativeWindow.Shown += NativeWindow_Shown;
             NativeWindow.Closed += NativeWindow_Closed;
@@ -257,9 +257,9 @@ namespace SpiderEye
             PageLoaded?.Invoke(this, e);
         }
 
-        private void NativeWindow_UriChanged(object sender, Uri e)
+        private void NativeWindow_Navigating(object sender, NavigatingEventArgs e)
         {
-            UriChanged?.Invoke(this, e);
+            Navigating?.Invoke(this, e);
         }
 
         private void NativeWindow_Shown(object sender, EventArgs e)
@@ -291,7 +291,7 @@ namespace SpiderEye
             NativeWindow.Shown -= NativeWindow_Shown;
 
             NativeWindow.Webview.PageLoaded -= NativeWindow_PageLoaded;
-            NativeWindow.Webview.UriChanged -= NativeWindow_UriChanged;
+            NativeWindow.Webview.Navigating -= NativeWindow_Navigating;
         }
     }
 }

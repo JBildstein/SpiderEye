@@ -12,9 +12,9 @@ namespace SpiderEye.Windows
 {
     internal class WinFormsWebview : Control, IWebview, IWinFormsWebview
     {
+        public event NavigatingEventHandler Navigating;
         public event PageLoadEventHandler PageLoaded;
 
-        public event EventHandler<Uri> UriChanged;
 
         public Control Control
         {
@@ -115,6 +115,13 @@ namespace SpiderEye.Windows
             await bridge.HandleScriptCall(e.Value);
         }
 
+        private void Webview_NavigationStarting(IWebViewControl sender, WebViewControlNavigationStartingEventArgs e)
+        {
+            var args = new NavigatingEventArgs(e.Uri);
+            Navigating?.Invoke(this, args);
+            e.Cancel = args.Cancel;
+        }
+
         private async void Webview_NavigationCompleted(object sender, WebViewControlNavigationCompletedEventArgs e)
         {
             if (e.IsSuccess && !supportsInitializeScript)
@@ -123,13 +130,7 @@ namespace SpiderEye.Windows
                 await ExecuteScriptAsync(initScript);
             }
 
-            PageLoaded?.Invoke(this, PageLoadEventArgs.GetFor(e.IsSuccess));
-            UriChanged?.Invoke(this, e.Uri);
-        }
-
-        private void Webview_NavigationStarting(IWebViewControl sender, WebViewControlNavigationStartingEventArgs e)
-        {
-            UriChanged?.Invoke(this, e.Uri);
+            PageLoaded?.Invoke(this, new PageLoadEventArgs(e.Uri, e.IsSuccess));
         }
 
         private void UpdateSize()

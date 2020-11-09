@@ -7,12 +7,16 @@ namespace SpiderEye.Mac.Interop
     internal sealed class NSBlock : IDisposable
     {
         public readonly IntPtr Handle;
-        private readonly Delegate callback;
+        private GCHandle CallbackHandle;
 
         public unsafe NSBlock(Delegate callback)
         {
-            this.callback = callback ?? throw new ArgumentNullException(nameof(callback));
+            if (callback == null)
+            {
+                throw new ArgumentNullException(nameof(callback));
+            }
 
+            CallbackHandle = GCHandle.Alloc(callback);
             var blp = (BlockLiteral*)Marshal.AllocHGlobal(sizeof(BlockLiteral));
             var bdp = (BlockDescriptor*)Marshal.AllocHGlobal(sizeof(BlockDescriptor));
 
@@ -34,27 +38,41 @@ namespace SpiderEye.Mac.Interop
         {
             var blp = (BlockLiteral*)Handle;
 
+            CallbackHandle.Free();
             Marshal.FreeHGlobal((IntPtr)blp->Descriptor);
             Marshal.FreeHGlobal(Handle);
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        private unsafe struct BlockLiteral
+        public unsafe struct BlockLiteral
         {
             public IntPtr Isa;
-            public int Flags;
+            public BlockFlags Flags;
             public int Reserved;
             public IntPtr Invoke;
             public BlockDescriptor* Descriptor;
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        private struct BlockDescriptor
+        public struct BlockDescriptor
         {
             public IntPtr Reserved;
             public IntPtr Size;
             public IntPtr CopyHelper;
             public IntPtr DisposeHelper;
+        }
+
+        [Flags]
+        public enum BlockFlags : int
+        {
+            RefcountMask = 0xFFFF,
+            NeedsFree = 1 << 24,
+            HasCopyDispose = 1 << 25,
+            HasCxxObj = 1 << 26,
+            IsGC = 1 << 27,
+            IsGlobal = 1 << 28,
+            HasDescriptor = 1 << 29,
+            HasSignature = 1 << 30,
         }
     }
 }

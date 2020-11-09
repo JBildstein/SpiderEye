@@ -8,9 +8,8 @@ namespace SpiderEye.Windows
 {
     internal class WinFormsLegacyWebview : IWebview, IWinFormsWebview
     {
+        public event NavigatingEventHandler Navigating;
         public event PageLoadEventHandler PageLoaded;
-
-        public event EventHandler<Uri> UriChanged;
 
         public Control Control
         {
@@ -46,18 +45,14 @@ namespace SpiderEye.Windows
 
             scriptInterface = new ScriptInterface(bridge);
             webview.DocumentCompleted += Webview_DocumentCompleted;
-            webview.Navigated += Webview_Navigated;
             webview.Navigating += Webview_Navigating;
         }
 
         private void Webview_Navigating(object sender, WebBrowserNavigatingEventArgs e)
         {
-            UriChanged?.Invoke(this, e.Url);
-        }
-
-        private void Webview_Navigated(object sender, WebBrowserNavigatedEventArgs e)
-        {
-            UriChanged?.Invoke(this, e.Url);
+            var args = new NavigatingEventArgs(e.Url);
+            Navigating?.Invoke(this, args);
+            e.Cancel = args.Cancel;
         }
 
         public void UpdateBackgroundColor(byte r, byte g, byte b)
@@ -94,7 +89,7 @@ namespace SpiderEye.Windows
 
                 // TODO: figure out how to get success state
                 // it may require some ActiveX Voodoo: https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.webbrowser.createsink
-                PageLoaded?.Invoke(this, PageLoadEventArgs.Successful);
+                PageLoaded?.Invoke(this, new PageLoadEventArgs(e.Url, true));
             }
         }
     }

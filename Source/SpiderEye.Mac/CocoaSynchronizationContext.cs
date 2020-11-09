@@ -57,18 +57,30 @@ namespace SpiderEye.Mac
             var state = (InvokeState)handle.Target;
 
             try { state.Callback(state.State); }
-            finally { handle.Free(); }
+            finally
+            {
+                state.Dispose();
+                handle.Free();
+            }
         }
 
-        private sealed class InvokeState
+        private sealed class InvokeState : IDisposable
         {
             public readonly SendOrPostCallback Callback;
             public readonly object State;
+
+            private GCHandle callbackHandle;
 
             public InvokeState(SendOrPostCallback callback, object state)
             {
                 Callback = callback;
                 State = state;
+                callbackHandle = GCHandle.Alloc(callback);
+            }
+
+            public void Dispose()
+            {
+                callbackHandle.Free();
             }
         }
     }

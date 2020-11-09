@@ -108,6 +108,11 @@ namespace SpiderEye.Mac
             get => windowMenu;
             set
             {
+                if (windowMenu == value)
+                {
+                    return;
+                }
+
                 windowMenu = value;
                 SetMenu();
             }

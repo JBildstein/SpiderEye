@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using SpiderEye.Bridge;
 using SpiderEye.Mac.Interop;
@@ -10,8 +11,8 @@ namespace SpiderEye.Mac
 {
     internal class CocoaWebview : IWebview
     {
+        public event NavigatingEventHandler Navigating;
         public event PageLoadEventHandler PageLoaded;
-        public event EventHandler<Uri> UriChanged;
         public event EventHandler<string> TitleChanged;
 
         public bool EnableScriptInterface { get; set; }
@@ -22,8 +23,14 @@ namespace SpiderEye.Mac
             set
             {
                 enableDevToolsField = value;
-                ObjC.SetProperty(preferences, "developerExtrasEnabled", value);
+                IntPtr boolValue = Foundation.Call("NSNumber", "numberWithBool:", value);
+                ObjC.Call(preferences, "setValue:forKey:", boolValue, NSString.Create("developerExtrasEnabled"));
             }
+        }
+
+        private Uri Uri
+        {
+            get { return URL.GetAsUri(ObjC.Call(Handle, "URL")); }
         }
 
         public readonly IntPtr Handle;
@@ -92,7 +99,8 @@ namespace SpiderEye.Mac
 
             if (!uri.IsAbsoluteUri) { uri = new Uri(customHost, uri); }
 
-            IntPtr nsUrl = Foundation.Call("NSURL", "URLWithString:", NSString.Create(uri.ToString()));
+            var uriStr = uri.ToString().Replace(" ", "%20");
+            IntPtr nsUrl = Foundation.Call("NSURL", "URLWithString:", NSString.Create(uriStr));
             IntPtr request = Foundation.Call("NSURLRequest", "requestWithURL:", nsUrl);
             ObjC.Call(Handle, "loadRequest:", request);
         }
@@ -146,14 +154,18 @@ namespace SpiderEye.Mac
                 // note: WKScriptMessageHandler is not available at runtime and returns null
                 WebKit.GetProtocol("WKScriptMessageHandler"));
 
-            definition.AddMethod<LoadFinishedDelegate>(
-                "webView:didStartProvisionalNavigation:",
-                "v@:@@",
-                (self, op, view, navigation) =>
+            definition.AddMethod<NavigationDecideDelegate>(
+                "webView:decidePolicyForNavigationAction:decisionHandler:",
+                "v@:@@@",
+                (self, op, view, navigationAction, decisionHandler) =>
                 {
                     var instance = definition.GetParent<CocoaWebview>(self);
-                    var uri = new Uri(NSString.GetString(ObjC.Call(ObjC.Call(view, "URL"), "absoluteString")));
-                    instance.UriChanged?.Invoke(instance, uri);
+                    var args = new NavigatingEventArgs(instance.Uri);
+                    instance.Navigating?.Invoke(instance, args);
+
+                    var block = Marshal.PtrToStructure<NSBlock.BlockLiteral>(decisionHandler);
+                    var callback = Marshal.GetDelegateForFunctionPointer<NavigationDecisionDelegate>(block.Invoke);
+                    callback(decisionHandler, args.Cancel ? IntPtr.Zero : new IntPtr(1));
                 });
 
             definition.AddMethod<LoadFinishedDelegate>(
@@ -162,9 +174,7 @@ namespace SpiderEye.Mac
                 (self, op, view, navigation) =>
                 {
                     var instance = definition.GetParent<CocoaWebview>(self);
-                    var uri = new Uri(NSString.GetString(ObjC.Call(ObjC.Call(view, "URL"), "absoluteString")));
-                    instance.UriChanged?.Invoke(instance, uri);
-                    instance.PageLoaded?.Invoke(instance, PageLoadEventArgs.Successful);
+                    instance.PageLoaded?.Invoke(instance, new PageLoadEventArgs(instance.Uri, true));
                 });
 
             definition.AddMethod<LoadFailedDelegate>(
@@ -173,9 +183,7 @@ namespace SpiderEye.Mac
                 (self, op, view, navigation, error) =>
                 {
                     var instance = definition.GetParent<CocoaWebview>(self);
-                    var uri = new Uri(NSString.GetString(ObjC.Call(ObjC.Call(view, "URL"), "absoluteString")));
-                    instance.UriChanged?.Invoke(instance, uri);
-                    instance.PageLoaded?.Invoke(instance, PageLoadEventArgs.Failed);
+                    instance.PageLoaded?.Invoke(instance, new PageLoadEventArgs(instance.Uri, false));
                 });
 
             definition.AddMethod<ObserveValueDelegate>(

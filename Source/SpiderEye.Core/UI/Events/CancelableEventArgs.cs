@@ -12,7 +12,7 @@ namespace SpiderEye
     /// <summary>
     /// Represents the event arguments for an event of a cancelable operation.
     /// </summary>
-    public sealed class CancelableEventArgs : EventArgs
+    public class CancelableEventArgs : EventArgs
     {
         /// <summary>
         /// Gets or sets a value indicating whether the operation should be canceled or not.
