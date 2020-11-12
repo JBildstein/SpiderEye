@@ -3,7 +3,7 @@
 PublishProject()
 {
   echo "Publishing for $1..."
-  dotnet publish SpiderEye.Playground.$1 -c Release -f netcoreapp3.0 -r $2 -o Publish/$1 >/dev/null
+  dotnet publish SpiderEye.Playground.$1 -c Release -f net5.0 -r $2 -o Publish/$1 >/dev/null
   if [ "$?" -ne "0" ]; then
     echo "Publish failed"
     exit 1

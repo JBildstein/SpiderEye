@@ -15,11 +15,6 @@ namespace SpiderEye
     public sealed class PageLoadEventArgs : EventArgs
     {
         /// <summary>
-        /// Gets the loaded URL.
-        /// </summary>
-        public Uri Url { get; }
-
-        /// <summary>
         /// Gets a value indicating whether the page loaded or not.
         /// </summary>
         public bool Success { get; }
@@ -27,11 +22,9 @@ namespace SpiderEye
         /// <summary>
         /// Initializes a new instance of the <see cref="PageLoadEventArgs"/> class.
         /// </summary>
-        /// <param name="url">The loaded URL.</param>
         /// <param name="success">A value indicating whether the page loaded or not.</param>
-        internal PageLoadEventArgs(Uri url, bool success)
+        internal PageLoadEventArgs(bool success)
         {
-            Url = url;
             Success = success;
         }
     }

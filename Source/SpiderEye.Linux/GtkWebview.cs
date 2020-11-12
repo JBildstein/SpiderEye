@@ -271,8 +271,7 @@ namespace SpiderEye.Linux
             // this event is called when there is an error, immediately afterwards the LoadCallback is called with state Finished.
             // to indicate that there was an error and the PageLoaded event has been invoked, the loadEventHandled variable is set to true.
             loadEventHandled = true;
-            string url = GLibString.FromPointer(failingUrl);
-            PageLoaded?.Invoke(this, new PageLoadEventArgs(new Uri(url), false));
+            PageLoaded?.Invoke(this, new PageLoadEventArgs(false));
 
             return false;
         }
@@ -304,8 +303,7 @@ namespace SpiderEye.Linux
                 if (EnableDevTools) { ShowDevTools(); }
 
                 loadEventHandled = true;
-                string url = GLibString.FromPointer(WebKit.GetCurrentUri(webview));
-                PageLoaded?.Invoke(this, new PageLoadEventArgs(new Uri(url), true));
+                PageLoaded?.Invoke(this, new PageLoadEventArgs(true));
             }
         }
 

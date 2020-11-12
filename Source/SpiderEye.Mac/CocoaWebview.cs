@@ -174,7 +174,7 @@ namespace SpiderEye.Mac
                 (self, op, view, navigation) =>
                 {
                     var instance = definition.GetParent<CocoaWebview>(self);
-                    instance.PageLoaded?.Invoke(instance, new PageLoadEventArgs(instance.Uri, true));
+                    instance.PageLoaded?.Invoke(instance, new PageLoadEventArgs(true));
                 });
 
             definition.AddMethod<LoadFailedDelegate>(
@@ -183,7 +183,7 @@ namespace SpiderEye.Mac
                 (self, op, view, navigation, error) =>
                 {
                     var instance = definition.GetParent<CocoaWebview>(self);
-                    instance.PageLoaded?.Invoke(instance, new PageLoadEventArgs(instance.Uri, false));
+                    instance.PageLoaded?.Invoke(instance, new PageLoadEventArgs(false));
                 });
 
             definition.AddMethod<ObserveValueDelegate>(

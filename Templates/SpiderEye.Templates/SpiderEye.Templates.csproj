@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <Version>$(AssemblyVersion)</Version>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <PackageId>Bildstein.SpiderEye.Templates</PackageId>
     <PackageTags>$(PackageTags);dotnet-new;templates</PackageTags>
     <Description>Templates for a SpiderEye .Net Core application with a webview UI</Description>

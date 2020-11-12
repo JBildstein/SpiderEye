@@ -89,7 +89,7 @@ namespace SpiderEye.Windows
 
                 // TODO: figure out how to get success state
                 // it may require some ActiveX Voodoo: https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.webbrowser.createsink
-                PageLoaded?.Invoke(this, new PageLoadEventArgs(e.Url, true));
+                PageLoaded?.Invoke(this, new PageLoadEventArgs(true));
             }
         }
     }

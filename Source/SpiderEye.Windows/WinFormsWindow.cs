@@ -165,10 +165,8 @@ namespace SpiderEye.Windows
             if (icon == null || icon.Icons.Length == 0) { Icon = null; }
             else
             {
-                using (var stream = icon.GetIconDataStream(icon.DefaultIcon))
-                {
-                    Icon = new Icon(stream);
-                }
+                using var stream = icon.GetIconDataStream(icon.DefaultIcon);
+                Icon = new Icon(stream);
             }
         }
 

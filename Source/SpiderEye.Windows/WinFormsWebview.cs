@@ -1,16 +1,15 @@
 ﻿using System;
+using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Microsoft.Web.WebView2.Core;
+using Microsoft.Web.WebView2.WinForms;
 using SpiderEye.Bridge;
-using SpiderEye.Windows.Interop;
-using Windows.Foundation;
-using Windows.UI;
-using Windows.Web.UI;
-using Windows.Web.UI.Interop;
+using SpiderEye.Tools;
 
 namespace SpiderEye.Windows
 {
-    internal class WinFormsWebview : Control, IWebview, IWinFormsWebview
+    internal class WinFormsWebview : IWebview, IWinFormsWebview
     {
         public event NavigatingEventHandler Navigating;
         public event PageLoadEventHandler PageLoaded;
@@ -18,133 +17,144 @@ namespace SpiderEye.Windows
 
         public Control Control
         {
-            get { return this; }
+            get { return webview; }
         }
 
         public bool EnableScriptInterface
         {
-            get { return webview.Settings.IsScriptNotifyAllowed; }
-            set { webview.Settings.IsScriptNotifyAllowed = value; }
+            get { return webview.CoreWebView2?.Settings?.IsWebMessageEnabled ?? initialWebMessageEnabled; }
+            set
+            {
+                if (webview.CoreWebView2 == null)
+                {
+                    initialWebMessageEnabled = value;
+                    return;
+                }
+
+                webview.CoreWebView2.Settings.IsWebMessageEnabled = value;
+            }
         }
 
+        // Note: We currently can't use a custom scheme, since the WebView2 doesn't support it yet
+        private const string CustomScheme = "http";
         private readonly WebviewBridge bridge;
-        private readonly bool supportsInitializeScript;
-        private WebViewControl webview;
+        private readonly Uri customHost;
+        private WebView2 webview;
+        private CoreWebView2Environment webView2Environment;
+        private string initialUriToLoad;
+        private bool initialWebMessageEnabled;
 
         public WinFormsWebview(WebviewBridge bridge)
         {
             this.bridge = bridge ?? throw new ArgumentNullException(nameof(bridge));
 
-            var version = WinNative.GetOsVersion();
-            supportsInitializeScript = version.MajorVersion >= 10 && version.BuildNumber >= 17763;
+            webview = new WebView2();
+            InitializeWebView();
 
-            var process = new WebViewControlProcess();
-            var bounds = new Rect(Bounds.X, Bounds.Y, Bounds.Width, Bounds.Height);
-
-            webview = process.CreateWebViewControlAsync(Handle.ToInt64(), bounds)
-                .AsTask()
-                .ConfigureAwait(false)
-                .GetAwaiter()
-                .GetResult();
-
-            UpdateSize();
-
-            if (supportsInitializeScript)
-            {
-                string initScript = Resources.GetInitScript("Windows");
-                webview.AddInitializeScript(initScript);
-            }
-
-            webview.ScriptNotify += Webview_ScriptNotify;
+            webview.WebMessageReceived += Webview_WebMessageReceived;
 
             webview.NavigationCompleted += Webview_NavigationCompleted;
             webview.NavigationStarting += Webview_NavigationStarting;
-            Layout += (s, e) => UpdateSize();
+            webview.CoreWebView2Ready += Webview_CoreWebView2Ready;
+
+            customHost = new Uri(UriTools.GetRandomResourceUrl(CustomScheme));
         }
 
         public void UpdateBackgroundColor(byte r, byte g, byte b)
         {
-            webview.DefaultBackgroundColor = new Color { A = byte.MaxValue, R = r, G = g, B = b, };
+            webview.BackColor = Color.FromArgb(r, g, b);
         }
 
         public void LoadUri(Uri uri)
         {
             if (uri == null) { throw new ArgumentNullException(nameof(uri)); }
 
-            if (uri.IsAbsoluteUri) { webview.Navigate(uri); }
-            else
+            if (!uri.IsAbsoluteUri) { uri = new Uri(customHost, uri); }
+
+            if (webview.CoreWebView2 == null)
             {
-                var localUri = webview.BuildLocalStreamUri("spidereye", uri.ToString());
-                webview.NavigateToLocalStreamUri(localUri, EdgeUriToStreamResolver.Instance);
+                initialUriToLoad = uri.ToString();
+                return;
+            }
+
+            webview.CoreWebView2.Navigate(uri.ToString());
+        }
+
+        public Task<string> ExecuteScriptAsync(string script)
+        {
+            return webview.ExecuteScriptAsync(script);
+        }
+
+        public void Dispose()
+        {
+            webview?.Dispose();
+        }
+
+        private async void InitializeWebView()
+        {
+            webView2Environment = await CoreWebView2Environment.CreateAsync();
+            await webview.EnsureCoreWebView2Async(webView2Environment);
+        }
+
+        private async void Webview_CoreWebView2Ready(object sender, EventArgs e)
+        {
+            EnableScriptInterface = initialWebMessageEnabled;
+
+            webview.CoreWebView2.WebResourceRequested += Webview_WebResourceRequested;
+            webview.CoreWebView2.AddWebResourceRequestedFilter($"{customHost}*", CoreWebView2WebResourceContext.All);
+
+            string initScript = Resources.GetInitScript("Windows");
+            await webview.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync(initScript);
+
+            if (initialUriToLoad != null)
+            {
+                webview.CoreWebView2.Navigate(initialUriToLoad);
             }
         }
 
-        public async Task<string> ExecuteScriptAsync(string script)
+        private void Webview_WebResourceRequested(object sender, CoreWebView2WebResourceRequestedEventArgs e)
         {
-            return await webview.InvokeScriptAsync("eval", new string[] { script });
-        }
+            var requestUri = new Uri(e.Request.Uri);
+            var host = new Uri(requestUri.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped));
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
+            if (host != customHost)
             {
-                webview?.Close();
-                webview = null;
+                return;
+            }
+
+            try
+            {
+                var contentStream = Application.ContentProvider.GetStreamAsync(requestUri).GetAwaiter().GetResult();
+                if (contentStream == null)
+                {
+                    e.Response = webView2Environment.CreateWebResourceResponse(null, 404, "Not Found", string.Empty);
+                    return;
+                }
+
+                var mimeType = Application.ContentProvider.GetMimeType(requestUri);
+                e.Response = webView2Environment.CreateWebResourceResponse(contentStream, 200, "OK", $"Content-Type: {mimeType}");
+            }
+            catch (Exception ex)
+            {
+                e.Response = webView2Environment.CreateWebResourceResponse(null, 500, ex.Message, string.Empty);
             }
         }
 
-        protected override void DestroyHandle()
+        private async void Webview_WebMessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
         {
-            Close();
-            base.DestroyHandle();
+            await bridge.HandleScriptCall(e.WebMessageAsJson);
         }
 
-        protected override void OnHandleDestroyed(EventArgs e)
+        private void Webview_NavigationStarting(object sender, CoreWebView2NavigationStartingEventArgs e)
         {
-            Close();
-            base.OnHandleDestroyed(e);
-        }
-
-        private void Close()
-        {
-            webview?.Close();
-        }
-
-        private async void Webview_ScriptNotify(IWebViewControl sender, WebViewControlScriptNotifyEventArgs e)
-        {
-            await bridge.HandleScriptCall(e.Value);
-        }
-
-        private void Webview_NavigationStarting(IWebViewControl sender, WebViewControlNavigationStartingEventArgs e)
-        {
-            var args = new NavigatingEventArgs(e.Uri);
+            var args = new NavigatingEventArgs(new Uri(e.Uri));
             Navigating?.Invoke(this, args);
             e.Cancel = args.Cancel;
         }
 
-        private async void Webview_NavigationCompleted(object sender, WebViewControlNavigationCompletedEventArgs e)
+        private void Webview_NavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
         {
-            if (e.IsSuccess && !supportsInitializeScript)
-            {
-                string initScript = Resources.GetInitScript("Windows");
-                await ExecuteScriptAsync(initScript);
-            }
-
-            PageLoaded?.Invoke(this, new PageLoadEventArgs(e.Uri, e.IsSuccess));
-        }
-
-        private void UpdateSize()
-        {
-            if (webview != null)
-            {
-                var rect = new Rect(
-                    (float)ClientRectangle.X,
-                    (float)ClientRectangle.Y,
-                    (float)ClientRectangle.Width,
-                    (float)ClientRectangle.Height);
-
-                webview.Bounds = rect;
-            }
+            PageLoaded?.Invoke(this, new PageLoadEventArgs(e.IsSuccess));
         }
     }
 }

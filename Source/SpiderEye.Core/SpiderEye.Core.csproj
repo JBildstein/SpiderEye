@@ -2,7 +2,7 @@
   <Import Project="..\Shared\SpiderEye.Shared.proj" />
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>SpiderEye</RootNamespace>
   </PropertyGroup>
 </Project>

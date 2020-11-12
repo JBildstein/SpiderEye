@@ -2,12 +2,15 @@
     <Import Project="..\Shared\SpiderEye.Shared.proj" />
 
     <PropertyGroup>
-        <TargetFramework>netcoreapp3.1</TargetFramework>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
         <IsWindows Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">true</IsWindows>
         <IsMacOs Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">true</IsMacOs>
         <IsLinux Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">true</IsLinux>
 
+        <TargetFramework Condition="'$(IsWindows)' == 'true'">net5.0-windows</TargetFramework>
+        <TargetFramework Condition="'$(IsLinux)' == 'true'">net5.0</TargetFramework>
+        <TargetFramework Condition="'$(IsMacOs)' == 'true'">net5.0</TargetFramework>
+      
         <NativeAssetRuntimeIdentifier Condition="'$(IsWindows)' == 'true'">win</NativeAssetRuntimeIdentifier>
         <NativeAssetRuntimeIdentifier Condition="'$(IsLinux)' == 'true'">linux</NativeAssetRuntimeIdentifier>
         <NativeAssetRuntimeIdentifier Condition="'$(IsMacOs)' == 'true'">osx</NativeAssetRuntimeIdentifier>
