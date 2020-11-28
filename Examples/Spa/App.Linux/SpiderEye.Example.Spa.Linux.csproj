@@ -2,7 +2,7 @@
   <Import Project="..\Shared\SpiderEye.Example.Spa.Shared.proj" />
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <DefineConstants>$(DefineConstants);LINUX</DefineConstants>
   </PropertyGroup>
 
@@ -13,6 +13,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Bildstein.SpiderEye.Linux" Version="1.0.0-beta.1" />
+    <PackageReference Include="Bildstein.SpiderEye.Linux" Version="1.0.0-beta.2" />
   </ItemGroup>
 </Project>

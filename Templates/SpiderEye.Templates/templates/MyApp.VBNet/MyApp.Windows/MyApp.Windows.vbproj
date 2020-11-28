@@ -2,7 +2,7 @@
   <Import Project="..\Shared\MyApp.Shared.proj" />
 
   <PropertyGroup>
-    <TargetFramework>netframework-marker</TargetFramework>
+    <TargetFramework>netframework-marker-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <DefineConstants>$(DefineConstants)WIN</DefineConstants>

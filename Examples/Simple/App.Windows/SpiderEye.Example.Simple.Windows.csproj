@@ -2,12 +2,12 @@
   <Import Project="..\Shared\SpiderEye.Example.Simple.Shared.proj" />
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <DefineConstants>$(DefineConstants);WIN</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Bildstein.SpiderEye.Windows" Version="1.0.0-beta.1" />
+    <PackageReference Include="Bildstein.SpiderEye.Windows" Version="1.0.0-beta.2" />
   </ItemGroup>
 </Project>

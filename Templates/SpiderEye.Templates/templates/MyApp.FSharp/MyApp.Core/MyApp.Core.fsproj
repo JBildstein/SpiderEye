@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netframework-core-marker</TargetFrameworks>
+    <TargetFrameworks>netframework-marker</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>

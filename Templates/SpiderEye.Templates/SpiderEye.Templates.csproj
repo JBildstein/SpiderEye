@@ -2,9 +2,9 @@
   <Import Project="..\..\Shared\SpiderEye.Shared.Nuget.proj" />
 
   <PropertyGroup>
-    <AssemblyVersion>1.1.0</AssemblyVersion>
+    <AssemblyVersion>1.2.0</AssemblyVersion>
     <Version>$(AssemblyVersion)</Version>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <PackageId>Bildstein.SpiderEye.Templates</PackageId>
     <PackageTags>$(PackageTags);dotnet-new;templates</PackageTags>
     <Description>Templates for a SpiderEye .Net Core application with a webview UI</Description>
