@@ -2,23 +2,13 @@
   <Import Project="..\Shared\SpiderEye.Shared.Platform.proj" />
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.0;net462</TargetFrameworks>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <TargetPlatformMinVersion>10.0.17134.0</TargetPlatformMinVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Scripts\InitEdgium.js" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.664.37" />
     <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.19041.1" PrivateAssets="all" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Update="Scripts\InitEdgium.js">
-      <LogicalName>$(AssemblyName).Scripts.%(Filename)%(Extension)</LogicalName>
-    </EmbeddedResource>
   </ItemGroup>
 </Project>
