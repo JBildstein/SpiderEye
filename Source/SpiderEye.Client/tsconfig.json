@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "es5",
     "module": "commonjs",
-    "lib": [ "es6", "dom" ],
+    "lib": [ "ES2020", "dom" ],
     "declaration": false,
     "sourceMap": true,
     "outDir": "./bin",

@@ -29,7 +29,7 @@ function buildLib() {
 }
 
 function buildES() {
-    var project = tsc.createProject("tsconfig.json", { module: "es6" });
+    var project = tsc.createProject("tsconfig.json", { module: "ES2020" });
     return gulp.src(["src/**/*"])
         .pipe(project())
         .js.pipe(gulp.dest("es/"));

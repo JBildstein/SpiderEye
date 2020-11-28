@@ -1,6 +1,6 @@
 {
   "name": "spidereye",
-  "version": "1.0.0-alpha.15",
+  "version": "1.0.0-beta.2",
   "description": "Client library for .Net SpiderEye apps",
   "repository": "github:JBildstein/SpiderEye",
   "author": "Johannes Bildstein",
@@ -13,7 +13,7 @@
   "homepage": "https://github.com/JBildstein/SpiderEye#readme",
   "bugs": "https://github.com/JBildstein/SpiderEye/issues",
   "main": "lib/index.js",
-  "jsnext:main": "es/index.js",
+  "module": "es/index.js",
   "types": "dts/index.d.ts",
   "scripts": {
     "lint": "tslint --project .",

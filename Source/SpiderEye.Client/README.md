@@ -1,6 +1,6 @@
 # Introduction
 
-Write .Net (Core) applications with a webview UI. It can be compared to how Electron runs on Node.js, SpiderEye runs on .Net.
+Write .NET (Core) applications with a webview UI. It can be compared to how Electron runs on Node.js, SpiderEye runs on .NET.
 Contrary to Electron though, SpiderEye uses the OS native webview instead of bundling Chrome.
 
 What's the name supposed to mean? Simple: what kind of view does a spiders eye have? A webview! Get it? ...you'll laugh later :P
