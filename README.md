@@ -1,6 +1,6 @@
 ﻿# SpiderEye
 
-Write .Net Core applications with a webview UI. It can be compared to how Electron runs on Node.js, SpiderEye runs on .Net.
+Write .NET Core applications with a webview UI. It can be compared to how Electron runs on Node.js, SpiderEye runs on .NET.
 Contrary to Electron though, SpiderEye uses the OS native webview instead of bundling Chromium.
 
 What's the name supposed to mean? Simple: what kind of view does a spiders eye have? A webview! Get it? ...you'll laugh later :P
@@ -9,16 +9,39 @@ What's the name supposed to mean? Simple: what kind of view does a spiders eye h
 
 | OS | Version | Runtime (minimum) | Webview | Browser Engine |
 | ----- | ----- | ----- | ----- | ----- |
-| Windows | 7, 8.x, 10 | .Net Core 3.0 or .Net 4.6.2 | WinForms WebBrowser control | IE 9-11 (depending on OS and installed version) |
-| Windows |  10 Build 1803 or newer | .Net Core 3.0 or .Net 4.6.2 | WebViewControl | Edge |
-| Linux | any x64 distro where .Net Core runs | .Net Core 2.0 | WebKit2GTK | WebKit |
-| macOS | x64 10.13 or newer | .Net Core 2.0 | WKWebView | WebKit |
+| Windows | 7, 8.x, 10 | .NET 5.0 | WinForms WebBrowser control | IE 9-11 (depending on OS and installed version) |
+| Windows | 10 version 1809 or newer | .NET 5.0 | WebViewControl | Edge (MSHTML) |
+| Windows | 7, 8.1, 10 | .NET 5.0 | WebView2 | Edge Chromium |
+| Linux | any 64bit distro where .NET 5.0 runs | .NET 5.0 | WebKit2GTK | WebKit |
+| macOS | x64 10.13 or newer | .NET 5.0 | WKWebView | WebKit |
 
 | Linux Dependencies | Used for | Optional |
 | ----- | ----- | ----- |
 | libgtk-3 | Application and window handling | No |
 | libwebkit2gtk-4.0 | Webview | No |
 | libappindicator3 | Status icon | Yes |
+
+### Edge (MSHTML)
+
+To be able to use the MSHTML based Edge webview you'll have to add a windows version to the target framework moniker in your Windows project.
+More specifically you'll have to open the MyApp.Windows project and change:
+```xml
+<TargetFramework>net5.0-windows</TargetFramework>
+```
+to
+```xml
+<TargetFramework>net5.0-windows10.0.17763</TargetFramework>
+```
+or any higher version.
+
+Note that you'll have a wider OS support and a more modern browser engine if you go for the Edge Chromium webview, see the next point for more infos.
+
+### Edge Chromium/WebView2
+
+To use Edge Chromium/WebView2 you have to either install the WebView2 runtime or the Canary version of Edge Chromium.
+Note that if you publish your app to your users they will also have to install it (follow the guidelines from Microsoft on that topic).
+
+The fixed version distribution mode (also known as "bring your own") is currently not supported.
 
 ## Installation
 
@@ -38,13 +61,12 @@ The client package is not required but you'll need it if you intend to communica
 ### Running the Examples
 
 To get a quick overview of how a SpiderEye app looks like, have a look at the Example folder.
-You can run them in various ways depending on what you use but you'll need .Net Core 3.0 for all of them.
 
 **Visual Studio (Windows):** Open the solution, select the SpiderEye.Example.*.Windows project and set it as startup project and run it as you would any project.
 When starting, you may get a "Just My Code" warning saying that you are trying to debug a Release build of SpiderEye.dll.
 I believe this is a Visual Studio bug and can be safely ignored by selecting "Continue debugging" or "Continue debugging (don't ask again)".
 
-**Visual Studio for Mac:** Same as with Visual Studio on Windows but you may get an error that .Net Core Desktop projects cannot be run on macOS.
+**Visual Studio for Mac:** Same as with Visual Studio on Windows but you may get an error that .NET Core Desktop projects cannot be run on macOS.
 Just right click on the Windows specific projects and select "Unload".
 
 **Visual Studio Code:** Open the base folder (i.e. where the SpiderEye.sln file lies), select which project you want to run in the Debug pane and hit start.
@@ -123,7 +145,12 @@ checknetisolation LoopbackExempt -d -n=Microsoft.Win32WebViewHost_cw5n1h2txyewy
 
 Depending on which platform you are working, there are different ways to debug the webview.
 
-### Windows Edge
+### Windows Edge Chromium
+
+First you need to set `Window.EnableDevTools` to `true` in your app.
+Then just run your app and the dev tools will automatically open in a new window.
+
+### Windows Edge (MSHTML)
 
 For the Edge webview it's probably easiest if you use the [Microsoft Edge DevTools](https://www.microsoft.com/en-us/p/microsoft-edge-devtools-preview/9mzbfrmz0mnj)
 
@@ -148,7 +175,7 @@ Then run your app and once it's loaded, right click anywhere and select "Inspect
 
 ## Publishing your App
 
-You can publish your application like any other .Net Core app by calling `dotnet publish` with the appropriate runtime identifier, e.g. for Linux:
+You can publish your application like any other .NET Core app by calling `dotnet publish` with the appropriate runtime identifier, e.g. for Linux:
 ```
 dotnet publish -r linux-x64
 ```
@@ -200,9 +227,7 @@ In the Resources folder you put your application icon with the same name as you 
 
 ## Development
 
-To build the project you'll need an up-to-date version of Visual Studio 2019 or Visual Studio Code as well as the .Net Core SDK 3.0.
-You can develop and run the project on all platforms but only if you target .Net Core.
-Building for Windows requires .Net 4.6.2.
+To build the project you'll need an up-to-date version of Visual Studio 2019 or Visual Studio Code as well as the .NET Core SDK 5.0.
 To run/build the SpiderEye.Client project, the SPA example or the Playground project, you also need node.js/npm.
 
 Before running the Playground project, make sure that you have all client side packages installed and the Angular dev server running.
@@ -211,14 +236,14 @@ Once those are installed, call `npm run watch` in the `Playground/SpiderEye.Play
 
 ## How it Works
 
-For the window handling, this library calls the native APIs on Linux and macOS and the .Net APIs for Windows Forms on Windows.
+For the window handling, this library calls the native APIs on Linux and macOS and the .NET APIs for Windows Forms on Windows.
 It then does the same thing to attach the webview to that window.
-On Windows, it also checks if the Edge based webview is available and falls back to the WebBrowser control if not.
+On Windows, it also checks if the Edge (MSHTML) or Edge Chromium based webview is available and falls back to the WebBrowser control if not.
 
 Using the various APIs, the webview is set up to intercept requests and serve the files that are embedded in an assembly.
-An exception is the WinForms WebBrowser control that doesn't support this and uses an internal localhost server instead.
+An exception is the WinForms WebBrowser control and Edge Chromium webview that don't support this and uses an internal localhost server instead.
 
-The webview is also set up to inject a little bit of JavaScript at page load to add a consistent interface between the webview and .Net code.
+The webview is also set up to inject a little bit of JavaScript at page load to add a consistent interface between the webview and .NET code.
 
 ## Contributing
 Please check first if there is already an open issue or pull request before creating a new one.
