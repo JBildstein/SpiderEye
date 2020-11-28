@@ -5,7 +5,7 @@
     /// </summary>
     public static class LinuxApplication
     {
-        private static GtkApplication app;
+        private static GtkApplication? app;
 
         /// <summary>
         /// Initializes the application.

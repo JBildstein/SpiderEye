@@ -15,9 +15,9 @@ namespace SpiderEye
         public static readonly NoopContentProvider Instance = new NoopContentProvider();
 
         /// <inheritdoc/>
-        public Task<Stream> GetStreamAsync(Uri uri)
+        public Task<Stream?> GetStreamAsync(Uri uri)
         {
-            return Task.FromResult<Stream>(null);
+            return Task.FromResult<Stream?>(null);
         }
     }
 }

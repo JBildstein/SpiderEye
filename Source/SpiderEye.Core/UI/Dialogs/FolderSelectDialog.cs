@@ -8,7 +8,7 @@
         /// <summary>
         /// Gets or sets the selected path.
         /// </summary>
-        public string SelectedPath
+        public string? SelectedPath
         {
             get { return NativeFolderSelectDialog.SelectedPath; }
             set { NativeFolderSelectDialog.SelectedPath = value; }

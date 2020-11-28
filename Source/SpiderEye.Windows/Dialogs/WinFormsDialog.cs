@@ -6,14 +6,14 @@ namespace SpiderEye.Windows
     internal abstract class WinFormsDialog<T> : IDialog
         where T : System.Windows.Forms.CommonDialog
     {
-        public string Title { get; set; }
+        public string? Title { get; set; }
 
         public DialogResult Show()
         {
             return Show(null);
         }
 
-        public DialogResult Show(IWindow parent)
+        public DialogResult Show(IWindow? parent)
         {
             var dialog = GetDialog();
             BeforeShow(dialog);

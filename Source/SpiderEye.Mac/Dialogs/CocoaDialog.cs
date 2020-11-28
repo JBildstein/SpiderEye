@@ -6,14 +6,14 @@ namespace SpiderEye.Mac
 {
     internal abstract class CocoaDialog : IDialog
     {
-        public string Title { get; set; }
+        public string? Title { get; set; }
 
         public DialogResult Show()
         {
             return Show(null);
         }
 
-        public DialogResult Show(IWindow parent)
+        public DialogResult Show(IWindow? parent)
         {
             var window = NativeCast.To<CocoaWindow>(parent);
             var dialog = CreateDialog();
@@ -38,19 +38,14 @@ namespace SpiderEye.Mac
         {
         }
 
-        private DialogResult MapResult(int result)
+        private static DialogResult MapResult(int result)
         {
-            switch (result)
+            return result switch
             {
-                case 1:
-                    return DialogResult.Ok;
-
-                case 0:
-                    return DialogResult.Cancel;
-
-                default:
-                    return DialogResult.None;
-            }
+                1 => DialogResult.Ok,
+                0 => DialogResult.Cancel,
+                _ => DialogResult.None,
+            };
         }
     }
 }

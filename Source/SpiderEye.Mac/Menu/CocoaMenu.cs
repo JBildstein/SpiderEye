@@ -7,7 +7,7 @@ namespace SpiderEye.Mac
 {
     internal class CocoaMenu : IMenu
     {
-        public string Title
+        public string? Title
         {
             get
             {
@@ -28,7 +28,7 @@ namespace SpiderEye.Mac
         {
         }
 
-        public CocoaMenu(string title)
+        public CocoaMenu(string? title)
         {
             if (title != null)
             {

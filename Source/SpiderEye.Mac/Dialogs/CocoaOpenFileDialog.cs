@@ -8,7 +8,7 @@ namespace SpiderEye.Mac
     {
         public bool Multiselect { get; set; }
 
-        public string[] SelectedFiles
+        public string[]? SelectedFiles
         {
             get;
             private set;
@@ -35,7 +35,7 @@ namespace SpiderEye.Mac
             for (int i = 0; i < count; i++)
             {
                 var url = ObjC.Call(urls, "objectAtIndex:", new IntPtr(i));
-                files[i] = NSString.GetString(ObjC.Call(url, "path"));
+                files[i] = NSString.GetString(ObjC.Call(url, "path"))!;
             }
 
             SelectedFiles = files;

@@ -5,13 +5,13 @@ namespace SpiderEye.Windows
 {
     internal class WinFormsStatusIcon : IStatusIcon
     {
-        public string Title
+        public string? Title
         {
             get { return notifyIcon.Text; }
             set { notifyIcon.Text = value; }
         }
 
-        public AppIcon Icon
+        public AppIcon? Icon
         {
             get { return icon; }
             set
@@ -21,7 +21,7 @@ namespace SpiderEye.Windows
             }
         }
 
-        public Menu Menu
+        public Menu? Menu
         {
             get { return menu; }
             set
@@ -32,8 +32,8 @@ namespace SpiderEye.Windows
         }
 
         private readonly NotifyIcon notifyIcon;
-        private AppIcon icon;
-        private Menu menu;
+        private AppIcon? icon;
+        private Menu? menu;
 
         public WinFormsStatusIcon(string title)
         {
@@ -47,7 +47,7 @@ namespace SpiderEye.Windows
             notifyIcon.Dispose();
         }
 
-        private void UpdateIcon(AppIcon icon)
+        private void UpdateIcon(AppIcon? icon)
         {
             if (icon == null || icon.Icons.Length == 0)
             {
@@ -55,14 +55,12 @@ namespace SpiderEye.Windows
             }
             else
             {
-                using (var stream = icon.GetIconDataStream(icon.DefaultIcon))
-                {
-                    notifyIcon.Icon = new System.Drawing.Icon(stream);
-                }
+                using var stream = icon.GetIconDataStream(icon.DefaultIcon);
+                notifyIcon.Icon = new System.Drawing.Icon(stream);
             }
         }
 
-        private void UpdateMenu(Menu menu)
+        private void UpdateMenu(Menu? menu)
         {
             var nativeMenu = NativeCast.To<WinFormsMenu>(menu?.NativeMenu);
             notifyIcon.ContextMenuStrip = nativeMenu?.Menu;

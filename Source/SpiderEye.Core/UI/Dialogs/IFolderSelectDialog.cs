@@ -8,6 +8,6 @@
         /// <summary>
         /// Gets or sets the selected path.
         /// </summary>
-        string SelectedPath { get; set; }
+        string? SelectedPath { get; set; }
     }
 }

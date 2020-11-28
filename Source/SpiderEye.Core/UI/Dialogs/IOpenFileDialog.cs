@@ -13,6 +13,6 @@
         /// <summary>
         /// Gets the files selected by the user.
         /// </summary>
-        string[] SelectedFiles { get; }
+        string[]? SelectedFiles { get; }
     }
 }

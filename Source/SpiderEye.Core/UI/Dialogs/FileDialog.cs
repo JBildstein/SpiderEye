@@ -10,7 +10,7 @@ namespace SpiderEye
         /// <summary>
         /// Gets or sets the initial directory.
         /// </summary>
-        public string InitialDirectory
+        public string? InitialDirectory
         {
             get { return NativeFileDialog.InitialDirectory; }
             set { NativeFileDialog.InitialDirectory = value; }
@@ -19,7 +19,7 @@ namespace SpiderEye
         /// <summary>
         /// Gets or sets the selected file name.
         /// </summary>
-        public string FileName
+        public string? FileName
         {
             get { return NativeFileDialog.FileName; }
             set { NativeFileDialog.FileName = value; }

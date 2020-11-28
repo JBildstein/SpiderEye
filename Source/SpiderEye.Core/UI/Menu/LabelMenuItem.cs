@@ -19,7 +19,7 @@ namespace SpiderEye
         /// <summary>
         /// Gets or sets the label of this menu.
         /// </summary>
-        public string Label
+        public string? Label
         {
             get { return NativeLabelMenuItem.Label; }
             set { NativeLabelMenuItem.Label = value; }

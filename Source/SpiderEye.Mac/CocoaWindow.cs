@@ -8,11 +8,11 @@ namespace SpiderEye.Mac
 {
     internal class CocoaWindow : IWindow
     {
-        public event CancelableEventHandler Closing;
-        public event EventHandler Closed;
-        public event EventHandler Shown;
+        public event CancelableEventHandler? Closing;
+        public event EventHandler? Closed;
+        public event EventHandler? Shown;
 
-        public string Title
+        public string? Title
         {
             get { return NSString.GetString(ObjC.Call(Handle, "title")); }
             set { ObjC.Call(Handle, "setTitle:", NSString.Create(value ?? string.Empty)); }
@@ -78,13 +78,13 @@ namespace SpiderEye.Mac
 
                 // the title gets reset when setting it to borderless
                 // so we just store the title, set the border and set the title back again
-                string title = Title;
+                string? title = Title;
                 StyleMask = GetWantedStyleMask();
                 Title = title;
             }
         }
 
-        public string BackgroundColor
+        public string? BackgroundColor
         {
             get { return backgroundColorField; }
             set
@@ -103,7 +103,7 @@ namespace SpiderEye.Mac
         }
 
         // is ignored because there are no window icons on macOS
-        public AppIcon Icon { get; set; }
+        public AppIcon? Icon { get; set; }
 
         public bool EnableScriptInterface
         {
@@ -137,7 +137,7 @@ namespace SpiderEye.Mac
 
         private bool canResizeField;
         private WindowBorderStyle borderStyleField;
-        private string backgroundColorField;
+        private string? backgroundColorField;
 
         static CocoaWindow()
         {
@@ -263,27 +263,19 @@ namespace SpiderEye.Mac
         {
             bool isFullscreen = StyleMask.HasFlag(NSWindowStyleMask.FullScreen);
             NSWindowStyleMask style = NSWindowStyleMask.Closable | NSWindowStyleMask.Miniaturizable;
-            switch (borderStyleField)
+            style |= borderStyleField switch
             {
-                case WindowBorderStyle.Default:
-                    style |= NSWindowStyleMask.Titled;
-                    break;
-
-                case WindowBorderStyle.None:
-                    style |= NSWindowStyleMask.Borderless;
-                    break;
-
-                default:
-                    throw new ArgumentException($"Invalid border style value of {borderStyleField}", nameof(BorderStyle));
-            }
-
+                WindowBorderStyle.Default => NSWindowStyleMask.Titled,
+                WindowBorderStyle.None => NSWindowStyleMask.Borderless,
+                _ => throw new ArgumentException($"Invalid border style value of {borderStyleField}", nameof(BorderStyle)),
+            };
             if (canResizeField) { style |= NSWindowStyleMask.Resizable; }
             if (isFullscreen) { style |= NSWindowStyleMask.FullScreen; }
 
             return style;
         }
 
-        private void Webview_TitleChanged(object sender, string title)
+        private void Webview_TitleChanged(object? sender, string title)
         {
             if (UseBrowserTitle)
             {

@@ -13,7 +13,7 @@ namespace SpiderEye.Mac
         /// <summary>
         /// Gets or sets the application menu.
         /// </summary>
-        public static Menu AppMenu
+        public static Menu? AppMenu
         {
             get { return appMenu; }
             set
@@ -25,16 +25,16 @@ namespace SpiderEye.Mac
 
         internal static IntPtr Handle
         {
-            get { return app.Handle; }
+            get { return app?.Handle ?? IntPtr.Zero; }
         }
 
         internal static SynchronizationContext SynchronizationContext
         {
-            get { return app.SynchronizationContext; }
+            get { return app!.SynchronizationContext; }
         }
 
-        private static CocoaApplication app;
-        private static Menu appMenu;
+        private static CocoaApplication? app;
+        private static Menu? appMenu;
 
         /// <summary>
         /// Initializes the application.
@@ -46,9 +46,9 @@ namespace SpiderEye.Mac
             AppMenu = CreateDefaultMenu();
         }
 
-        private static void SetAppMenu(Menu menu)
+        private static void SetAppMenu(Menu? menu)
         {
-            var nativeMenu = NativeCast.To<CocoaMenu>(menu.NativeMenu);
+            var nativeMenu = NativeCast.To<CocoaMenu>(menu?.NativeMenu);
             ObjC.Call(Handle, "setMainMenu:", nativeMenu?.Handle ?? IntPtr.Zero);
         }
 

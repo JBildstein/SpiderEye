@@ -16,8 +16,8 @@ namespace SpiderEye.Windows
     /// </summary>
     internal class EdgeHtmlWebview : Control, IWebview, IWinFormsWebview
     {
-        public event NavigatingEventHandler Navigating;
-        public event PageLoadEventHandler PageLoaded;
+        public event NavigatingEventHandler? Navigating;
+        public event PageLoadEventHandler? PageLoaded;
 
         public Control Control
         {
@@ -82,7 +82,7 @@ namespace SpiderEye.Windows
             }
         }
 
-        public async Task<string> ExecuteScriptAsync(string script)
+        public async Task<string?> ExecuteScriptAsync(string script)
         {
             return await webview.InvokeScriptAsync("eval", new string[] { script });
         }
@@ -92,7 +92,7 @@ namespace SpiderEye.Windows
             if (disposing)
             {
                 webview?.Close();
-                webview = null;
+                webview = null!;
             }
         }
 
@@ -141,10 +141,10 @@ namespace SpiderEye.Windows
             if (webview != null)
             {
                 var rect = new global::Windows.Foundation.Rect(
-                    (float)ClientRectangle.X,
-                    (float)ClientRectangle.Y,
-                    (float)ClientRectangle.Width,
-                    (float)ClientRectangle.Height);
+                    ClientRectangle.X,
+                    ClientRectangle.Y,
+                    ClientRectangle.Width,
+                    ClientRectangle.Height);
 
                 webview.Bounds = rect;
             }

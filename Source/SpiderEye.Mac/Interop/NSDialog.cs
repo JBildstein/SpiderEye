@@ -36,17 +36,17 @@ namespace SpiderEye.Mac.Interop
             return new NSDialog(panel, panel, false);
         }
 
-        public int Run(CocoaWindow parent)
+        public int Run(CocoaWindow? parent)
         {
             if (Handle == IntPtr.Zero) { throw new InvalidOperationException("Dialog is null"); }
 
             if (parent == null) { return ObjC.Call(Handle, "runModal").ToInt32(); }
 
-            NSBlock block = null;
+            NSBlock? block = null;
             block = new NSBlock((Callback)((s, r) =>
             {
                 ObjC.Call(MacApplication.Handle, "stopModalWithCode:", r);
-                block.Dispose();
+                block!.Dispose();
             }));
 
             ObjC.Call(Handle, "beginSheetModalForWindow:completionHandler:", parent.Handle, block.Handle);

@@ -34,7 +34,7 @@ namespace SpiderEye
         }
 
         /// <inheritdoc/>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is Size size && Equals(size);
         }
@@ -49,10 +49,7 @@ namespace SpiderEye
         /// <inheritdoc/>
         public override int GetHashCode()
         {
-            int hashCode = 859600377;
-            hashCode = (hashCode * -1521134295) + Width.GetHashCode();
-            hashCode = (hashCode * -1521134295) + Height.GetHashCode();
-            return hashCode;
+            return HashCode.Combine(Width, Height);
         }
 
         /// <summary>

@@ -8,7 +8,7 @@
         /// <summary>
         /// Gets or sets the dialog title.
         /// </summary>
-        public string Title
+        public string? Title
         {
             get { return NativeDialog.Title; }
             set { NativeDialog.Title = value; }

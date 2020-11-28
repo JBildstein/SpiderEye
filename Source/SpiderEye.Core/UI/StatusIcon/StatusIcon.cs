@@ -11,7 +11,7 @@ namespace SpiderEye
         /// <summary>
         /// Gets or sets the status icon title.
         /// </summary>
-        public string Title
+        public string? Title
         {
             get { return NativeStatusIcon.Title; }
             set { NativeStatusIcon.Title = value; }
@@ -20,7 +20,7 @@ namespace SpiderEye
         /// <summary>
         /// Gets or sets the icon.
         /// </summary>
-        public AppIcon Icon
+        public AppIcon? Icon
         {
             get { return NativeStatusIcon.Icon; }
             set { NativeStatusIcon.Icon = value; }
@@ -29,7 +29,7 @@ namespace SpiderEye
         /// <summary>
         /// Gets or sets the icon menu.
         /// </summary>
-        public Menu Menu
+        public Menu? Menu
         {
             get { return NativeStatusIcon.Menu; }
             set { NativeStatusIcon.Menu = value; }
@@ -45,7 +45,7 @@ namespace SpiderEye
         /// </summary>
         public StatusIcon()
         {
-            string title = Assembly.GetEntryAssembly().GetName().Name;
+            string title = Assembly.GetEntryAssembly()?.GetName().Name ?? string.Empty;
             NativeStatusIcon = Application.Factory.CreateStatusIcon(title);
         }
 

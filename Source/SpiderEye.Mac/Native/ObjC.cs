@@ -39,7 +39,7 @@ namespace SpiderEye.Mac.Native
         public static extern IntPtr SetVariableValue(IntPtr obj, IntPtr ivar, IntPtr value);
 
         [DllImport(ObjCLib, EntryPoint = "sel_registerName", CharSet = CharSet.Ansi)]
-        public static extern IntPtr RegisterName(string name);
+        public static extern IntPtr RegisterName(string? name);
 
         [DllImport(ObjCLib, EntryPoint = "objc_msgSend")]
         public static extern IntPtr SendMessage(IntPtr self, IntPtr op);

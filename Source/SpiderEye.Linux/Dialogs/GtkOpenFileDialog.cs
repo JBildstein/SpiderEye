@@ -10,7 +10,7 @@ namespace SpiderEye.Linux
     {
         public bool Multiselect { get; set; }
 
-        public string[] SelectedFiles
+        public string[]? SelectedFiles
         {
             get;
             private set;
@@ -42,7 +42,7 @@ namespace SpiderEye.Linux
                     {
                         using (var value = new GLibString(list.Data))
                         {
-                            files.Add(value.ToString());
+                            files.Add(value.ToString()!);
                         }
 
                         if (list.Next == null) { break; }

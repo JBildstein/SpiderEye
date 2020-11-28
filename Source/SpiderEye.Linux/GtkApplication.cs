@@ -46,7 +46,7 @@ namespace SpiderEye.Linux
             }
         }
 
-        private void Application_AllWindowsClosed(object sender, EventArgs e)
+        private void Application_AllWindowsClosed(object? sender, EventArgs e)
         {
             if (Application.ExitWithLastWindow) { Exit(); }
         }

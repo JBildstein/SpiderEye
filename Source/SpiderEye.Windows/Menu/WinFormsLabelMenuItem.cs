@@ -6,7 +6,7 @@ namespace SpiderEye.Windows
 {
     internal class WinFormsLabelMenuItem : WinFormsMenuItem, ILabelMenuItem
     {
-        public event EventHandler Click
+        public event EventHandler? Click
         {
             add { menuItem.Click += value; }
             remove { menuItem.Click -= value; }
@@ -18,7 +18,7 @@ namespace SpiderEye.Windows
             set { menuItem.Enabled = value; }
         }
 
-        public string Label
+        public string? Label
         {
             get { return menuItem.Text; }
             set { menuItem.Text = value; }

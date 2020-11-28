@@ -6,8 +6,8 @@ namespace SpiderEye.Windows
 {
     internal class WinFormsMessageBox : IMessageBox
     {
-        public string Title { get; set; }
-        public string Message { get; set; }
+        public string? Title { get; set; }
+        public string? Message { get; set; }
         public MessageBoxButtons Buttons { get; set; }
 
         public DialogResult Show()
@@ -15,7 +15,7 @@ namespace SpiderEye.Windows
             return Show(null);
         }
 
-        public DialogResult Show(IWindow parent)
+        public DialogResult Show(IWindow? parent)
         {
             var window = NativeCast.To<WinFormsWindow>(parent);
             System.Windows.Forms.DialogResult result;

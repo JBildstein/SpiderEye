@@ -7,19 +7,17 @@ namespace SpiderEye.Linux
 {
     internal class GtkWindow : IWindow
     {
-        public event CancelableEventHandler Closing;
-        public event EventHandler Closed;
-        public event EventHandler Shown;
+        public event CancelableEventHandler? Closing;
+        public event EventHandler? Closed;
+        public event EventHandler? Shown;
 
-        public string Title
+        public string? Title
         {
             get { return GLibString.FromPointer(Gtk.Window.GetTitle(Handle)); }
             set
             {
-                using (GLibString str = value)
-                {
-                    Gtk.Window.SetTitle(Handle, str);
-                }
+                using GLibString str = value;
+                Gtk.Window.SetTitle(Handle, str);
             }
         }
 
@@ -72,7 +70,7 @@ namespace SpiderEye.Linux
             }
         }
 
-        public string BackgroundColor
+        public string? BackgroundColor
         {
             get { return backgroundColorField; }
             set
@@ -89,7 +87,7 @@ namespace SpiderEye.Linux
             set { webview.UseBrowserTitle = value; }
         }
 
-        public AppIcon Icon
+        public AppIcon? Icon
         {
             get { return iconField; }
             set
@@ -128,8 +126,8 @@ namespace SpiderEye.Linux
         private Size minSizeField;
         private Size maxSizeField;
         private WindowBorderStyle borderStyleField;
-        private string backgroundColorField;
-        private AppIcon iconField;
+        private string? backgroundColorField;
+        private AppIcon? iconField;
 
         public GtkWindow(WebviewBridge bridge)
         {
@@ -212,7 +210,7 @@ namespace SpiderEye.Linux
             Gtk.Window.SetGeometryHints(Handle, IntPtr.Zero, ref geometry, hints);
         }
 
-        private unsafe void SetIcon(AppIcon icon)
+        private unsafe void SetIcon(AppIcon? icon)
         {
             if (icon == null || icon.Icons.Length == 0)
             {
@@ -275,7 +273,7 @@ namespace SpiderEye.Linux
             Closed?.Invoke(this, EventArgs.Empty);
         }
 
-        private void Webview_TitleChanged(object sender, string title)
+        private void Webview_TitleChanged(object? sender, string title)
         {
             if (UseBrowserTitle)
             {
@@ -283,12 +281,12 @@ namespace SpiderEye.Linux
             }
         }
 
-        private void Webview_CloseRequested(object sender, EventArgs e)
+        private void Webview_CloseRequested(object? sender, EventArgs e)
         {
             Close();
         }
 
-        private void SetBackgroundColor(string color)
+        private void SetBackgroundColor(string? color)
         {
             IntPtr provider = IntPtr.Zero;
 
@@ -296,7 +294,7 @@ namespace SpiderEye.Linux
             {
                 provider = Gtk.Css.Create();
 
-                using (GLibString css = $"* {{background-color:{color}}}")
+                using (GLibString css = $"* {{background-color:{color ?? "#FFF"}}}")
                 {
                     Gtk.Css.LoadData(provider, css, new IntPtr(-1), IntPtr.Zero);
                 }

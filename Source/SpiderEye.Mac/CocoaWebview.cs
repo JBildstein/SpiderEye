@@ -11,10 +11,10 @@ namespace SpiderEye.Mac
 {
     internal class CocoaWebview : IWebview
     {
-        public event NavigatingEventHandler Navigating;
-        public event PageLoadEventHandler PageLoaded;
+        public event NavigatingEventHandler? Navigating;
+        public event PageLoadEventHandler? PageLoaded;
 
-        public event EventHandler<string> TitleChanged;
+        public event EventHandler<string>? TitleChanged;
 
         public bool EnableScriptInterface { get; set; }
         public bool UseBrowserTitle { get; set; }
@@ -31,7 +31,7 @@ namespace SpiderEye.Mac
 
         private Uri Uri
         {
-            get { return URL.GetAsUri(ObjC.Call(Handle, "URL")); }
+            get { return URL.GetAsUri(ObjC.Call(Handle, "URL"))!; }
         }
 
         public readonly IntPtr Handle;
@@ -105,10 +105,10 @@ namespace SpiderEye.Mac
             ObjC.Call(Handle, "loadRequest:", request);
         }
 
-        public Task<string> ExecuteScriptAsync(string script)
+        public Task<string?> ExecuteScriptAsync(string script)
         {
-            var taskResult = new TaskCompletionSource<string>();
-            NSBlock block = null;
+            var taskResult = new TaskCompletionSource<string?>();
+            NSBlock? block = null;
 
             ScriptEvalCallbackDelegate callback = (IntPtr self, IntPtr result, IntPtr error) =>
             {
@@ -116,17 +116,17 @@ namespace SpiderEye.Mac
                 {
                     if (error != IntPtr.Zero)
                     {
-                        string message = NSString.GetString(ObjC.Call(error, "localizedDescription"));
-                        taskResult.TrySetException(new Exception($"Script execution failed with: \"{message}\""));
+                        string? message = NSString.GetString(ObjC.Call(error, "localizedDescription"));
+                        taskResult.TrySetException(new ScriptException($"Script execution failed with: \"{message}\""));
                     }
                     else
                     {
-                        string content = NSString.GetString(result);
+                        string? content = NSString.GetString(result);
                         taskResult.TrySetResult(content);
                     }
                 }
                 catch (Exception ex) { taskResult.TrySetException(ex); }
-                finally { block.Dispose(); }
+                finally { block!.Dispose(); }
             };
 
             block = new NSBlock(callback);
@@ -237,10 +237,10 @@ namespace SpiderEye.Mac
 
         private static void ObservedValueChanged(CocoaWebview instance, IntPtr keyPath)
         {
-            string key = NSString.GetString(keyPath);
+            string? key = NSString.GetString(keyPath);
             if (key == "title" && instance.UseBrowserTitle)
             {
-                string title = NSString.GetString(ObjC.Call(instance.Handle, "title"));
+                string? title = NSString.GetString(ObjC.Call(instance.Handle, "title"));
                 instance.TitleChanged?.Invoke(instance, title ?? string.Empty);
             }
         }
@@ -253,7 +253,7 @@ namespace SpiderEye.Mac
                 IntPtr isString = ObjC.Call(body, "isKindOfClass:", Foundation.GetClass("NSString"));
                 if (isString != IntPtr.Zero)
                 {
-                    string data = NSString.GetString(body);
+                    string data = NSString.GetString(body)!;
                     await instance.bridge.HandleScriptCall(data);
                 }
             }
@@ -266,50 +266,46 @@ namespace SpiderEye.Mac
                 IntPtr request = ObjC.Call(schemeTask, "request");
                 IntPtr url = ObjC.Call(request, "URL");
 
-                var uri = URL.GetAsUri(url);
+                var uri = URL.GetAsUri(url)!;
                 var host = new Uri(uri.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped));
                 if (host == instance.customHost)
                 {
-                    using (var contentStream = Application.ContentProvider.GetStreamAsync(uri).GetAwaiter().GetResult())
+                    using var contentStream = Application.ContentProvider.GetStreamAsync(uri).GetAwaiter().GetResult();
+                    if (contentStream != null)
                     {
-                        if (contentStream != null)
+                        if (contentStream is UnmanagedMemoryStream unmanagedMemoryStream)
                         {
-                            if (contentStream is UnmanagedMemoryStream unmanagedMemoryStream)
+                            unsafe
                             {
-                                unsafe
-                                {
-                                    long length = unmanagedMemoryStream.Length - unmanagedMemoryStream.Position;
-                                    var data = (IntPtr)unmanagedMemoryStream.PositionPointer;
-                                    FinishUriSchemeCallback(url, schemeTask, data, length, uri);
-                                    return;
-                                }
+                                long length = unmanagedMemoryStream.Length - unmanagedMemoryStream.Position;
+                                var data = (IntPtr)unmanagedMemoryStream.PositionPointer;
+                                FinishUriSchemeCallback(url, schemeTask, data, length, uri);
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            byte[] data;
+                            long length;
+                            if (contentStream is MemoryStream memoryStream)
+                            {
+                                data = memoryStream.GetBuffer();
+                                length = memoryStream.Length;
                             }
                             else
                             {
-                                byte[] data;
-                                long length;
-                                if (contentStream is MemoryStream memoryStream)
-                                {
-                                    data = memoryStream.GetBuffer();
-                                    length = memoryStream.Length;
-                                }
-                                else
-                                {
-                                    using (var copyStream = new MemoryStream())
-                                    {
-                                        contentStream.CopyTo(copyStream);
-                                        data = copyStream.GetBuffer();
-                                        length = copyStream.Length;
-                                    }
-                                }
+                                using var copyStream = new MemoryStream();
+                                contentStream.CopyTo(copyStream);
+                                data = copyStream.GetBuffer();
+                                length = copyStream.Length;
+                            }
 
-                                unsafe
+                            unsafe
+                            {
+                                fixed (byte* dataPtr = data)
                                 {
-                                    fixed (byte* dataPtr = data)
-                                    {
-                                        FinishUriSchemeCallback(url, schemeTask, (IntPtr)dataPtr, length, uri);
-                                        return;
-                                    }
+                                    FinishUriSchemeCallback(url, schemeTask, (IntPtr)dataPtr, length, uri);
+                                    return;
                                 }
                             }
                         }

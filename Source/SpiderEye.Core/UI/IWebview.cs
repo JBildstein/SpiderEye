@@ -11,12 +11,12 @@ namespace SpiderEye
         /// <summary>
         /// Fires before the webview navigates to an new URL.
         /// </summary>
-        event NavigatingEventHandler Navigating;
+        event NavigatingEventHandler? Navigating;
 
         /// <summary>
         /// Fires once the content in this webview has loaded.
         /// </summary>
-        event PageLoadEventHandler PageLoaded;
+        event PageLoadEventHandler? PageLoaded;
 
         /// <summary>
         /// Loads the given URI.
@@ -29,6 +29,6 @@ namespace SpiderEye
         /// </summary>
         /// <param name="script">The JavaScript to execute.</param>
         /// <returns>A <see cref="Task{TResult}"/> with the result of the script.</returns>
-        Task<string> ExecuteScriptAsync(string script);
+        Task<string?> ExecuteScriptAsync(string script);
     }
 }

@@ -6,9 +6,9 @@ namespace SpiderEye.Mac
 {
     internal class CocoaLabelMenuItem : CocoaMenuItem, ILabelMenuItem
     {
-        public event EventHandler Click;
+        public event EventHandler? Click;
 
-        public string Label
+        public string? Label
         {
             get
             {
@@ -31,8 +31,8 @@ namespace SpiderEye.Mac
 
         private static readonly NativeClassDefinition CallbackClassDefinition;
 
-        private readonly NativeClassInstance callbackClass;
-        private CocoaSubMenu subMenu;
+        private readonly NativeClassInstance? callbackClass;
+        private CocoaSubMenu? subMenu;
 
         static CocoaLabelMenuItem()
         {
@@ -52,7 +52,7 @@ namespace SpiderEye.Mac
             SetTarget(ObjC.RegisterName(target));
         }
 
-        public CocoaLabelMenuItem(string label, string action, string target, long tag)
+        public CocoaLabelMenuItem(string label, string action, string? target, long tag)
             : this(label, action)
         {
             SetTarget(ObjC.RegisterName(target));
@@ -73,7 +73,8 @@ namespace SpiderEye.Mac
         public void SetShortcut(ModifierKey modifier, Key key)
         {
             NSEventModifierFlags nsModifier = KeyMapper.GetModifier(modifier);
-            string mappedKey = KeyMapper.GetKey(key);
+            string? mappedKey = KeyMapper.GetKey(key);
+            if (mappedKey == null) { return; }
 
             ObjC.Call(Handle, "setKeyEquivalentModifierMask:", new UIntPtr((ulong)nsModifier));
             ObjC.Call(Handle, "setKeyEquivalent:", NSString.Create(mappedKey));
@@ -91,7 +92,7 @@ namespace SpiderEye.Mac
 
             subMenu = new CocoaSubMenu(Handle, label, true);
 
-            return subMenu.NativeMenu;
+            return subMenu.NativeMenu!;
         }
 
         private static NativeClassDefinition CreateCallbackClass()

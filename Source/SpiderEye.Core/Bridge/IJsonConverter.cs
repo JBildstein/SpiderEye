@@ -12,7 +12,7 @@ namespace SpiderEye.Bridge
         /// </summary>
         /// <param name="value">The object to serialize.</param>
         /// <returns>The given object as JSON.</returns>
-        string Serialize(object value);
+        string Serialize(object? value);
 
         /// <summary>
         /// Deserializes the given JSON into an object.
@@ -20,7 +20,7 @@ namespace SpiderEye.Bridge
         /// <typeparam name="T">The type of the object.</typeparam>
         /// <param name="json">The JSON to deserialize.</param>
         /// <returns>The deserialized object.</returns>
-        T Deserialize<T>(string json);
+        T? Deserialize<T>(string json);
 
         /// <summary>
         /// Deserializes the given JSON into an object.
@@ -28,6 +28,6 @@ namespace SpiderEye.Bridge
         /// <param name="json">The JSON to deserialize.</param>
         /// <param name="type">The type of the object.</param>
         /// <returns>The deserialized object.</returns>
-        object Deserialize(string json, Type type);
+        object? Deserialize(string json, Type type);
     }
 }

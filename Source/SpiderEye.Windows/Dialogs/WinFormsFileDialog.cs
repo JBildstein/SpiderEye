@@ -7,8 +7,8 @@ namespace SpiderEye.Windows
     internal abstract class WinFormsFileDialog<T> : WinFormsDialog<T>, IFileDialog
         where T : System.Windows.Forms.FileDialog
     {
-        public string InitialDirectory { get; set; }
-        public string FileName { get; set; }
+        public string? InitialDirectory { get; set; }
+        public string? FileName { get; set; }
         public ICollection<FileFilter> FileFilters { get; }
 
         protected WinFormsFileDialog()
@@ -29,7 +29,7 @@ namespace SpiderEye.Windows
             FileName = dialog.FileName;
         }
 
-        private string GetFileFilter(IEnumerable<FileFilter> filters)
+        private static string? GetFileFilter(IEnumerable<FileFilter> filters)
         {
             if (!filters.Any()) { return null; }
 

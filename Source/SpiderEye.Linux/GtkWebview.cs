@@ -12,11 +12,11 @@ namespace SpiderEye.Linux
 {
     internal class GtkWebview : IWebview
     {
-        public event NavigatingEventHandler Navigating;
-        public event PageLoadEventHandler PageLoaded;
+        public event NavigatingEventHandler? Navigating;
+        public event PageLoadEventHandler? PageLoaded;
 
-        public event EventHandler CloseRequested;
-        public event EventHandler<string> TitleChanged;
+        public event EventHandler? CloseRequested;
+        public event EventHandler<string>? TitleChanged;
 
         public bool EnableScriptInterface { get; set; }
         public bool UseBrowserTitle { get; set; }
@@ -84,13 +84,11 @@ namespace SpiderEye.Linux
             customHost = new Uri(UriTools.GetRandomResourceUrl(scheme));
 
             IntPtr context = WebKit.Context.Get(Handle);
-            using (GLibString gscheme = scheme)
-            {
-                WebKit.Context.RegisterUriScheme(context, gscheme, UriSchemeCallback, IntPtr.Zero, IntPtr.Zero);
-            }
+            using GLibString gscheme = scheme;
+            WebKit.Context.RegisterUriScheme(context, gscheme, UriSchemeCallback, IntPtr.Zero, IntPtr.Zero);
         }
 
-        public void UpdateBackgroundColor(string color)
+        public void UpdateBackgroundColor(string? color)
         {
             var bgColor = new GdkColor(color);
             WebKit.SetBackgroundColor(Handle, ref bgColor);
@@ -112,15 +110,13 @@ namespace SpiderEye.Linux
 
             if (!uri.IsAbsoluteUri) { uri = new Uri(customHost, uri); }
 
-            using (GLibString gurl = uri.ToString())
-            {
-                WebKit.LoadUri(Handle, gurl);
-            }
+            using GLibString gurl = uri.ToString();
+            WebKit.LoadUri(Handle, gurl);
         }
 
-        public Task<string> ExecuteScriptAsync(string script)
+        public Task<string?> ExecuteScriptAsync(string script)
         {
-            var taskResult = new TaskCompletionSource<string>();
+            var taskResult = new TaskCompletionSource<string?>();
 
             unsafe void Callback(IntPtr webview, IntPtr asyncResult, IntPtr userdata)
             {
@@ -148,8 +144,8 @@ namespace SpiderEye.Linux
                         try
                         {
                             var error = Marshal.PtrToStructure<GError>(errorPtr);
-                            string errorMessage = GLibString.FromPointer(error.Message);
-                            taskResult.TrySetException(new Exception($"Script execution failed with: \"{errorMessage}\""));
+                            string? errorMessage = GLibString.FromPointer(error.Message);
+                            taskResult.TrySetException(new ScriptException($"Script execution failed with: \"{errorMessage}\""));
                         }
                         catch (Exception ex) { taskResult.TrySetException(ex); }
                         finally { GLib.FreeError(errorPtr); }
@@ -205,59 +201,55 @@ namespace SpiderEye.Linux
         {
             try
             {
-                var uri = new Uri(GLibString.FromPointer(WebKit.UriScheme.GetRequestUri(request)));
+                var uri = new Uri(GLibString.FromPointer(WebKit.UriScheme.GetRequestUri(request))!);
                 var host = new Uri(uri.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped));
                 if (host == customHost)
                 {
-                    using (var contentStream = await Application.ContentProvider.GetStreamAsync(uri))
+                    using var contentStream = await Application.ContentProvider.GetStreamAsync(uri);
+                    if (contentStream != null)
                     {
-                        if (contentStream != null)
+                        IntPtr stream = IntPtr.Zero;
+                        try
                         {
-                            IntPtr stream = IntPtr.Zero;
-                            try
+                            if (contentStream is UnmanagedMemoryStream unmanagedMemoryStream)
                             {
-                                if (contentStream is UnmanagedMemoryStream unmanagedMemoryStream)
+                                unsafe
                                 {
-                                    unsafe
+                                    long length = unmanagedMemoryStream.Length - unmanagedMemoryStream.Position;
+                                    stream = GLib.CreateStreamFromData((IntPtr)unmanagedMemoryStream.PositionPointer, length, IntPtr.Zero);
+                                    FinishUriSchemeCallback(request, stream, length, uri);
+                                    return;
+                                }
+                            }
+                            else
+                            {
+                                byte[] data;
+                                long length;
+                                if (contentStream is MemoryStream memoryStream)
+                                {
+                                    data = memoryStream.GetBuffer();
+                                    length = memoryStream.Length;
+                                }
+                                else
+                                {
+                                    using var copyStream = new MemoryStream();
+                                    await contentStream.CopyToAsync(copyStream);
+                                    data = copyStream.GetBuffer();
+                                    length = copyStream.Length;
+                                }
+
+                                unsafe
+                                {
+                                    fixed (byte* dataPtr = data)
                                     {
-                                        long length = unmanagedMemoryStream.Length - unmanagedMemoryStream.Position;
-                                        stream = GLib.CreateStreamFromData((IntPtr)unmanagedMemoryStream.PositionPointer, length, IntPtr.Zero);
+                                        stream = GLib.CreateStreamFromData((IntPtr)dataPtr, length, IntPtr.Zero);
                                         FinishUriSchemeCallback(request, stream, length, uri);
                                         return;
                                     }
                                 }
-                                else
-                                {
-                                    byte[] data;
-                                    long length;
-                                    if (contentStream is MemoryStream memoryStream)
-                                    {
-                                        data = memoryStream.GetBuffer();
-                                        length = memoryStream.Length;
-                                    }
-                                    else
-                                    {
-                                        using (var copyStream = new MemoryStream())
-                                        {
-                                            await contentStream.CopyToAsync(copyStream);
-                                            data = copyStream.GetBuffer();
-                                            length = copyStream.Length;
-                                        }
-                                    }
-
-                                    unsafe
-                                    {
-                                        fixed (byte* dataPtr = data)
-                                        {
-                                            stream = GLib.CreateStreamFromData((IntPtr)dataPtr, length, IntPtr.Zero);
-                                            FinishUriSchemeCallback(request, stream, length, uri);
-                                            return;
-                                        }
-                                    }
-                                }
                             }
-                            finally { if (stream != IntPtr.Zero) { GLib.UnrefObject(stream); } }
                         }
+                        finally { if (stream != IntPtr.Zero) { GLib.UnrefObject(stream); } }
                     }
                 }
 
@@ -271,7 +263,7 @@ namespace SpiderEye.Linux
             // this event is called when there is an error, immediately afterwards the LoadCallback is called with state Finished.
             // to indicate that there was an error and the PageLoaded event has been invoked, the loadEventHandled variable is set to true.
             loadEventHandled = true;
-            string url = GLibString.FromPointer(failingUrl);
+            string url = GLibString.FromPointer(failingUrl)!;
             PageLoaded?.Invoke(this, new PageLoadEventArgs(new Uri(url), false));
 
             return false;
@@ -291,7 +283,7 @@ namespace SpiderEye.Linux
             // Finished: same URL as committed, page has fully loaded
             if (type == WebKitLoadEvent.Started || type == WebKitLoadEvent.Redirected)
             {
-                string url = GLibString.FromPointer(WebKit.GetCurrentUri(webview));
+                string url = GLibString.FromPointer(WebKit.GetCurrentUri(webview))!;
                 var args = new NavigatingEventArgs(new Uri(url));
                 Navigating?.Invoke(this, args);
                 if (args.Cancel) { WebKit.StopLoading(webview); }
@@ -304,7 +296,7 @@ namespace SpiderEye.Linux
                 if (EnableDevTools) { ShowDevTools(); }
 
                 loadEventHandled = true;
-                string url = GLibString.FromPointer(WebKit.GetCurrentUri(webview));
+                string url = GLibString.FromPointer(WebKit.GetCurrentUri(webview))!;
                 PageLoaded?.Invoke(this, new PageLoadEventArgs(new Uri(url), true));
             }
         }
@@ -322,16 +314,14 @@ namespace SpiderEye.Linux
 
         private void TitleChangeCallback(IntPtr webview, IntPtr userdata)
         {
-            string title = GLibString.FromPointer(WebKit.GetTitle(webview));
-            TitleChanged?.Invoke(this, title);
+            string? title = GLibString.FromPointer(WebKit.GetTitle(webview));
+            TitleChanged?.Invoke(this, title ?? string.Empty);
         }
 
         private void FinishUriSchemeCallback(IntPtr request, IntPtr stream, long streamLength, Uri uri)
         {
-            using (GLibString mimetype = MimeTypes.FindForUri(uri))
-            {
-                WebKit.UriScheme.FinishSchemeRequest(request, stream, streamLength, mimetype);
-            }
+            using GLibString mimetype = MimeTypes.FindForUri(uri);
+            WebKit.UriScheme.FinishSchemeRequest(request, stream, streamLength, mimetype);
         }
 
         private void FinishUriSchemeCallbackWithError(IntPtr request, int errorCode)

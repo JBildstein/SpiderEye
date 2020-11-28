@@ -6,7 +6,7 @@ namespace SpiderEye.Mac.Interop
 {
     internal static class NSString
     {
-        public static unsafe IntPtr Create(string value)
+        public static unsafe IntPtr Create(string? value)
         {
             if (value == null) { return IntPtr.Zero; }
 
@@ -20,7 +20,7 @@ namespace SpiderEye.Mac.Interop
             }
         }
 
-        public static string GetString(IntPtr handle)
+        public static string? GetString(IntPtr handle)
         {
             if (handle == IntPtr.Zero) { return null; }
 
@@ -28,7 +28,7 @@ namespace SpiderEye.Mac.Interop
             return Utf8PointerToString(utf8);
         }
 
-        public static unsafe string Utf8PointerToString(IntPtr utf8)
+        public static unsafe string? Utf8PointerToString(IntPtr utf8)
         {
             if (utf8 == IntPtr.Zero) { return null; }
 

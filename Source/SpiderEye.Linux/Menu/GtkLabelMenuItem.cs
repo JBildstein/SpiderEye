@@ -7,17 +7,15 @@ namespace SpiderEye.Linux
 {
     internal class GtkLabelMenuItem : GtkMenuItem, ILabelMenuItem
     {
-        public event EventHandler Click;
+        public event EventHandler? Click;
 
-        public string Label
+        public string? Label
         {
             get { return GLibString.FromPointer(Gtk.Menu.GetMenuItemLabel(Handle)); }
             set
             {
-                using (GLibString label = value)
-                {
-                    Gtk.Menu.SetMenuItemLabel(Handle, label);
-                }
+                using GLibString label = value;
+                Gtk.Menu.SetMenuItemLabel(Handle, label);
             }
         }
 
@@ -40,18 +38,14 @@ namespace SpiderEye.Linux
         public void SetShortcut(ModifierKey modifier, Key key)
         {
             string shortcut = KeyMapper.GetShortcut(modifier, key);
-            using (GLibString gshortcut = shortcut)
-            {
-                Gtk.Menu.SetAccelerator(Handle, gshortcut);
-            }
+            using GLibString gshortcut = shortcut;
+            Gtk.Menu.SetAccelerator(Handle, gshortcut);
         }
 
         private static IntPtr CreateHandle(string label)
         {
-            using (GLibString glabel = label)
-            {
-                return Gtk.Menu.CreateLabelItem(glabel);
-            }
+            using GLibString glabel = label;
+            return Gtk.Menu.CreateLabelItem(glabel);
         }
 
         private void MenuActivatedCallback(IntPtr menu, IntPtr userdata)

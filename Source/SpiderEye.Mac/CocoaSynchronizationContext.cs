@@ -29,7 +29,7 @@ namespace SpiderEye.Mac
             return new CocoaSynchronizationContext(mainThreadId);
         }
 
-        public override void Post(SendOrPostCallback d, object state)
+        public override void Post(SendOrPostCallback d, object? state)
         {
             if (d == null) { throw new ArgumentNullException(nameof(d)); }
 
@@ -38,7 +38,7 @@ namespace SpiderEye.Mac
             Dispatch.AsyncFunction(Dispatch.MainQueue, GCHandle.ToIntPtr(handle), InvokeCallback);
         }
 
-        public override void Send(SendOrPostCallback d, object state)
+        public override void Send(SendOrPostCallback d, object? state)
         {
             if (d == null) { throw new ArgumentNullException(nameof(d)); }
 
@@ -54,7 +54,7 @@ namespace SpiderEye.Mac
         private static void InvokeCallback(IntPtr data)
         {
             var handle = GCHandle.FromIntPtr(data);
-            var state = (InvokeState)handle.Target;
+            var state = (InvokeState)handle.Target!;
 
             try { state.Callback(state.State); }
             finally { handle.Free(); }
@@ -63,9 +63,9 @@ namespace SpiderEye.Mac
         private sealed class InvokeState
         {
             public readonly SendOrPostCallback Callback;
-            public readonly object State;
+            public readonly object? State;
 
-            public InvokeState(SendOrPostCallback callback, object state)
+            public InvokeState(SendOrPostCallback callback, object? state)
             {
                 Callback = callback;
                 State = state;

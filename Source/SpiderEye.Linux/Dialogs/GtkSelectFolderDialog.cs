@@ -6,7 +6,7 @@ namespace SpiderEye.Linux
 {
     internal class GtkSelectFolderDialog : GtkDialog, IFolderSelectDialog
     {
-        public string SelectedPath { get; set; }
+        public string? SelectedPath { get; set; }
 
         protected override GtkFileChooserAction Type
         {
@@ -18,10 +18,8 @@ namespace SpiderEye.Linux
         {
             if (!string.IsNullOrWhiteSpace(SelectedPath))
             {
-                using (GLibString dir = SelectedPath)
-                {
-                    Gtk.Dialog.SetCurrentFolder(dialog, dir);
-                }
+                using GLibString dir = SelectedPath;
+                Gtk.Dialog.SetCurrentFolder(dialog, dir);
             }
         }
 
@@ -29,10 +27,8 @@ namespace SpiderEye.Linux
         {
             if (result == DialogResult.Ok)
             {
-                using (var folderPath = new GLibString(Gtk.Dialog.GetFileName(dialog)))
-                {
-                    SelectedPath = folderPath.ToString();
-                }
+                using var folderPath = new GLibString(Gtk.Dialog.GetFileName(dialog));
+                SelectedPath = folderPath.ToString();
             }
             else { SelectedPath = null; }
         }

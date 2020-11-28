@@ -10,12 +10,12 @@ namespace SpiderEye
         /// <summary>
         /// Gets or sets the label of this menu.
         /// </summary>
-        string Label { get; set; }
+        string? Label { get; set; }
 
         /// <summary>
         /// Fires when the menu item is clicked on or otherwise activated.
         /// </summary>
-        event EventHandler Click;
+        event EventHandler? Click;
 
         /// <summary>
         /// Gets or sets a value indicating whether the menu item is enabled or not.

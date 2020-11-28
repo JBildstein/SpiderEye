@@ -41,7 +41,7 @@ namespace SpiderEye.Bridge.Api
 
                 WindowStore.Add(window);
 
-                window.LoadUrl(config.Url);
+                window.LoadUrl(config.Url ?? "/");
                 window.Show();
             });
 

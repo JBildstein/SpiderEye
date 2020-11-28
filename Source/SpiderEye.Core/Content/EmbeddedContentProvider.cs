@@ -37,11 +37,11 @@ namespace SpiderEye
         }
 
         /// <inheritdoc/>
-        public Task<Stream> GetStreamAsync(Uri uri)
+        public Task<Stream?> GetStreamAsync(Uri uri)
         {
-            Stream result = null;
+            Stream? result = null;
             string path = uri.GetComponents(UriComponents.Path, UriFormat.Unescaped).ToLower();
-            if (fileMap.TryGetValue(path, out string file))
+            if (fileMap.TryGetValue(path, out string? file))
             {
                 try { result = contentAssembly.GetManifestResourceStream(file); }
                 catch (FileNotFoundException) { result = null; }

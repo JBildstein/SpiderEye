@@ -88,7 +88,7 @@ namespace SpiderEye.Mac.Interop
         public T GetParent<T>(IntPtr self)
         {
             IntPtr handle = ObjC.GetVariableValue(self, ivar);
-            return (T)GCHandle.FromIntPtr(handle).Target;
+            return (T)GCHandle.FromIntPtr(handle).Target!;
         }
     }
 }

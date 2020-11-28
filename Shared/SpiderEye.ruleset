@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<RuleSet Name="Stark" Description=" Default Rules for Stark Projects" ToolsVersion="15.0">
+<RuleSet Name="SpiderEye" Description=" Default Rules for SpiderEye Projects" ToolsVersion="15.0">
   <Rules AnalyzerId="Microsoft.Analyzers.ManagedCodeAnalysis" RuleNamespace="Microsoft.Rules.Managed">
     <Rule Id="CA1009" Action="Warning" />
     <Rule Id="CA1065" Action="Warning" />
@@ -7,12 +7,12 @@
     <Rule Id="CA1704" Action="Warning" />
     <Rule Id="CA1709" Action="Warning" />
     <Rule Id="CA1710" Action="Warning" />
-    <Rule Id="CA1711" Action="Warning" />
+    <Rule Id="CA1711" Action="Info" />
     <Rule Id="CA1714" Action="Warning" />
     <Rule Id="CA1724" Action="Warning" />
     <Rule Id="CA1726" Action="Warning" />
     <Rule Id="CA1800" Action="Warning" />
-    <Rule Id="CA1801" Action="Warning" />
+    <Rule Id="CA1801" Action="Info" />
     <Rule Id="CA1804" Action="Warning" />
     <Rule Id="CA1811" Action="Warning" />
     <Rule Id="CA1812" Action="Warning" />

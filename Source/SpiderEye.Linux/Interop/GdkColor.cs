@@ -11,7 +11,7 @@ namespace SpiderEye.Linux.Interop
         public readonly double Blue;
         public readonly double Alpha;
 
-        public GdkColor(string hex)
+        public GdkColor(string? hex)
         {
             ColorTools.ParseHex(hex, out byte r, out byte g, out byte b);
             Red = r / 255d;

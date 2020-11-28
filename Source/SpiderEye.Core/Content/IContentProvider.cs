@@ -14,6 +14,6 @@ namespace SpiderEye
         /// </summary>
         /// <param name="uri">The URI of the resource.</param>
         /// <returns>A Task with the <see cref="Stream"/> to the resource or null if not found.</returns>
-        Task<Stream> GetStreamAsync(Uri uri);
+        Task<Stream?> GetStreamAsync(Uri uri);
     }
 }

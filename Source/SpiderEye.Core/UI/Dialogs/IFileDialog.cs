@@ -10,12 +10,12 @@ namespace SpiderEye
         /// <summary>
         /// Gets or sets the initial directory.
         /// </summary>
-        string InitialDirectory { get; set; }
+        string? InitialDirectory { get; set; }
 
         /// <summary>
         /// Gets or sets the selected file name.
         /// </summary>
-        string FileName { get; set; }
+        string? FileName { get; set; }
 
         /// <summary>
         /// Gets a collection for adding or removing file filters.

@@ -6,7 +6,7 @@ namespace SpiderEye.Mac.Interop
 {
     internal static class NSColor
     {
-        public static IntPtr FromHex(string hex)
+        public static IntPtr FromHex(string? hex)
         {
             ColorTools.ParseHex(hex, out byte r, out byte g, out byte b);
 

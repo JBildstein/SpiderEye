@@ -9,7 +9,7 @@ namespace SpiderEye.UI.Platforms.Linux.Interop
     {
         public static string GetShortcut(ModifierKey modifier, Key key)
         {
-            if (modifier == ModifierKey.None && key == Key.None) { return null; }
+            if (modifier == ModifierKey.None && key == Key.None) { return string.Empty; }
 
             var builder = new StringBuilder();
             MapModifier(builder, modifier);
@@ -55,7 +55,7 @@ namespace SpiderEye.UI.Platforms.Linux.Interop
 
         private static void MapKey(StringBuilder builder, Key key)
         {
-            if (Keymap.TryGetValue(key, out string value)) { builder.Append(value); }
+            if (Keymap.TryGetValue(key, out string? value)) { builder.Append(value); }
             else { throw new NotSupportedException($"Unsupported modifier key: \"{key}\""); }
         }
 

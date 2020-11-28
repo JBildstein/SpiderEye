@@ -8,7 +8,7 @@
         /// <summary>
         /// Gets or sets the message text.
         /// </summary>
-        string Message { get; set; }
+        string? Message { get; set; }
 
         /// <summary>
         /// Gets or sets the displayed buttons.

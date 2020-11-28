@@ -42,13 +42,13 @@ namespace SpiderEye.Mac.Interop
             return result;
         }
 
-        public static string GetKey(Key key)
+        public static string? GetKey(Key key)
         {
-            if (Keymap.TryGetValue(key, out string value)) { return value; }
+            if (Keymap.TryGetValue(key, out string? value)) { return value; }
             else { throw new NotSupportedException($"Unsupported key: \"{key}\""); }
         }
 
-        private static readonly Dictionary<Key, string> Keymap = new Dictionary<Key, string>
+        private static readonly Dictionary<Key, string?> Keymap = new()
         {
             { Key.None, null },
             { Key.F1, NSKey.F1 },

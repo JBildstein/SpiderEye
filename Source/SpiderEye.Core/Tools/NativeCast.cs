@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SpiderEye.Tools
 {
@@ -15,7 +16,8 @@ namespace SpiderEye.Tools
         /// <typeparam name="T">The native type.</typeparam>
         /// <param name="item">The item to cast.</param>
         /// <returns>The cast item.</returns>
-        public static T To<T>(object item)
+        [return: NotNullIfNotNull("item")]
+        public static T? To<T>(object? item)
             where T : class
         {
             if (item == null) { return null; }

@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using SpiderEye.Mac.Native;
 
 namespace SpiderEye.Mac
@@ -24,7 +25,7 @@ namespace SpiderEye.Mac
 
         protected sealed class CocoaSubMenu : IMenu
         {
-            public string Title
+            public string? Title
             {
                 get
                 {
@@ -38,26 +39,26 @@ namespace SpiderEye.Mac
                 }
             }
 
-            public CocoaMenu NativeMenu
+            public CocoaMenu? NativeMenu
             {
                 get { return menu; }
             }
 
             private readonly IntPtr menuItem;
-            private string title;
-            private CocoaMenu menu;
+            private string? title;
+            private CocoaMenu? menu;
 
             public CocoaSubMenu(IntPtr menuItem)
                 : this(menuItem, null)
             {
             }
 
-            public CocoaSubMenu(IntPtr menuItem, string title)
+            public CocoaSubMenu(IntPtr menuItem, string? title)
                 : this(menuItem, title, false)
             {
             }
 
-            public CocoaSubMenu(IntPtr menuItem, string title, bool createImmediately)
+            public CocoaSubMenu(IntPtr menuItem, string? title, bool createImmediately)
             {
                 this.menuItem = menuItem;
                 this.title = title;
@@ -75,9 +76,10 @@ namespace SpiderEye.Mac
 
             public void Dispose()
             {
-                menu.Dispose();
+                menu?.Dispose();
             }
 
+            [MemberNotNull(nameof(menu))]
             private void SetNativeMenu()
             {
                 menu = new CocoaMenu(title);

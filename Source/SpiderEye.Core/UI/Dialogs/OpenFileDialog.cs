@@ -17,7 +17,7 @@
         /// <summary>
         /// Gets the files selected by the user.
         /// </summary>
-        public string[] SelectedFiles
+        public string[]? SelectedFiles
         {
             get { return NativeOpenFileDialog.SelectedFiles; }
         }

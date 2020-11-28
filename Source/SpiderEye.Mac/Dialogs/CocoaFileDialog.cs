@@ -8,8 +8,8 @@ namespace SpiderEye.Mac
 {
     internal abstract class CocoaFileDialog : CocoaDialog, IFileDialog
     {
-        public string InitialDirectory { get; set; }
-        public string FileName { get; set; }
+        public string? InitialDirectory { get; set; }
+        public string? FileName { get; set; }
         public ICollection<FileFilter> FileFilters { get; }
 
         protected CocoaFileDialog()

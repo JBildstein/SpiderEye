@@ -12,10 +12,10 @@
 
         internal static string ContentServerAddress
         {
-            get { return app.ContentServer.HostAddress; }
+            get { return app!.ContentServer.HostAddress!; }
         }
 
-        private static WinFormsApplication app;
+        private static WinFormsApplication? app;
 
         /// <summary>
         /// Initializes the application.

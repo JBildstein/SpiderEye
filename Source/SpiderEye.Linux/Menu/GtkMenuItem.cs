@@ -25,7 +25,7 @@ namespace SpiderEye.Linux
         private sealed class GtkSubMenu : IMenu
         {
             private readonly IntPtr menuItem;
-            private GtkMenu menu;
+            private GtkMenu? menu;
 
             public GtkSubMenu(IntPtr menuItem)
             {
@@ -47,7 +47,7 @@ namespace SpiderEye.Linux
 
             public void Dispose()
             {
-                menu.Dispose();
+                menu?.Dispose();
             }
         }
     }

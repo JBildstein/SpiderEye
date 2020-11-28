@@ -59,7 +59,7 @@ namespace SpiderEye
             }
         }
 
-        private static IApplication app;
+        private static IApplication app = null!;
         private static IContentProvider contentProvider;
         private static IUriWatcher uriWatcher;
 
@@ -154,7 +154,7 @@ namespace SpiderEye
 
             T result = default;
             InvokeSafely(() => result = function());
-            return result;
+            return result!;
         }
 
         /// <summary>
@@ -179,13 +179,14 @@ namespace SpiderEye
         {
             CheckInitialized();
 
-            ExceptionDispatchInfo exception = null;
+            ExceptionDispatchInfo? exception = null;
             app.SynchronizationContext.Send(
                 state =>
                 {
                     try { action(); }
                     catch (Exception ex) { exception = ExceptionDispatchInfo.Capture(ex); }
-                }, null);
+                },
+                null);
 
             exception?.Throw();
         }
@@ -194,23 +195,13 @@ namespace SpiderEye
         {
             if (app == null)
             {
-                string platform;
-                switch (OS)
+                string platform = OS switch
                 {
-                    case OperatingSystem.Windows:
-                        platform = "Windows";
-                        break;
-                    case OperatingSystem.MacOS:
-                        platform = "Mac";
-                        break;
-                    case OperatingSystem.Linux:
-                        platform = "Linux";
-                        break;
-
-                    default:
-                        throw new PlatformNotSupportedException();
-                }
-
+                    OperatingSystem.Windows => "Windows",
+                    OperatingSystem.MacOS => "Mac",
+                    OperatingSystem.Linux => "Linux",
+                    _ => throw new PlatformNotSupportedException(),
+                };
                 string message = $"Application has not been initialized yet. Call {platform}Application.Init() first.";
                 throw new InvalidOperationException(message);
             }
@@ -218,25 +209,10 @@ namespace SpiderEye
 
         private static OperatingSystem GetOS()
         {
-#if NET462
-            switch (Environment.OSVersion.Platform)
-            {
-                case PlatformID.Win32NT:
-                    return OperatingSystem.Windows;
-                case PlatformID.MacOSX:
-                    return OperatingSystem.MacOS;
-                case PlatformID.Unix:
-                    return OperatingSystem.Linux;
-
-                default:
-                    throw new PlatformNotSupportedException();
-            }
-#else
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) { return OperatingSystem.Windows; }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) { return OperatingSystem.MacOS; }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) { return OperatingSystem.Linux; }
             else { throw new PlatformNotSupportedException(); }
-#endif
         }
     }
 }

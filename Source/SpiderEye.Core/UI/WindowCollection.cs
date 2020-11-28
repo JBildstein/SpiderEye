@@ -9,7 +9,7 @@ namespace SpiderEye
     /// </summary>
     public sealed class WindowCollection : IReadOnlyList<Window>
     {
-        internal event EventHandler AllWindowsClosed;
+        internal event EventHandler? AllWindowsClosed;
 
         /// <inheritdoc/>
         public Window this[int index]

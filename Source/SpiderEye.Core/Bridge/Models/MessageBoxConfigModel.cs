@@ -2,8 +2,8 @@
 {
     internal class MessageBoxConfigModel
     {
-        public string Title { get; set; }
-        public string Message { get; set; }
+        public string? Title { get; set; }
+        public string? Message { get; set; }
         public MessageBoxButtons Buttons { get; set; }
     }
 }

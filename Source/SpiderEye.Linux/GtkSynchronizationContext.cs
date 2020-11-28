@@ -29,7 +29,7 @@ namespace SpiderEye.Linux
             return new GtkSynchronizationContext(mainThreadId);
         }
 
-        public override void Post(SendOrPostCallback d, object state)
+        public override void Post(SendOrPostCallback d, object? state)
         {
             if (d == null) { throw new ArgumentNullException(nameof(d)); }
 
@@ -38,7 +38,7 @@ namespace SpiderEye.Linux
             GLib.ContextInvoke(IntPtr.Zero, InvokeCallback, GCHandle.ToIntPtr(handle));
         }
 
-        public override void Send(SendOrPostCallback d, object state)
+        public override void Send(SendOrPostCallback d, object? state)
         {
             if (d == null) { throw new ArgumentNullException(nameof(d)); }
 
@@ -59,7 +59,7 @@ namespace SpiderEye.Linux
         private static bool InvokeCallback(IntPtr data)
         {
             var handle = GCHandle.FromIntPtr(data);
-            var state = (InvokeState)handle.Target;
+            var state = (InvokeState)handle.Target!;
 
             try { state.Callback(state.State); }
             finally
@@ -74,10 +74,10 @@ namespace SpiderEye.Linux
         private sealed class InvokeState
         {
             public readonly SendOrPostCallback Callback;
-            public readonly object State;
+            public readonly object? State;
             public readonly bool Synchronous;
 
-            public InvokeState(SendOrPostCallback callback, object state, bool synchronous)
+            public InvokeState(SendOrPostCallback callback, object? state, bool synchronous)
             {
                 Callback = callback;
                 State = state;

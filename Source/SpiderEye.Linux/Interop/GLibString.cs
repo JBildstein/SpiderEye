@@ -14,9 +14,13 @@ namespace SpiderEye.Linux.Interop
             Pointer = pointer;
         }
 
-        public GLibString(string value)
+        public GLibString(string? value)
         {
-            if (value == null) { Pointer = IntPtr.Zero; }
+            if (value == null)
+            {
+                Pointer = IntPtr.Zero;
+                return;
+            }
 
             byte[] bytes = Encoding.UTF8.GetBytes(value);
             Pointer = GLib.Malloc(new UIntPtr((ulong)bytes.Length + 1));
@@ -24,7 +28,7 @@ namespace SpiderEye.Linux.Interop
             Marshal.WriteByte(Pointer, bytes.Length, 0);
         }
 
-        public static string FromPointer(IntPtr pointer)
+        public static string? FromPointer(IntPtr pointer)
         {
             if (pointer == IntPtr.Zero) { return null; }
 
@@ -35,7 +39,7 @@ namespace SpiderEye.Linux.Interop
             return Encoding.UTF8.GetString(bytes, 0, bytes.Length);
         }
 
-        public static implicit operator GLibString(string value)
+        public static implicit operator GLibString(string? value)
         {
             return new GLibString(value);
         }
@@ -45,7 +49,7 @@ namespace SpiderEye.Linux.Interop
             return value.Pointer;
         }
 
-        public override string ToString()
+        public override string? ToString()
         {
             return FromPointer(Pointer);
         }

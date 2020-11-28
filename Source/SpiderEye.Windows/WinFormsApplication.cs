@@ -25,7 +25,7 @@ namespace SpiderEye.Windows
             }
         }
 
-        private ContentServer server;
+        private ContentServer? server;
 
         public WinFormsApplication()
         {
@@ -49,7 +49,7 @@ namespace SpiderEye.Windows
             server?.Dispose();
         }
 
-        private void Application_AllWindowsClosed(object sender, EventArgs e)
+        private void Application_AllWindowsClosed(object? sender, EventArgs e)
         {
             if (Application.ExitWithLastWindow) { Exit(); }
         }

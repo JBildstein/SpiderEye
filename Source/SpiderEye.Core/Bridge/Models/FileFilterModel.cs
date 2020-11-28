@@ -1,13 +1,15 @@
-﻿namespace SpiderEye.Bridge.Models
+﻿using System;
+
+namespace SpiderEye.Bridge.Models
 {
     internal class FileFilterModel
     {
-        public string Name { get; set; }
-        public string[] Filters { get; set; }
+        public string? Name { get; set; }
+        public string[]? Filters { get; set; }
 
         public FileFilter ToFilter()
         {
-            return new FileFilter(Name ?? string.Empty, Filters);
+            return new FileFilter(Name ?? string.Empty, Filters ?? Array.Empty<string>());
         }
     }
 }

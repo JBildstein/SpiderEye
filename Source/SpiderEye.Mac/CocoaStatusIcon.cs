@@ -7,13 +7,13 @@ namespace SpiderEye.Mac
 {
     internal class CocoaStatusIcon : IStatusIcon
     {
-        public string Title
+        public string? Title
         {
             get; // TODO: see if setting title is useful on macOS StatusBar
             set;
         }
 
-        public AppIcon Icon
+        public AppIcon? Icon
         {
             get { return icon; }
             set
@@ -23,7 +23,7 @@ namespace SpiderEye.Mac
             }
         }
 
-        public Menu Menu
+        public Menu? Menu
         {
             get { return menu; }
             set
@@ -36,8 +36,8 @@ namespace SpiderEye.Mac
         private readonly IntPtr statusItem;
         private readonly IntPtr statusBarButton;
 
-        private AppIcon icon;
-        private Menu menu;
+        private AppIcon? icon;
+        private Menu? menu;
 
         public CocoaStatusIcon(string title)
         {
@@ -54,7 +54,7 @@ namespace SpiderEye.Mac
             // don't think anything needs to be done here
         }
 
-        private unsafe void UpdateIcon(AppIcon icon)
+        private unsafe void UpdateIcon(AppIcon? icon)
         {
             var image = IntPtr.Zero;
             if (icon != null && icon.Icons.Length > 0)
@@ -78,7 +78,7 @@ namespace SpiderEye.Mac
             ObjC.Call(statusBarButton, "setImage:", image);
         }
 
-        private void UpdateMenu(Menu menu)
+        private void UpdateMenu(Menu? menu)
         {
             var nativeMenu = NativeCast.To<CocoaMenu>(menu?.NativeMenu);
             ObjC.Call(statusItem, "setMenu:", nativeMenu?.Handle ?? IntPtr.Zero);

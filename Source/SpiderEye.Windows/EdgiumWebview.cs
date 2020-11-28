@@ -12,10 +12,10 @@ namespace SpiderEye.Windows
     /// </summary>
     internal class EdgiumWebview : IWinFormsWebview
     {
-        public event NavigatingEventHandler Navigating;
-        public event PageLoadEventHandler PageLoaded;
+        public event NavigatingEventHandler? Navigating;
+        public event PageLoadEventHandler? PageLoaded;
 
-        public event EventHandler<string> TitleChanged;
+        public event EventHandler<string>? TitleChanged;
 
         public Control Control
         {
@@ -34,8 +34,8 @@ namespace SpiderEye.Windows
         private readonly WebView2 webview;
         private readonly Uri hostAddress;
 
-        private CoreWebView2Environment environment;
-        private Uri lastNavigatedUri;
+        private CoreWebView2Environment environment = null!;
+        private Uri? lastNavigatedUri;
 
         public EdgiumWebview(string hostAddress, WebviewBridge bridge)
         {
@@ -52,7 +52,7 @@ namespace SpiderEye.Windows
             InitWebview().RunSyncWithPump();
         }
 
-        public async Task<string> ExecuteScriptAsync(string script)
+        public async Task<string?> ExecuteScriptAsync(string script)
         {
             return await webview.ExecuteScriptAsync(script);
         }
@@ -87,7 +87,7 @@ namespace SpiderEye.Windows
             await webview.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync(initScript);
         }
 
-        private void Webview_NavigationStarting(object sender, CoreWebView2NavigationStartingEventArgs e)
+        private void Webview_NavigationStarting(object? sender, CoreWebView2NavigationStartingEventArgs e)
         {
             var uri = lastNavigatedUri = new Uri(e.Uri);
             var args = new NavigatingEventArgs(uri);
@@ -95,14 +95,14 @@ namespace SpiderEye.Windows
             e.Cancel = args.Cancel;
         }
 
-        private void Webview_NavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
+        private void Webview_NavigationCompleted(object? sender, CoreWebView2NavigationCompletedEventArgs e)
         {
             if (EnableDevTools) { webview.CoreWebView2.OpenDevToolsWindow(); }
 
-            PageLoaded?.Invoke(this, new PageLoadEventArgs(lastNavigatedUri, e.IsSuccess));
+            PageLoaded?.Invoke(this, new PageLoadEventArgs(lastNavigatedUri!, e.IsSuccess));
         }
 
-        private async void Webview_WebMessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
+        private async void Webview_WebMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
         {
             await bridge.HandleScriptCall(e.TryGetWebMessageAsString());
         }

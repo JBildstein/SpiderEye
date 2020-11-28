@@ -5,7 +5,7 @@ namespace SpiderEye.Mac
 {
     internal class CocoaFolderSelectDialog : CocoaDialog, IFolderSelectDialog
     {
-        public string SelectedPath { get; set; }
+        public string? SelectedPath { get; set; }
 
         protected override NSDialog CreateDialog()
         {

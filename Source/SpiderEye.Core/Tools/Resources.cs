@@ -21,11 +21,11 @@ namespace SpiderEye
 
         private static string GetScript(Assembly assembly, string manifestName)
         {
-            using (var stream = assembly.GetManifestResourceStream(manifestName))
-            using (var reader = new StreamReader(stream))
-            {
-                return reader.ReadToEnd();
-            }
+            using var stream = assembly.GetManifestResourceStream(manifestName);
+            if (stream == null) { throw new FileNotFoundException($"Unable to get init script {manifestName} from assembly {assembly.FullName}"); }
+
+            using var reader = new StreamReader(stream);
+            return reader.ReadToEnd();
         }
     }
 }

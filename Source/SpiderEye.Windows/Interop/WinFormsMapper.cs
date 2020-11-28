@@ -7,42 +7,26 @@ namespace SpiderEye.Windows.Interop
     {
         public static DialogResult MapResult(FormsDialogResult result)
         {
-            switch (result)
+            return result switch
             {
-                case FormsDialogResult.None:
-                    return DialogResult.None;
-
-                case FormsDialogResult.OK:
-                    return DialogResult.Ok;
-
-                case FormsDialogResult.Cancel:
-                    return DialogResult.Cancel;
-
-                case FormsDialogResult.Yes:
-                    return DialogResult.Yes;
-
-                case FormsDialogResult.No:
-                    return DialogResult.No;
-
-                default:
-                    return DialogResult.None;
-            }
+                FormsDialogResult.None => DialogResult.None,
+                FormsDialogResult.OK => DialogResult.Ok,
+                FormsDialogResult.Cancel => DialogResult.Cancel,
+                FormsDialogResult.Yes => DialogResult.Yes,
+                FormsDialogResult.No => DialogResult.No,
+                _ => DialogResult.None,
+            };
         }
 
         public static FormsDialogButtons MapButtons(MessageBoxButtons buttons)
         {
-            switch (buttons)
+            return buttons switch
             {
-                case MessageBoxButtons.Ok:
-                    return FormsDialogButtons.OK;
-                case MessageBoxButtons.OkCancel:
-                    return FormsDialogButtons.OKCancel;
-                case MessageBoxButtons.YesNo:
-                    return FormsDialogButtons.YesNo;
-
-                default:
-                    return FormsDialogButtons.OK;
-            }
+                MessageBoxButtons.Ok => FormsDialogButtons.OK,
+                MessageBoxButtons.OkCancel => FormsDialogButtons.OKCancel,
+                MessageBoxButtons.YesNo => FormsDialogButtons.YesNo,
+                _ => FormsDialogButtons.OK,
+            };
         }
     }
 }

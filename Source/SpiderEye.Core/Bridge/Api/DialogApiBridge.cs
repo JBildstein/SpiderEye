@@ -15,7 +15,7 @@ namespace SpiderEye.Bridge.Api
 
         public DialogResult ShowMessageBox(MessageBoxConfigModel config)
         {
-            return Application.Invoke(() => MessageBox.Show(parent, config.Message, config.Title, config.Buttons));
+            return Application.Invoke(() => MessageBox.Show(parent, config.Message ?? string.Empty, config.Title, config.Buttons));
         }
 
         public FileResultModel ShowSaveFileDialog(SaveFileDialogConfigModel config)
@@ -41,7 +41,7 @@ namespace SpiderEye.Bridge.Api
             {
                 DialogResult = result,
                 File = dialog.FileName,
-                Files = new string[] { dialog.FileName },
+                Files = dialog.FileName == null ? Array.Empty<string>() : new string[] { dialog.FileName },
             };
         }
 
@@ -85,7 +85,7 @@ namespace SpiderEye.Bridge.Api
             {
                 DialogResult = result,
                 File = dialog.SelectedPath,
-                Files = new string[] { dialog.SelectedPath },
+                Files = dialog.SelectedPath == null ? Array.Empty<string>() : new string[] { dialog.SelectedPath },
             };
         }
     }

@@ -11,8 +11,8 @@ namespace SpiderEye.Windows
     /// </summary>
     internal class IeLegacyWebview : IWebview, IWinFormsWebview
     {
-        public event NavigatingEventHandler Navigating;
-        public event PageLoadEventHandler PageLoaded;
+        public event NavigatingEventHandler? Navigating;
+        public event PageLoadEventHandler? PageLoaded;
 
         public Control Control
         {
@@ -67,9 +67,9 @@ namespace SpiderEye.Windows
             webview.Navigate(uri);
         }
 
-        public Task<string> ExecuteScriptAsync(string script)
+        public Task<string?> ExecuteScriptAsync(string script)
         {
-            string result = webview.Document.InvokeScript("eval", new string[] { script })?.ToString();
+            string? result = webview.Document.InvokeScript("eval", new string[] { script })?.ToString();
             return Task.FromResult(result);
         }
 

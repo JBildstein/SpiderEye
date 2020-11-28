@@ -56,7 +56,7 @@ namespace SpiderEye
         /// <summary>
         /// Gets or sets the window title.
         /// </summary>
-        public string Title
+        public string? Title
         {
             get { return NativeWindow.Title; }
             set { NativeWindow.Title = value; }
@@ -101,7 +101,7 @@ namespace SpiderEye
         /// <summary>
         /// Gets or sets the background color of the window.
         /// </summary>
-        public string BackgroundColor
+        public string? BackgroundColor
         {
             get { return NativeWindow.BackgroundColor; }
             set
@@ -133,7 +133,7 @@ namespace SpiderEye
         /// <summary>
         /// Gets or sets the default window icon. Default is null.
         /// </summary>
-        public AppIcon Icon
+        public AppIcon? Icon
         {
             get { return NativeWindow.Icon; }
             set { NativeWindow.Icon = value; }
@@ -282,7 +282,7 @@ namespace SpiderEye
             NativeWindow.Dispose();
         }
 
-        private void Bridge_TitleChanged(object sender, string title)
+        private void Bridge_TitleChanged(object? sender, string title)
         {
             if (UseBrowserTitle)
             {
@@ -290,13 +290,13 @@ namespace SpiderEye
             }
         }
 
-        private void NativeWindow_Shown(object sender, EventArgs e)
+        private void NativeWindow_Shown(object? sender, EventArgs e)
         {
             NativeWindow.Shown -= NativeWindow_Shown;
             Application.OpenWindows.Add(this);
         }
 
-        private void NativeWindow_Closed(object sender, EventArgs e)
+        private void NativeWindow_Closed(object? sender, EventArgs e)
         {
             bridge.TitleChanged -= Bridge_TitleChanged;
             NativeWindow.Closed -= NativeWindow_Closed;

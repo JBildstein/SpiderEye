@@ -20,7 +20,7 @@ namespace SpiderEye.Windows
 
         private sealed class WinFormsSubMenu : IMenu
         {
-            private readonly ToolStripMenuItem menuItem;
+            private readonly ToolStripMenuItem? menuItem;
             private readonly bool canAdd;
 
             public WinFormsSubMenu(ToolStripItem menuItem)
@@ -35,7 +35,7 @@ namespace SpiderEye.Windows
                 if (!canAdd) { throw new InvalidOperationException("This menu item cannot have sub-items."); }
 
                 var nativeItem = NativeCast.To<WinFormsMenuItem>(item);
-                menuItem.DropDownItems.Add(nativeItem.Item);
+                menuItem!.DropDownItems.Add(nativeItem.Item);
             }
 
             public void Dispose()

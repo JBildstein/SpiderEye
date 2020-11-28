@@ -21,7 +21,7 @@ namespace SpiderEye
         internal readonly IconInfo DefaultIcon;
         internal readonly IconInfo[] Icons;
 
-        private readonly Assembly iconAssembly;
+        private readonly Assembly? iconAssembly;
         private Dictionary<string, byte[]> iconCache = new Dictionary<string, byte[]>();
 
         private AppIcon(IconSource source, string iconName, IEnumerable<string> names, bool cacheFiles)
@@ -67,7 +67,9 @@ namespace SpiderEye
 
             if (!Path.IsPathRooted(directory))
             {
-                string exeDir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+                string? exeDir = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
+                if (exeDir == null) { throw new InvalidOperationException("Unable to get executable directory"); }
+
                 if (directory == string.Empty || directory == ".") { directory = exeDir; }
                 else { directory = Path.Combine(exeDir, directory); }
             }
@@ -86,7 +88,8 @@ namespace SpiderEye
         /// <returns>The created icon.</returns>
         public static AppIcon FromResource(string iconName, string baseName)
         {
-            return FromResource(iconName, baseName, Assembly.GetEntryAssembly());
+            var assembly = Assembly.GetEntryAssembly() ?? throw new InvalidOperationException("Unable to get entry assembly");
+            return FromResource(iconName, baseName, assembly);
         }
 
         /// <summary>
@@ -117,7 +120,7 @@ namespace SpiderEye
                 case IconSource.File:
                     if (UseFileCache)
                     {
-                        if (iconCache.TryGetValue(icon.Path, out byte[] data)) { return new MemoryStream(data); }
+                        if (iconCache.TryGetValue(icon.Path, out byte[]? data)) { return new MemoryStream(data); }
                         else
                         {
                             var stream = new MemoryStream();
@@ -135,7 +138,7 @@ namespace SpiderEye
                     else { return File.OpenRead(icon.Path); }
 
                 case IconSource.Resource:
-                    return iconAssembly.GetManifestResourceStream(icon.Path);
+                    return iconAssembly!.GetManifestResourceStream(icon.Path) ?? throw new InvalidOperationException($"Assembly does not contain icon path {icon.Path}");
 
                 default:
                     throw new InvalidOperationException($"Invalid icon source \"{Source}\".");
@@ -146,35 +149,25 @@ namespace SpiderEye
         {
             if (icon == null) { throw new ArgumentNullException(nameof(icon)); }
 
-            if (UseFileCache && iconCache.TryGetValue(icon.Path, out byte[] data))
+            if (UseFileCache && iconCache.TryGetValue(icon.Path, out byte[]? data))
             {
                 return data;
             }
 
-            using (var stream = GetIconDataStream(icon))
-            using (var reader = new BinaryReader(stream))
-            {
-                return reader.ReadBytes((int)stream.Length);
-            }
+            using var stream = GetIconDataStream(icon);
+            using var reader = new BinaryReader(stream);
+            return reader.ReadBytes((int)stream.Length);
         }
 
         private static IconInfo[] GetIcons(string iconName, IEnumerable<string> names)
         {
-            string ext;
-            switch (Application.OS)
+            string ext = Application.OS switch
             {
-                case OperatingSystem.Windows:
-                    ext = "ico";
-                    break;
-                case OperatingSystem.MacOS:
-                    ext = "icns";
-                    break;
-                case OperatingSystem.Linux:
-                    ext = "png";
-                    break;
-                default:
-                    throw new PlatformNotSupportedException();
-            }
+                OperatingSystem.Windows => "ico",
+                OperatingSystem.MacOS => "icns",
+                OperatingSystem.Linux => "png",
+                _ => throw new PlatformNotSupportedException(),
+            };
 
             // matches patterns like:
             // Icon.png

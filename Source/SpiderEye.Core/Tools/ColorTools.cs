@@ -4,7 +4,7 @@ namespace SpiderEye.Tools
 {
     internal static class ColorTools
     {
-        public static void ParseHex(string color, out byte r, out byte g, out byte b)
+        public static void ParseHex(string? color, out byte r, out byte g, out byte b)
         {
             color = color?.TrimStart('#');
             if (string.IsNullOrWhiteSpace(color) || color.Length != 6)
@@ -19,7 +19,7 @@ namespace SpiderEye.Tools
 
         public static string ToHex(byte r, byte g, byte b)
         {
-            return $"#{r.ToString("X2")}{g.ToString("X2")}{b.ToString("X2")}";
+            return $"#{r:X2}{g:X2}{b:X2}";
         }
     }
 }

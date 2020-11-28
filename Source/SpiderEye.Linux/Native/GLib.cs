@@ -57,18 +57,14 @@ namespace SpiderEye.Linux.Native
 
         public static void ConnectSignal(IntPtr instance, string signalName, Delegate handler, IntPtr data)
         {
-            using (GLibString gname = signalName)
-            {
-                ConnectSignalData(instance, gname, handler, data, IntPtr.Zero, 0);
-            }
+            using GLibString gname = signalName;
+            ConnectSignalData(instance, gname, handler, data, IntPtr.Zero, 0);
         }
 
         public static void SetProperty(IntPtr obj, string propertyName, IntPtr value)
         {
-            using (GLibString gname = propertyName)
-            {
-                SetProperty(obj, gname, value, IntPtr.Zero);
-            }
+            using GLibString gname = propertyName;
+            SetProperty(obj, gname, value, IntPtr.Zero);
         }
     }
 }
