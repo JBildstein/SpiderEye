@@ -35,4 +35,4 @@ jobs:
         name: Packages
         path: Publish/**
     - name: Publish NuGet
-      run: dotnet nuget push Publish\*.nupkg -k ${GITHUB_TOKEN} -s https://nuget.pkg.github.com/JBildstein/index.json
+      run: dotnet nuget push Publish\*.nupkg -k ${GITHUB_TOKEN} -s https://nuget.pkg.github.com/JBildstein/index.json --no-symbols
