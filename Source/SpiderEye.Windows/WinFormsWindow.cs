@@ -122,9 +122,11 @@ namespace SpiderEye.Windows
                     webview = new IeLegacyWebview(WindowsApplication.ContentServerAddress, bridge);
                     break;
 
+#if WINRT
                 case WebviewType.Edge:
                     webview = new EdgeHtmlWebview(bridge);
                     break;
+#endif
 
                 case WebviewType.EdgeChromium:
                     var edgium = new EdgiumWebview(WindowsApplication.ContentServerAddress, bridge);
@@ -286,11 +288,17 @@ namespace SpiderEye.Windows
                 case WebviewType.EdgeChromium:
                 case WebviewType.Latest:
                     if (IsEdgiumAvailable()) { return WebviewType.EdgeChromium; }
+#if WINRT
                     else { goto case WebviewType.Edge; }
+#else
+                    else { return WebviewType.InternetExplorer; }
+#endif
 
+#if WINRT
                 case WebviewType.Edge:
                     if (IsEdgeAvailable()) { return WebviewType.Edge; }
                     else { return WebviewType.InternetExplorer; }
+#endif
 
                 case WebviewType.InternetExplorer:
                     return WebviewType.InternetExplorer;
@@ -306,12 +314,14 @@ namespace SpiderEye.Windows
             return !string.IsNullOrEmpty(edgeVersion);
         }
 
+#if WINRT
         private bool IsEdgeAvailable()
         {
             string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "edgehtml.dll");
             var version = Native.GetOsVersion();
 
-            return File.Exists(path) && version.MajorVersion >= 10 && version.BuildNumber >= 17134;
+            return File.Exists(path) && version.MajorVersion >= 10 && version.BuildNumber >= 17763;
         }
+#endif
     }
 }

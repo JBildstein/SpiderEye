@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if WINRT
+
+using System;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using SpiderEye.Bridge;
@@ -149,3 +151,5 @@ namespace SpiderEye.Windows
         }
     }
 }
+
+#endif

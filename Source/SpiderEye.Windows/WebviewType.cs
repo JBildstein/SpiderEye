@@ -8,21 +8,25 @@
         /// <summary>
         /// Latest version available.
         /// </summary>
-        Latest,
+        Latest = 0,
 
         /// <summary>
         /// Internet Explorer.
         /// </summary>
-        InternetExplorer,
+        InternetExplorer = 1,
+
+#if WINRT
 
         /// <summary>
         /// Edge based on EdgeHTML and Chakra.
         /// </summary>
-        Edge,
+        Edge = 2,
+
+#endif
 
         /// <summary>
         /// Edge based on Chromium.
         /// </summary>
-        EdgeChromium,
+        EdgeChromium = 3,
     }
 }

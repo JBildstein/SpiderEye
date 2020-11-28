@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if WINRT
+
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using Windows.Foundation;
@@ -25,3 +27,5 @@ namespace SpiderEye.Windows
         }
     }
 }
+
+#endif
