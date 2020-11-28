@@ -16,7 +16,7 @@ import {
     styleUrls: ['./api.component.scss']
 })
 export class ApiComponent {
-    MessageBoxButtons = MessageBoxButtons;
+    messageBoxButtons = MessageBoxButtons;
     messageBox: MessageBox;
     messageBoxResult: string;
 

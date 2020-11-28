@@ -22,7 +22,7 @@
             "index": "Angular/index.html",
             "main": "Angular/main.ts",
             "polyfills": "Angular/polyfills.ts",
-            "tsConfig": "Angular/tsconfig.app.json",
+            "tsConfig": "tsconfig.app.json",
             "assets": [
               "Angular/assets"
             ],
@@ -42,7 +42,6 @@
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
-              "extractCss": true,
               "namedChunks": false,
               "aot": true,
               "extractLicenses": true,
@@ -81,13 +80,11 @@
           }
         },
         "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
+          "builder": "@angular-eslint/builder:lint",
           "options": {
-            "tsConfig": [
-              "Angular/tsconfig.app.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
+            "lintFilePatterns": [
+              "Angular/**/*.ts",
+              "Angular/**/*.html"
             ]
           }
         }

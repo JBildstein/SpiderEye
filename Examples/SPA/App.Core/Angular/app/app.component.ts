@@ -22,7 +22,7 @@ export class AppComponent implements OnInit {
 
     ngOnInit() {
         let count = 0;
-        setInterval(function () {
+        setInterval(() => {
             count++;
             document.title = 'Title Changes: ' + count;
         }, 1000);

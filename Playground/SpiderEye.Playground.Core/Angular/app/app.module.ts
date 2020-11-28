@@ -10,14 +10,6 @@ import { HomeComponent } from './components/home/home.component';
 import { ApiComponent } from './components/api/api.component';
 import { BridgeComponent } from './components/bridge/bridge.component';
 
-export function init() {
-    return async () => {
-        if (!SpiderEye.isReady) {
-            await SpiderEye.onReadyAsync();
-        }
-    };
-}
-
 @NgModule({
     declarations: [
         AppComponent,
@@ -33,7 +25,7 @@ export function init() {
     ],
     providers: [{
         provide: APP_INITIALIZER,
-        useFactory: init,
+        useFactory: () => SpiderEye.onReadyAsync,
         multi: true
     }],
     bootstrap: [AppComponent]
