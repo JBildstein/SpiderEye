@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using SpiderEye.Bridge;
 using SpiderEye.Windows.Interop;
-using Windows.Foundation;
 using Windows.UI;
 using Windows.Web.UI;
 using Windows.Web.UI.Interop;
