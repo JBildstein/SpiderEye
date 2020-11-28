@@ -12,8 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Web.WebView2" Version="0.9.579-prerelease" />
-    <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.18362.2005" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.664.37" />
+    <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.19041.1" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.WinForms;
 using SpiderEye.Bridge;
-using SpiderEye.Tools;
 
 namespace SpiderEye.Windows
 {
@@ -34,18 +32,17 @@ namespace SpiderEye.Windows
 
         private readonly WebviewBridge bridge;
         private readonly WebView2 webview;
-        private readonly Uri customHost;
-        private readonly Task initTask;
+        private readonly Uri hostAddress;
 
         private CoreWebView2Environment environment;
         private Uri lastNavigatedUri;
 
-        public EdgiumWebview(WebviewBridge bridge)
+        public EdgiumWebview(string hostAddress, WebviewBridge bridge)
         {
+            if (hostAddress == null) { throw new ArgumentNullException(nameof(hostAddress)); }
             this.bridge = bridge ?? throw new ArgumentNullException(nameof(bridge));
 
-            const string scheme = "http";
-            customHost = new Uri(UriTools.GetRandomResourceUrl(scheme));
+            this.hostAddress = new Uri(hostAddress, UriKind.Absolute);
 
             webview = new WebView2();
             webview.NavigationStarting += Webview_NavigationStarting;
@@ -64,7 +61,7 @@ namespace SpiderEye.Windows
         {
             if (uri == null) { throw new ArgumentNullException(nameof(uri)); }
 
-            if (!uri.IsAbsoluteUri) { uri = new Uri(customHost, uri); }
+            if (!uri.IsAbsoluteUri) { uri = new Uri(hostAddress, uri); }
 
             webview.Source = uri;
         }
@@ -84,31 +81,10 @@ namespace SpiderEye.Windows
             environment = await CoreWebView2Environment.CreateAsync();
             await webview.EnsureCoreWebView2Async(environment);
 
-            webview.CoreWebView2.AddWebResourceRequestedFilter(customHost.ToString() + "*", CoreWebView2WebResourceContext.All);
-            webview.CoreWebView2.WebResourceRequested += CoreWebView2_WebResourceRequested;
             webview.CoreWebView2.DocumentTitleChanged += (s, t) => { TitleChanged?.Invoke(this, webview.CoreWebView2.DocumentTitle); };
 
             string initScript = Resources.GetInitScript("Edgium");
             await webview.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync(initScript);
-        }
-
-        private async void CoreWebView2_WebResourceRequested(object sender, CoreWebView2WebResourceRequestedEventArgs e)
-        {
-            var deferral = e.GetDeferral();
-
-            try
-            {
-                using (var contentStream = await Application.ContentProvider.GetStreamAsync(e.Request.RequestUri))
-                {
-                    if (contentStream != null)
-                    {
-                        e.Response = environment.CreateWebResourceResponse(contentStream, 200, "OK", string.Empty);
-                    }
-                    else { e.Response = environment.CreateWebResourceResponse(null, 404, "Not Found", string.Empty); }
-                }
-            }
-            catch { e.Response = environment.CreateWebResourceResponse(null, 500, "Internal Server Error", string.Empty); }
-            finally { deferral.Complete(); }
         }
 
         private void Webview_NavigationStarting(object sender, CoreWebView2NavigationStartingEventArgs e)

@@ -127,7 +127,7 @@ namespace SpiderEye.Windows
                     break;
 
                 case WebviewType.EdgeChromium:
-                    var edgium = new EdgiumWebview(bridge);
+                    var edgium = new EdgiumWebview(WindowsApplication.ContentServerAddress, bridge);
                     edgium.TitleChanged += Webview_TitleChanged;
                     webview = edgium;
                     break;
@@ -135,6 +135,11 @@ namespace SpiderEye.Windows
                 default:
                     throw new InvalidOperationException($"Invalid webview type of {webviewType}");
             }
+
+            // hide control until first page is loaded to prevent ugly flicker
+            // Edgium and IE don't (properly) support setting a webview background color so this is a workaround
+            webview.Control.Visible = false;
+            webview.PageLoaded += Webview_PageLoaded;
 
             webview.Control.Location = new System.Drawing.Point(0, 0);
             webview.Control.Dock = DockStyle.Fill;
@@ -238,6 +243,15 @@ namespace SpiderEye.Windows
         private static bool IsMinimized(WS style)
         {
             return style.HasFlag(WS.MINIMIZE);
+        }
+
+        private void Webview_PageLoaded(object sender, PageLoadEventArgs e)
+        {
+            if (!webview.Control.Visible)
+            {
+                webview.Control.Visible = true;
+                webview.PageLoaded -= Webview_PageLoaded;
+            }
         }
 
         private void Webview_TitleChanged(object sender, string title)
