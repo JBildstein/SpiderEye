@@ -22,17 +22,17 @@ jobs:
     - name: Test
       run: dotnet test --no-restore --verbosity minimal
     - name: Pack Core
-      run: dotnet pack Source\SpiderEye.Core -c Release -o Publish --no-restore --version-suffix ci-${{ github.sha }}
+      run: dotnet pack Source\SpiderEye.Core -c Release -o Publish --no-restore --version-suffix ci.${{ github.run_number }}
     - name: Pack Windows
-      run: dotnet pack Source\SpiderEye.Windows -c Release -o Publish --no-restore --version-suffix ci-${{ github.sha }}
+      run: dotnet pack Source\SpiderEye.Windows -c Release -o Publish --no-restore --version-suffix ci.${{ github.run_number }}
     - name: Pack Linux
-      run: dotnet pack Source\SpiderEye.Linux -c Release -o Publish --no-restore --version-suffix ci-${{ github.sha }}
+      run: dotnet pack Source\SpiderEye.Linux -c Release -o Publish --no-restore --version-suffix ci.${{ github.run_number }}
     - name: Pack macOS
-      run: dotnet pack Source\SpiderEye.Mac -c Release -o Publish --no-restore --version-suffix ci-${{ github.sha }}
+      run: dotnet pack Source\SpiderEye.Mac -c Release -o Publish --no-restore --version-suffix ci.${{ github.run_number }}
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
       with:
         name: Packages
         path: Publish/**
     - name: Publish NuGet
-      run: dotnet nuget push Publish\*.nupkg -k ${GITHUB_TOKEN} -s https://nuget.pkg.github.com/JBildstein/index.json --no-symbols
+      run: dotnet nuget push Publish\*.nupkg -k ${GITHUB_TOKEN} -s https://nuget.pkg.github.com/JBildstein/index.json --no-symbols true
