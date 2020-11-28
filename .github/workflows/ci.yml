@@ -14,7 +14,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v1.7.2
       with:
         dotnet-version: 5.0.x
     - name: Install dependencies
@@ -35,4 +35,4 @@ jobs:
         name: Packages
         path: Publish/**
     - name: Publish NuGet
-      run: dotnet nuget push Publish\*.nupkg -k ${GITHUB_TOKEN} -s https://nuget.pkg.github.com/JBildstein/index.json --no-symbols true
+      run: dotnet nuget push Publish\*.nupkg -k ${GITHUB_TOKEN} -s https://nuget.pkg.github.com/JBildstein/index.json --no-symbols true --skip-duplicate
