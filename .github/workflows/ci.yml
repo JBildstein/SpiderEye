@@ -5,7 +5,7 @@ on:
     branches: [ master ]
     
 env:
-  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
 
 jobs:
@@ -13,26 +13,29 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Setup .NET Core
+    - name: Setup .NET
       uses: actions/setup-dotnet@v1.7.2
       with:
         dotnet-version: 5.0.x
+        source-url: https://nuget.pkg.github.com/JBildstein/index.json
+      env:
+        NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
     - name: Install dependencies
       run: dotnet restore
     - name: Test
       run: dotnet test --no-restore --verbosity minimal
     - name: Pack Core
-      run: dotnet pack Source\SpiderEye.Core -c Release -o Publish --no-restore --version-suffix ci.${{ github.run_number }}
+      run: dotnet pack Source\SpiderEye.Core -c Release -o Publish --no-restore --version-suffix ci.${{github.run_number}}
     - name: Pack Windows
-      run: dotnet pack Source\SpiderEye.Windows -c Release -o Publish --no-restore --version-suffix ci.${{ github.run_number }}
+      run: dotnet pack Source\SpiderEye.Windows -c Release -o Publish --no-restore --version-suffix ci.${{github.run_number}}
     - name: Pack Linux
-      run: dotnet pack Source\SpiderEye.Linux -c Release -o Publish --no-restore --version-suffix ci.${{ github.run_number }}
+      run: dotnet pack Source\SpiderEye.Linux -c Release -o Publish --no-restore --version-suffix ci.${{github.run_number}}
     - name: Pack macOS
-      run: dotnet pack Source\SpiderEye.Mac -c Release -o Publish --no-restore --version-suffix ci.${{ github.run_number }}
+      run: dotnet pack Source\SpiderEye.Mac -c Release -o Publish --no-restore --version-suffix ci.${{github.run_number}}
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
       with:
         name: Packages
         path: Publish/**
     - name: Publish NuGet
-      run: dotnet nuget push Publish\*.nupkg -k ${GITHUB_TOKEN} -s https://nuget.pkg.github.com/JBildstein/index.json --no-symbols true --skip-duplicate
+      run: dotnet nuget push Publish\*.nupkg --no-symbols true --skip-duplicate
