@@ -2,7 +2,7 @@
   <Import Project="..\..\Shared\SpiderEye.Shared.Nuget.proj" />
 
   <PropertyGroup>
-    <AssemblyVersion>1.2.0</AssemblyVersion>
+    <AssemblyVersion>1.2.1</AssemblyVersion>
     <Version>$(AssemblyVersion)</Version>
     <TargetFramework>net5.0</TargetFramework>
     <PackageId>Bildstein.SpiderEye.Templates</PackageId>
