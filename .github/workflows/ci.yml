@@ -18,8 +18,6 @@ jobs:
       with:
         dotnet-version: 5.0.x
         source-url: https://nuget.pkg.github.com/JBildstein/index.json
-      env:
-        NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
     - name: Install dependencies
       run: dotnet restore
     - name: Test
@@ -38,4 +36,4 @@ jobs:
         name: Packages
         path: Publish/**
     - name: Publish NuGet
-      run: dotnet nuget push Publish\*.nupkg --no-symbols true --skip-duplicate
+      run: dotnet nuget push Publish\*.nupkg --no-symbols true --skip-duplicate -k ${{secrets.GITHUB_TOKEN}}
