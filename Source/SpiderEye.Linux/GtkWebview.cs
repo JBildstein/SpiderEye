@@ -46,6 +46,7 @@ namespace SpiderEye.Linux
         private readonly ContextMenuRequestDelegate contextMenuDelegate;
         private readonly WebviewDelegate closeDelegate;
         private readonly WebviewDelegate titleChangeDelegate;
+        private readonly WebKitUriSchemeRequestDelegate uriSchemeCallback;
 
         private bool loadEventHandled = false;
         private bool enableDevToolsField;
@@ -61,6 +62,7 @@ namespace SpiderEye.Linux
             contextMenuDelegate = ContextMenuCallback;
             closeDelegate = CloseCallback;
             titleChangeDelegate = TitleChangeCallback;
+            uriSchemeCallback = UriSchemeCallback;
 
             manager = WebKit.Manager.Create();
             GLib.ConnectSignal(manager, "script-message-received::external", scriptDelegate, IntPtr.Zero);
@@ -85,7 +87,7 @@ namespace SpiderEye.Linux
 
             IntPtr context = WebKit.Context.Get(Handle);
             using GLibString gscheme = scheme;
-            WebKit.Context.RegisterUriScheme(context, gscheme, UriSchemeCallback, IntPtr.Zero, IntPtr.Zero);
+            WebKit.Context.RegisterUriScheme(context, gscheme, uriSchemeCallback, IntPtr.Zero, IntPtr.Zero);
         }
 
         public void UpdateBackgroundColor(string? color)
