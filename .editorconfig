@@ -53,3 +53,15 @@ csharp_space_between_method_call_parameter_list_parentheses = false
 csharp_space_between_parentheses = false
 csharp_preserve_single_line_statements = true
 csharp_preserve_single_line_blocks = true
+
+dotnet_diagnostic.SA1101.severity=silent
+dotnet_diagnostic.SA1118.severity=silent
+dotnet_diagnostic.SA1127.severity=silent
+dotnet_diagnostic.SA1201.severity=silent
+dotnet_diagnostic.SA1401.severity=silent
+dotnet_diagnostic.SA1501.severity=silent
+dotnet_diagnostic.SA1504.severity=silent
+dotnet_diagnostic.SA1633.severity=silent
+dotnet_diagnostic.SA1639.severity=silent
+dotnet_diagnostic.SA1516.severity=silent
+dotnet_diagnostic.SA1204.severity=suggestion

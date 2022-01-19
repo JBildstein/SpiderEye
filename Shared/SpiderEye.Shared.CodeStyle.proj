@@ -1,6 +1,5 @@
 ﻿<Project>
   <PropertyGroup>
-    <CodeAnalysisRuleSet>..\..\Shared\SpiderEye.ruleset</CodeAnalysisRuleSet>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 

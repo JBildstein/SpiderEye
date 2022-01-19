@@ -83,7 +83,6 @@ namespace SpiderEye.Mac.Native
         [DllImport(ObjCLib, EntryPoint = "objc_msgSend")]
         public static extern IntPtr SendMessage(IntPtr self, IntPtr op, CGSize size);
 
-
         public static IntPtr Call(IntPtr id, string sel)
         {
             return SendMessage(id, RegisterName(sel));
