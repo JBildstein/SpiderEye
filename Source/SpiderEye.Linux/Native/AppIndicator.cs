@@ -6,7 +6,7 @@ namespace SpiderEye.Linux.Native
 {
     internal static partial class AppIndicator
     {
-        private const string AppIndicatorNativeDll = "libappindicator3.so";
+        private const string AppIndicatorNativeDll = "libappindicator3.so.1";
 
         [DllImport(AppIndicatorNativeDll, EntryPoint = "app_indicator_new", CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr Create(IntPtr id, IntPtr icon_name, AppIndicatorCategory category);

@@ -6,8 +6,8 @@ namespace SpiderEye.Linux.Native
 {
     internal static class WebKit
     {
-        private const string WebkitNativeDll = "libwebkit2gtk-4.0.so";
-        private const string JavaScriptCoreNativeDll = "libjavascriptcoregtk-4.0.so";
+        private const string WebkitNativeDll = "libwebkit2gtk-4.0.so.37";
+        private const string JavaScriptCoreNativeDll = "libjavascriptcoregtk-4.0.so.18";
 
         public static class Manager
         {

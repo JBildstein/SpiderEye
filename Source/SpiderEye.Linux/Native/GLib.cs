@@ -6,9 +6,9 @@ namespace SpiderEye.Linux.Native
 {
     internal static class GLib
     {
-        private const string GLibNativeDll = "libglib-2.0.so";
-        private const string GObjectNativeDll = "libgobject-2.0.so";
-        private const string GIONativeDll = "libgio-2.0.so";
+        private const string GLibNativeDll = "libglib-2.0.so.0";
+        private const string GObjectNativeDll = "libgobject-2.0.so.0";
+        private const string GIONativeDll = "libgio-2.0.so.0";
 
         [DllImport(GLibNativeDll, EntryPoint = "g_malloc", CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr Malloc(UIntPtr size);

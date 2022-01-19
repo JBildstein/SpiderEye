@@ -5,7 +5,7 @@ namespace SpiderEye.Linux.Native
 {
     internal static class Gdk
     {
-        private const string GdkNativeDll = "libgdk-3.so";
+        private const string GdkNativeDll = "libgdk-3.so.0";
 
         public static class Pixbuf
         {

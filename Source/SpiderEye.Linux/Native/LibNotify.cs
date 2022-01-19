@@ -5,7 +5,7 @@ namespace SpiderEye.Linux.Native
 {
     internal static class LibNotify
     {
-        private const string LibNotifyDll = "libnotify";
+        private const string LibNotifyDll = "libnotify.so.4";
 
         [DllImport(LibNotifyDll, EntryPoint = "notify_init", CallingConvention = CallingConvention.Cdecl)]
         public static extern bool Init(string app_name);

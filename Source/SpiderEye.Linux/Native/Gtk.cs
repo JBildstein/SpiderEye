@@ -6,7 +6,7 @@ namespace SpiderEye.Linux.Native
 {
     internal static class Gtk
     {
-        private const string GtkNativeDll = "libgtk-3.so";
+        private const string GtkNativeDll = "libgtk-3.so.0";
 
         public static class Widget
         {
