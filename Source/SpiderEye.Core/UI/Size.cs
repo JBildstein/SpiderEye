@@ -10,7 +10,7 @@ namespace SpiderEye
         /// <summary>
         /// A <see cref="Size"/> with <see cref="Width"/> and <see cref="Height"/> set to zero.
         /// </summary>
-        public static readonly Size Zero = new Size(0, 0);
+        public static readonly Size Zero = new(0, 0);
 
         /// <summary>
         /// The width.

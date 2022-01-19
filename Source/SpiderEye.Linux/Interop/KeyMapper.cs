@@ -59,7 +59,7 @@ namespace SpiderEye.UI.Platforms.Linux.Interop
             else { throw new NotSupportedException($"Unsupported modifier key: \"{key}\""); }
         }
 
-        private static readonly Dictionary<Key, string> Keymap = new Dictionary<Key, string>
+        private static readonly Dictionary<Key, string> Keymap = new()
         {
             { Key.None, string.Empty },
             { Key.F1, "<F1>" },

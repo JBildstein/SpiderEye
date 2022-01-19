@@ -1,5 +1,4 @@
-﻿using System;
-using SpiderEye.Mac;
+﻿using SpiderEye.Mac;
 using SpiderEye.Playground.Core;
 
 namespace SpiderEye.Playground

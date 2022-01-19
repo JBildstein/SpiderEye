@@ -172,7 +172,7 @@ namespace SpiderEye
         /// </summary>
         internal IWindow NativeWindow { get; }
 
-        internal static readonly WindowConfiguration DefaultConfig = new WindowConfiguration();
+        internal static readonly WindowConfiguration DefaultConfig = new();
 
         private readonly WebviewBridge bridge;
 

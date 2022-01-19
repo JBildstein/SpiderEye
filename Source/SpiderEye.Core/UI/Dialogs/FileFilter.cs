@@ -26,7 +26,7 @@ namespace SpiderEye
         public FileFilter(string name, params string[] filters)
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
-            Filters = filters ?? new string[0];
+            Filters = filters ?? Array.Empty<string>();
         }
     }
 }

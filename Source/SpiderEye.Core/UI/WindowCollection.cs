@@ -23,7 +23,7 @@ namespace SpiderEye
             get { return windows.Count; }
         }
 
-        private readonly List<Window> windows = new List<Window>();
+        private readonly List<Window> windows = new();
 
         /// <inheritdoc/>
         public IEnumerator<Window> GetEnumerator()

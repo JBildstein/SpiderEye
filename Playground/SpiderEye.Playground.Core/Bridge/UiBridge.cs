@@ -6,14 +6,14 @@ namespace SpiderEye.Playground.Core
 {
     public class UiBridge
     {
-        private readonly Random random = new Random();
+        private readonly Random random = new();
 
-        public async Task RunLongProcedureOnTask()
+        public static async Task RunLongProcedureOnTask()
         {
             await Task.Delay(TimeSpan.FromSeconds(10));
         }
 
-        public void RunLongProcedure()
+        public static void RunLongProcedure()
         {
             Thread.Sleep(TimeSpan.FromSeconds(10));
         }
@@ -27,12 +27,12 @@ namespace SpiderEye.Playground.Core
             };
         }
 
-        public double Power(PowerModel model)
+        public static double Power(PowerModel model)
         {
             return Math.Pow(model.Value, model.Power);
         }
 
-        public void ProduceError()
+        public static void ProduceError()
         {
             throw new Exception("Intentional exception from .Net");
         }

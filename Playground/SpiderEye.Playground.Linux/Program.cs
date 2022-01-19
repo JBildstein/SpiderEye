@@ -1,5 +1,4 @@
-﻿using System;
-using SpiderEye.Linux;
+﻿using SpiderEye.Linux;
 using SpiderEye.Playground.Core;
 
 namespace SpiderEye.Playground

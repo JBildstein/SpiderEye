@@ -22,7 +22,7 @@ namespace SpiderEye
         internal readonly IconInfo[] Icons;
 
         private readonly Assembly? iconAssembly;
-        private Dictionary<string, byte[]> iconCache = new Dictionary<string, byte[]>();
+        private readonly Dictionary<string, byte[]> iconCache = new();
 
         private AppIcon(IconSource source, string iconName, IEnumerable<string> names, bool cacheFiles)
         {

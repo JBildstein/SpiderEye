@@ -320,13 +320,13 @@ namespace SpiderEye.Linux
             TitleChanged?.Invoke(this, title ?? string.Empty);
         }
 
-        private void FinishUriSchemeCallback(IntPtr request, IntPtr stream, long streamLength, Uri uri)
+        private static void FinishUriSchemeCallback(IntPtr request, IntPtr stream, long streamLength, Uri uri)
         {
             using GLibString mimetype = MimeTypes.FindForUri(uri);
             WebKit.UriScheme.FinishSchemeRequest(request, stream, streamLength, mimetype);
         }
 
-        private void FinishUriSchemeCallbackWithError(IntPtr request, int errorCode)
+        private static void FinishUriSchemeCallbackWithError(IntPtr request, int errorCode)
         {
             uint domain = GLib.GetFileErrorQuark();
             var error = new GError(domain, errorCode, IntPtr.Zero);

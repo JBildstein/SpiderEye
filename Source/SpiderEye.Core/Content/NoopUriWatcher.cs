@@ -10,7 +10,7 @@ namespace SpiderEye
         /// <summary>
         /// An instance of a <see cref="NoopUriWatcher"/>.
         /// </summary>
-        public static readonly NoopUriWatcher Instance = new NoopUriWatcher();
+        public static readonly NoopUriWatcher Instance = new();
 
         /// <inheritdoc/>
         public Uri CheckUri(Uri uri)

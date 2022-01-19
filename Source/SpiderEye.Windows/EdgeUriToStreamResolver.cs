@@ -11,14 +11,14 @@ namespace SpiderEye.Windows
 {
     internal class EdgeUriToStreamResolver : IUriToStreamResolver
     {
-        public static readonly EdgeUriToStreamResolver Instance = new EdgeUriToStreamResolver();
+        public static readonly EdgeUriToStreamResolver Instance = new();
 
         public IAsyncOperation<IInputStream> UriToStreamAsync(Uri uri)
         {
             return GetStreamAsync(uri).AsAsyncOperation();
         }
 
-        private async Task<IInputStream> GetStreamAsync(Uri uri)
+        private static async Task<IInputStream> GetStreamAsync(Uri uri)
         {
             var stream = await Application.ContentProvider.GetStreamAsync(uri);
             if (stream == null) { throw new FileNotFoundException(); }

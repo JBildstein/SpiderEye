@@ -271,7 +271,7 @@ namespace SpiderEye.Windows
             };
         }
 
-        private WebviewType ChooseWebview()
+        private static WebviewType ChooseWebview()
         {
             switch (WindowsApplication.WebviewType)
             {
@@ -298,14 +298,14 @@ namespace SpiderEye.Windows
             }
         }
 
-        private bool IsEdgiumAvailable()
+        private static bool IsEdgiumAvailable()
         {
             string edgeVersion = CoreWebView2Environment.GetAvailableBrowserVersionString();
             return !string.IsNullOrEmpty(edgeVersion);
         }
 
 #if WINRT
-        private bool IsEdgeAvailable()
+        private static bool IsEdgeAvailable()
         {
             string path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "edgehtml.dll");
             var version = Native.GetOsVersion();

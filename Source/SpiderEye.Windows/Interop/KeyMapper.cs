@@ -36,7 +36,7 @@ namespace SpiderEye.Windows.Interop
             else { throw new NotSupportedException($"Unsupported modifier key: \"{key}\""); }
         }
 
-        private static readonly Dictionary<Key, Keys> Keymap = new Dictionary<Key, Keys>
+        private static readonly Dictionary<Key, Keys> Keymap = new()
         {
             { Key.None, Keys.None },
             { Key.F1, Keys.F1 },

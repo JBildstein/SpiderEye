@@ -36,7 +36,7 @@ namespace SpiderEye.Linux
             }
         }
 
-        private void Init()
+        private static void Init()
         {
             var argv = IntPtr.Zero;
             int argc = 0;

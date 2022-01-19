@@ -6,7 +6,7 @@ namespace SpiderEye.Windows
 {
     internal class WinFormsMenu : IMenu
     {
-        public readonly ContextMenuStrip Menu = new ContextMenuStrip();
+        public readonly ContextMenuStrip Menu = new();
 
         public void AddItem(IMenuItem item)
         {

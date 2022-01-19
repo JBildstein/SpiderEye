@@ -61,14 +61,14 @@ namespace SpiderEye
                 string key = NormalizePath(file);
                 if (key.StartsWith(contentFolder))
                 {
-                    dict.Add(key.Substring(contentFolder.Length).TrimStart('/'), file);
+                    dict.Add(key[contentFolder.Length..].TrimStart('/'), file);
                 }
             }
 
             return dict;
         }
 
-        private string NormalizePath(string path)
+        private static string NormalizePath(string path)
         {
             return path.Replace('\\', '/')
                     .TrimStart('/')

@@ -12,9 +12,9 @@ namespace SpiderEye.Tools
                 color = "FFFFFF";
             }
 
-            r = Convert.ToByte(color.Substring(0, 2), 16);
-            g = Convert.ToByte(color.Substring(2, 2), 16);
-            b = Convert.ToByte(color.Substring(4, 2), 16);
+            r = Convert.ToByte(color[..2], 16);
+            g = Convert.ToByte(color[2..4], 16);
+            b = Convert.ToByte(color[4..], 16);
         }
 
         public static string ToHex(byte r, byte g, byte b)

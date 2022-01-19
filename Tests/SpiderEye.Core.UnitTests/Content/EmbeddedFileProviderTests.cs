@@ -33,16 +33,12 @@ namespace SpiderEye.Content
             var provider = Create();
             var uri = new Uri(url);
 
-            using (var stream = await provider.GetStreamAsync(uri))
-            {
-                Assert.NotNull(stream);
+            using var stream = await provider.GetStreamAsync(uri);
+            Assert.NotNull(stream);
 
-                using (var reader = new StreamReader(stream))
-                {
-                    string result = reader.ReadToEnd();
-                    Assert.Equal(expected, result);
-                }
-            }
+            using var reader = new StreamReader(stream);
+            string result = reader.ReadToEnd();
+            Assert.Equal(expected, result);
         }
 
         [Theory]
@@ -52,14 +48,12 @@ namespace SpiderEye.Content
             var provider = Create();
             var uri = new Uri(url);
 
-            using (var stream = await provider.GetStreamAsync(uri))
-            {
-                Assert.Null(stream);
-            }
+            using var stream = await provider.GetStreamAsync(uri);
+            Assert.Null(stream);
         }
 
 
-        private EmbeddedContentProvider Create()
+        private static EmbeddedContentProvider Create()
         {
             return new EmbeddedContentProvider("Content\\Resources", Assembly.GetExecutingAssembly());
         }

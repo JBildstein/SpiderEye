@@ -34,7 +34,7 @@ namespace SpiderEye.Tools
         /// The file extension to mime type map. Add or remove values depending on your need.
         /// Note that the extension must start with a period "." and be in lower case.
         /// </summary>
-        public static readonly Dictionary<string, string> Map = new Dictionary<string, string>()
+        public static readonly Dictionary<string, string> Map = new()
         {
             { ".7z", "application/x-7z-compressed" },
             { ".aac", "audio/aac" },

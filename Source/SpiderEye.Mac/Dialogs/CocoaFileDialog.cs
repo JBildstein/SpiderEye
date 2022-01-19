@@ -43,7 +43,7 @@ namespace SpiderEye.Mac
             else { FileName = null; }
         }
 
-        private void SetFileFilters(IntPtr dialog, IEnumerable<FileFilter> filters)
+        private static void SetFileFilters(IntPtr dialog, IEnumerable<FileFilter> filters)
         {
             var fileTypes = filters
                 .SelectMany(t => t.Filters.Select(u => u.TrimStart('*', '.')))

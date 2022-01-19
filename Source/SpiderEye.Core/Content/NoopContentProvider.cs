@@ -12,7 +12,7 @@ namespace SpiderEye
         /// <summary>
         /// An instance of a <see cref="NoopContentProvider"/>.
         /// </summary>
-        public static readonly NoopContentProvider Instance = new NoopContentProvider();
+        public static readonly NoopContentProvider Instance = new();
 
         /// <inheritdoc/>
         public Task<Stream?> GetStreamAsync(Uri uri)
