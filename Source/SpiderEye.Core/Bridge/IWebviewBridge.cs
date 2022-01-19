@@ -34,6 +34,6 @@ namespace SpiderEye.Bridge
         /// <param name="id">The event ID.</param>
         /// <param name="data">Optional event data.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-        Task<T> InvokeAsync<T>(string id, object data);
+        Task<T?> InvokeAsync<T>(string id, object data);
     }
 }

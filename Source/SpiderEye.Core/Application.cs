@@ -152,7 +152,7 @@ namespace SpiderEye
         {
             if (function == null) { throw new ArgumentNullException(nameof(function)); }
 
-            T result = default;
+            T result = default!;
             InvokeSafely(() => result = function());
             return result!;
         }
