@@ -3,7 +3,7 @@
     /// <summary>
     /// These are hints for the window manager that indicate what type of function the window has.
     /// </summary>
-    internal enum GdkWindowTypeHint
+    internal enum GtkWindowTypeHint
     {
         /// <summary>
         /// Normal toplevel window.
