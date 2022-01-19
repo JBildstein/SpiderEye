@@ -4,7 +4,7 @@
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <Authors>Johannes Bildstein</Authors>
     <Company />
-    <Copyright>Copyright © Johannes Bildstein 2020</Copyright>
+    <Copyright>Copyright © Johannes Bildstein 2020-$([System.DateTime]::Now.Year)</Copyright>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/JBildstein/SpiderEye.git</RepositoryUrl>
     <PackageProjectUrl>https://github.com/JBildstein/SpiderEye</PackageProjectUrl>
