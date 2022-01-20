@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.WinForms;
 using SpiderEye.Bridge;
+using SpiderEye.Tools;
 
 namespace SpiderEye.Windows
 {
@@ -28,21 +29,25 @@ namespace SpiderEye.Windows
             set { webview.CoreWebView2.Settings.IsWebMessageEnabled = value; }
         }
 
-        public bool EnableDevTools { get; set; }
+        public bool EnableDevTools
+        {
+            get { return webview.CoreWebView2.Settings.AreDevToolsEnabled; }
+            set { webview.CoreWebView2.Settings.AreDevToolsEnabled = value; }
+        }
 
         private readonly WebviewBridge bridge;
         private readonly WebView2 webview;
-        private readonly Uri hostAddress;
+        private readonly Uri customHost;
 
         private CoreWebView2Environment environment = null!;
         private Uri? lastNavigatedUri;
 
-        public EdgiumWebview(string hostAddress, WebviewBridge bridge)
+        public EdgiumWebview(WebviewBridge bridge)
         {
-            if (hostAddress == null) { throw new ArgumentNullException(nameof(hostAddress)); }
             this.bridge = bridge ?? throw new ArgumentNullException(nameof(bridge));
 
-            this.hostAddress = new Uri(hostAddress, UriKind.Absolute);
+            const string scheme = "http";
+            customHost = new Uri(UriTools.GetRandomResourceUrl(scheme));
 
             webview = new WebView2();
             webview.NavigationStarting += Webview_NavigationStarting;
@@ -61,7 +66,7 @@ namespace SpiderEye.Windows
         {
             if (uri == null) { throw new ArgumentNullException(nameof(uri)); }
 
-            if (!uri.IsAbsoluteUri) { uri = new Uri(hostAddress, uri); }
+            if (!uri.IsAbsoluteUri) { uri = new Uri(customHost, uri); }
 
             webview.Source = uri;
         }
@@ -81,10 +86,35 @@ namespace SpiderEye.Windows
             environment = await CoreWebView2Environment.CreateAsync();
             await webview.EnsureCoreWebView2Async(environment);
 
-            webview.CoreWebView2.DocumentTitleChanged += (s, t) => { TitleChanged?.Invoke(this, webview.CoreWebView2.DocumentTitle); };
+            webview.CoreWebView2.AddWebResourceRequestedFilter(customHost.OriginalString + "/*", CoreWebView2WebResourceContext.All);
+
+            webview.CoreWebView2.WebResourceRequested += Webview_WebResourceRequested;
+            webview.CoreWebView2.DocumentTitleChanged += Webview_DocumentTitleChanged;
+
+            webview.CoreWebView2.Settings.IsStatusBarEnabled = false;
+            webview.CoreWebView2.Settings.IsGeneralAutofillEnabled = false;
+            webview.CoreWebView2.Settings.AreBrowserAcceleratorKeysEnabled = false;
+            webview.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
 
             string initScript = Resources.GetInitScript("Edgium");
             await webview.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync(initScript);
+        }
+
+        private async void Webview_WebResourceRequested(object? sender, CoreWebView2WebResourceRequestedEventArgs e)
+        {
+            using var deferral = e.GetDeferral();
+
+            var uri = new Uri(e.Request.Uri);
+            var contentStream = await Application.ContentProvider.GetStreamAsync(uri);
+            if (contentStream == null)
+            {
+                e.Response = webview.CoreWebView2.Environment.CreateWebResourceResponse(null, 404, "Not Found", string.Empty);
+            }
+            else
+            {
+                e.Response = webview.CoreWebView2.Environment.CreateWebResourceResponse(contentStream, 200, "OK", string.Empty);
+                e.Response.Headers.AppendHeader("Content-Type", MimeTypes.FindForUri(uri));
+            }
         }
 
         private void Webview_NavigationStarting(object? sender, CoreWebView2NavigationStartingEventArgs e)
@@ -100,6 +130,11 @@ namespace SpiderEye.Windows
             if (EnableDevTools) { webview.CoreWebView2.OpenDevToolsWindow(); }
 
             PageLoaded?.Invoke(this, new PageLoadEventArgs(lastNavigatedUri!, e.IsSuccess));
+        }
+
+        private void Webview_DocumentTitleChanged(object? sender, object e)
+        {
+            TitleChanged?.Invoke(this, webview.CoreWebView2.DocumentTitle);
         }
 
         private async void Webview_WebMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs e)

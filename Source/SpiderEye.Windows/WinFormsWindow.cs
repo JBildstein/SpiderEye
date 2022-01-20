@@ -122,7 +122,7 @@ namespace SpiderEye.Windows
                     break;
 
                 case WebviewType.EdgeChromium:
-                    var edgium = new EdgiumWebview(WindowsApplication.ContentServerAddress,bridge);
+                    var edgium = new EdgiumWebview(bridge);
                     edgium.TitleChanged += Webview_TitleChanged;
                     webview = edgium;
                     break;
