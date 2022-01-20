@@ -8,12 +8,12 @@ namespace SpiderEye.Playground.Core
     {
         private readonly Random random = new();
 
-        public static async Task RunLongProcedureOnTask()
+        public async Task RunLongProcedureOnTask()
         {
             await Task.Delay(TimeSpan.FromSeconds(10));
         }
 
-        public static void RunLongProcedure()
+        public void RunLongProcedure()
         {
             Thread.Sleep(TimeSpan.FromSeconds(10));
         }
@@ -27,12 +27,12 @@ namespace SpiderEye.Playground.Core
             };
         }
 
-        public static double Power(PowerModel model)
+        public double Power(PowerModel model)
         {
             return Math.Pow(model.Value, model.Power);
         }
 
-        public static void ProduceError()
+        public void ProduceError()
         {
             throw new Exception("Intentional exception from .Net");
         }
