@@ -15,14 +15,7 @@
         /// </summary>
         InternetExplorer = 1,
 
-#if WINRT
-
-        /// <summary>
-        /// Edge based on EdgeHTML and Chakra.
-        /// </summary>
-        Edge = 2,
-
-#endif
+        // Edge based on EdgeHTML and Chakra used to be 2
 
         /// <summary>
         /// Edge based on Chromium.

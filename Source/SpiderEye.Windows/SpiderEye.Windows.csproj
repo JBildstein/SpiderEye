@@ -2,15 +2,8 @@
   <Import Project="..\Shared\SpiderEye.Shared.Platform.proj" />
 
   <PropertyGroup>
-    <SpWin10Version>10.0.17763</SpWin10Version>
-    <TargetFrameworks>net5.0-windows;net5.0-windows$(SpWin10Version)</TargetFrameworks>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
-    <TargetPlatformMinVersion>7.0</TargetPlatformMinVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net5.0-windows$(SpWin10Version)'">
-    <DefineConstants>$(DefineConstants);WINRT</DefineConstants>
-    <TargetPlatformMinVersion>$(SpWin10Version)</TargetPlatformMinVersion>
   </PropertyGroup>
 
   <ItemGroup>
