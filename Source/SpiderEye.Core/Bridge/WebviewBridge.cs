@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using System.Threading.Tasks;
 using SpiderEye.Bridge.Api;
@@ -73,27 +74,36 @@ namespace SpiderEye.Bridge
             // run script call handling on separate task to free up UI
             await Task.Run(async () =>
             {
-                var info = JsonConverter.Deserialize<InvokeInfoModel>(data);
-                if (info != null)
+                try
                 {
-                    if (info.Type == "title")
+                    var info = JsonConverter.Deserialize<InvokeInfoModel>(data);
+                    if (info != null)
                     {
-                        string title;
-                        if (info.Parameters == null) { title = string.Empty; }
-                        else { title = JsonConverter.Deserialize<string>(info.Parameters) ?? string.Empty; }
+                        if (info.Type == "title")
+                        {
+                            string title;
+                            if (info.Parameters == null) { title = string.Empty; }
+                            else { title = JsonConverter.Deserialize<string>(info.Parameters) ?? string.Empty; }
 
-                        TitleChanged?.Invoke(this, title);
+                            TitleChanged?.Invoke(this, title);
+                        }
+                        else if (info.Type == "api")
+                        {
+                            var result = await ResolveCall(info.Id, info.Parameters);
+                            await EndApiCall(info, result);
+                        }
+                        else if (info.CallbackId != null)
+                        {
+                            string message = $"Invalid invoke type \"{info.Type ?? "<null>"}\".";
+                            await EndApiCall(info, ApiResultModel.FromError(message));
+                        }
                     }
-                    else if (info.Type == "api")
-                    {
-                        var result = await ResolveCall(info.Id, info.Parameters);
-                        await EndApiCall(info, result);
-                    }
-                    else if (info.CallbackId != null)
-                    {
-                        string message = $"Invalid invoke type \"{info.Type ?? "<null>"}\".";
-                        await EndApiCall(info, ApiResultModel.FromError(message));
-                    }
+                }
+                catch (Exception ex)
+                {
+                    // An Exception may happen if the window that started the request got closed before the result came back.
+                    // In any case, errors at this point should not crash the whole application and don't really matter.
+                    Debug.WriteLine(ex.ToString());
                 }
             });
         }
@@ -189,6 +199,7 @@ namespace SpiderEye.Bridge
 
             foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Instance))
             {
+                if (method.DeclaringType == typeof(object)) { continue; }
                 if (method.GetParameters().Length > 1) { continue; }
 
                 var info = new ApiMethod(handler, method);
