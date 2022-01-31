@@ -284,8 +284,12 @@ namespace SpiderEye.Windows
 
         private static bool IsEdgiumAvailable()
         {
-            string edgeVersion = CoreWebView2Environment.GetAvailableBrowserVersionString();
-            return !string.IsNullOrEmpty(edgeVersion);
+            try
+            {
+                string edgeVersion = CoreWebView2Environment.GetAvailableBrowserVersionString();
+                return !string.IsNullOrEmpty(edgeVersion);
+            }
+            catch { return false; }
         }
     }
 }
