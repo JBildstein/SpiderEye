@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29509.3
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3C24AA46-3134-4DE4-89C5-E9A5DC144FCE}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		publish-NuGet.bat = publish-NuGet.bat
 		publish-templates.bat = publish-templates.bat
-		publish.bat = publish.bat
 		README.md = README.md
 	EndProjectSection
 EndProject
