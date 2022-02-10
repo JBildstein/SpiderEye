@@ -9,9 +9,8 @@ What's the name supposed to mean? Simple: what kind of view does a spiders eye h
 
 | OS | Version | Runtime (minimum) | Webview | Browser Engine |
 | ----- | ----- | ----- | ----- | ----- |
-| Windows | 7, 8.x, 10 | .NET 5.0 | WinForms WebBrowser control | IE 9-11 (depending on OS and installed version) |
-| Windows | 10 version 1809 or newer | .NET 5.0 | WebViewControl | Edge (MSHTML) |
-| Windows | 7, 8.1, 10 | .NET 5.0 | WebView2 | Edge Chromium |
+| Windows | 7, 8.x, 10, 11 | .NET 5.0 | WinForms WebBrowser control | IE 9-11 (depending on OS and installed version) |
+| Windows | 7, 8.1, 10, 11 | .NET 5.0 | WebView2 | Edge Chromium |
 | Linux | any 64bit distro where .NET 5.0 runs | .NET 5.0 | WebKit2GTK | WebKit |
 | macOS | x64 10.13 or newer | .NET 5.0 | WKWebView | WebKit |
 
@@ -21,24 +20,9 @@ What's the name supposed to mean? Simple: what kind of view does a spiders eye h
 | libwebkit2gtk-4.0 | Webview | No |
 | libappindicator3 | Status icon | Yes |
 
-### Edge (MSHTML)
-
-To be able to use the MSHTML based Edge webview you'll have to add a windows version to the target framework moniker in your Windows project.
-More specifically you'll have to open the MyApp.Windows project and change:
-```xml
-<TargetFramework>net5.0-windows</TargetFramework>
-```
-to
-```xml
-<TargetFramework>net5.0-windows10.0.17763</TargetFramework>
-```
-or any higher version.
-
-Note that you'll have a wider OS support and a more modern browser engine if you go for the Edge Chromium webview, see the next point for more infos.
-
 ### Edge Chromium/WebView2
 
-To use Edge Chromium/WebView2 you have to either install the WebView2 runtime or the Canary version of Edge Chromium.
+To use Edge Chromium/WebView2 you have to either install [the WebView2 runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/).
 Note that if you publish your app to your users they will also have to install it (follow the guidelines from Microsoft on that topic).
 
 The fixed version distribution mode (also known as "bring your own") is currently not supported.
@@ -126,21 +110,6 @@ dotnet run MyApp.Linux
 ```
 The application should build, start and display a single window with "Hello World".
 
-### Windows 10 Edge and localhost
-
-The WebViewControl based on Edge does not allow localhost addresses for security reasons. More info [here](https://msdn.microsoft.com/en-us/library/windows/apps/hh780593.aspx).
-To get around that restriction for development (e.g. to use the Angular dev server or similar), call this in the command line:
-```
-checknetisolation LoopbackExempt -a -n=Microsoft.Win32WebViewHost_cw5n1h2txyewy
-```
-
-**Note**: this is really ***only necessary for development***, a published app doesn't need it because everything is served from the embedded resources.
-
-If you want to put that setting back to disallowing localhost, call the same command with the `-d` parameter:
-```
-checknetisolation LoopbackExempt -d -n=Microsoft.Win32WebViewHost_cw5n1h2txyewy
-```
-
 ## Debug the Webview
 
 Depending on which platform you are working, there are different ways to debug the webview.
@@ -149,12 +118,6 @@ Depending on which platform you are working, there are different ways to debug t
 
 First you need to set `Window.EnableDevTools` to `true` in your app.
 Then just run your app and the dev tools will automatically open in a new window.
-
-### Windows Edge (MSHTML)
-
-For the Edge webview it's probably easiest if you use the [Microsoft Edge DevTools](https://www.microsoft.com/en-us/p/microsoft-edge-devtools-preview/9mzbfrmz0mnj)
-
-While your app is running, open the Microsoft Edge DevTools (or hit refresh if it's already open) and click on the target that is your app.
 
 ### Windows IE
 
@@ -238,10 +201,10 @@ Once those are installed, call `npm run watch` in the `Playground/SpiderEye.Play
 
 For the window handling, this library calls the native APIs on Linux and macOS and the .NET APIs for Windows Forms on Windows.
 It then does the same thing to attach the webview to that window.
-On Windows, it also checks if the Edge (MSHTML) or Edge Chromium based webview is available and falls back to the WebBrowser control if not.
+On Windows, it also checks if the Edge Chromium based webview is available and falls back to the WebBrowser control if not.
 
 Using the various APIs, the webview is set up to intercept requests and serve the files that are embedded in an assembly.
-An exception is the WinForms WebBrowser control and Edge Chromium webview that don't support this and uses an internal localhost server instead.
+An exception is the WinForms WebBrowser control that doesn't support this and uses an internal localhost server instead.
 
 The webview is also set up to inject a little bit of JavaScript at page load to add a consistent interface between the webview and .NET code.
 
