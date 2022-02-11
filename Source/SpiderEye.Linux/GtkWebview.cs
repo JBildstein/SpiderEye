@@ -47,6 +47,7 @@ namespace SpiderEye.Linux
         private readonly WebviewDelegate closeDelegate;
         private readonly WebviewDelegate titleChangeDelegate;
         private readonly WebKitUriSchemeRequestDelegate uriSchemeCallback;
+        private readonly GAsyncReadyDelegate scriptExecuteCallback;
 
         private bool loadEventHandled = false;
         private bool enableDevToolsField;
@@ -63,6 +64,7 @@ namespace SpiderEye.Linux
             closeDelegate = CloseCallback;
             titleChangeDelegate = TitleChangeCallback;
             uriSchemeCallback = UriSchemeCallback;
+            scriptExecuteCallback = ScriptExecuteCallback;
 
             manager = WebKit.Manager.Create();
             GLib.ConnectSignal(manager, "script-message-received::external", scriptDelegate, IntPtr.Zero);
@@ -119,53 +121,12 @@ namespace SpiderEye.Linux
         public Task<string?> ExecuteScriptAsync(string script)
         {
             var taskResult = new TaskCompletionSource<string?>();
-
-            unsafe void Callback(IntPtr webview, IntPtr asyncResult, IntPtr userdata)
-            {
-                IntPtr jsResult = IntPtr.Zero;
-                try
-                {
-                    jsResult = WebKit.JavaScript.EndExecute(webview, asyncResult, out IntPtr errorPtr);
-                    if (jsResult != IntPtr.Zero)
-                    {
-                        IntPtr value = WebKit.JavaScript.GetValue(jsResult);
-                        if (WebKit.JavaScript.IsValueString(value))
-                        {
-                            IntPtr bytes = WebKit.JavaScript.GetStringBytes(value);
-                            IntPtr bytesPtr = GLib.GetBytesDataPointer(bytes, out UIntPtr length);
-
-                            string result = Encoding.UTF8.GetString((byte*)bytesPtr, (int)length);
-                            taskResult.TrySetResult(result);
-
-                            GLib.UnrefBytes(bytes);
-                        }
-                        else { taskResult.TrySetResult(null); }
-                    }
-                    else
-                    {
-                        try
-                        {
-                            var error = Marshal.PtrToStructure<GError>(errorPtr);
-                            string? errorMessage = GLibString.FromPointer(error.Message);
-                            taskResult.TrySetException(new ScriptException($"Script execution failed with: \"{errorMessage}\""));
-                        }
-                        catch (Exception ex) { taskResult.TrySetException(ex); }
-                        finally { GLib.FreeError(errorPtr); }
-                    }
-                }
-                catch (Exception ex) { taskResult.TrySetException(ex); }
-                finally
-                {
-                    if (jsResult != IntPtr.Zero)
-                    {
-                        WebKit.JavaScript.ReleaseJsResult(jsResult);
-                    }
-                }
-            }
+            var data = new ScriptExecuteState(taskResult);
+            var handle = GCHandle.Alloc(data, GCHandleType.Normal);
 
             using (GLibString gfunction = script)
             {
-                WebKit.JavaScript.BeginExecute(Handle, gfunction, IntPtr.Zero, Callback, IntPtr.Zero);
+                WebKit.JavaScript.BeginExecute(Handle, gfunction, IntPtr.Zero, scriptExecuteCallback, GCHandle.ToIntPtr(handle));
             }
 
             return taskResult.Task;
@@ -174,6 +135,54 @@ namespace SpiderEye.Linux
         public void Dispose()
         {
             // gets automatically disposed by parent window
+        }
+
+        private unsafe void ScriptExecuteCallback(IntPtr webview, IntPtr asyncResult, IntPtr userdata)
+        {
+            var handle = GCHandle.FromIntPtr(userdata);
+            var state = (ScriptExecuteState)handle.Target!;
+
+            IntPtr jsResult = IntPtr.Zero;
+            try
+            {
+                jsResult = WebKit.JavaScript.EndExecute(webview, asyncResult, out IntPtr errorPtr);
+                if (jsResult != IntPtr.Zero)
+                {
+                    IntPtr value = WebKit.JavaScript.GetValue(jsResult);
+                    if (WebKit.JavaScript.IsValueString(value))
+                    {
+                        IntPtr bytes = WebKit.JavaScript.GetStringBytes(value);
+                        IntPtr bytesPtr = GLib.GetBytesDataPointer(bytes, out UIntPtr length);
+
+                        string result = Encoding.UTF8.GetString((byte*)bytesPtr, (int)length);
+                        state.TaskResult.TrySetResult(result);
+
+                        GLib.UnrefBytes(bytes);
+                    }
+                    else { state.TaskResult.TrySetResult(null); }
+                }
+                else
+                {
+                    try
+                    {
+                        var error = Marshal.PtrToStructure<GError>(errorPtr);
+                        string? errorMessage = GLibString.FromPointer(error.Message);
+                        state.TaskResult.TrySetException(new ScriptException($"Script execution failed with: \"{errorMessage}\""));
+                    }
+                    catch (Exception ex) { state.TaskResult.TrySetException(ex); }
+                    finally { GLib.FreeError(errorPtr); }
+                }
+            }
+            catch (Exception ex) { state.TaskResult.TrySetException(ex); }
+            finally
+            {
+                handle.Free();
+
+                if (jsResult != IntPtr.Zero)
+                {
+                    WebKit.JavaScript.ReleaseJsResult(jsResult);
+                }
+            }
         }
 
         private async void ScriptCallback(IntPtr manager, IntPtr jsResult, IntPtr userdata)
@@ -331,6 +340,16 @@ namespace SpiderEye.Linux
             uint domain = GLib.GetFileErrorQuark();
             var error = new GError(domain, errorCode, IntPtr.Zero);
             WebKit.UriScheme.FinishSchemeRequestWithError(request, ref error);
+        }
+
+        private sealed class ScriptExecuteState
+        {
+            public readonly TaskCompletionSource<string?> TaskResult;
+
+            public ScriptExecuteState(TaskCompletionSource<string?> taskResult)
+            {
+                TaskResult = taskResult;
+            }
         }
     }
 }
