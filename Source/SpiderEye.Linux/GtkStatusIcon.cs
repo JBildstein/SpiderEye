@@ -46,8 +46,7 @@ namespace SpiderEye.Linux
 
         public GtkStatusIcon(string title)
         {
-            // TODO: allow setting App ID and AppIndicatorCategory
-            using GLibString id = $"com.{title}.app";
+            using GLibString id = LinuxApplication.ApplicationId ?? $"com.{title}.app";
             using GLibString icon = DefaultIconName;
             Handle = AppIndicator.Create(id, icon, AppIndicatorCategory.ApplicationStatus);
             AppIndicator.SetStatus(Handle, AppIndicatorStatus.Active);
