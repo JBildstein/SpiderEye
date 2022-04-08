@@ -9,13 +9,13 @@ namespace SpiderEye.Mac
     {
         public bool IsMainThread
         {
-            get { return Thread.CurrentThread.ManagedThreadId == mainThreadId; }
+            get { return Environment.CurrentManagedThreadId == mainThreadId; }
         }
 
         private readonly int mainThreadId;
 
         public CocoaSynchronizationContext()
-            : this(Thread.CurrentThread.ManagedThreadId)
+            : this(Environment.CurrentManagedThreadId)
         {
         }
 

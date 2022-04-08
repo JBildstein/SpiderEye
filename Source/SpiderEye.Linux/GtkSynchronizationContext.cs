@@ -10,14 +10,14 @@ namespace SpiderEye.Linux
     {
         public bool IsMainThread
         {
-            get { return Thread.CurrentThread.ManagedThreadId == mainThreadId; }
+            get { return Environment.CurrentManagedThreadId == mainThreadId; }
         }
 
-        private static readonly GSourceDelegate invokeCallback = InvokeCallback;
+        private static readonly GSourceDelegate InvokeCallbackDelegate = InvokeCallback;
         private readonly int mainThreadId;
 
         public GtkSynchronizationContext()
-            : this(Thread.CurrentThread.ManagedThreadId)
+            : this(Environment.CurrentManagedThreadId)
         {
         }
 
@@ -37,7 +37,7 @@ namespace SpiderEye.Linux
 
             var data = new InvokeState(d, state, false);
             var handle = GCHandle.Alloc(data, GCHandleType.Normal);
-            GLib.ContextInvoke(IntPtr.Zero, invokeCallback, GCHandle.ToIntPtr(handle));
+            GLib.ContextInvoke(IntPtr.Zero, InvokeCallbackDelegate, GCHandle.ToIntPtr(handle));
         }
 
         public override void Send(SendOrPostCallback d, object? state)
@@ -52,7 +52,7 @@ namespace SpiderEye.Linux
 
                 lock (data)
                 {
-                    GLib.ContextInvoke(IntPtr.Zero, invokeCallback, GCHandle.ToIntPtr(handle));
+                    GLib.ContextInvoke(IntPtr.Zero, InvokeCallbackDelegate, GCHandle.ToIntPtr(handle));
                     Monitor.Wait(data);
                 }
             }

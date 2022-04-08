@@ -78,14 +78,14 @@ namespace SpiderEye.Windows
             webview.Dispose();
         }
 
-        private void Webview_Navigating(object sender, WebBrowserNavigatingEventArgs e)
+        private void Webview_Navigating(object? sender, WebBrowserNavigatingEventArgs e)
         {
             var args = new NavigatingEventArgs(e.Url);
             Navigating?.Invoke(this, args);
             e.Cancel = args.Cancel;
         }
 
-        private async void Webview_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
+        private async void Webview_DocumentCompleted(object? sender, WebBrowserDocumentCompletedEventArgs e)
         {
             if (webview.ReadyState == WebBrowserReadyState.Complete)
             {
@@ -94,7 +94,7 @@ namespace SpiderEye.Windows
 
                 // TODO: figure out how to get success state
                 // it may require some ActiveX Voodoo: https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.webbrowser.createsink
-                PageLoaded?.Invoke(this, new PageLoadEventArgs(e.Url, true));
+                PageLoaded?.Invoke(this, new PageLoadEventArgs(e.Url ?? new Uri("/", UriKind.Relative), true));
             }
         }
     }
