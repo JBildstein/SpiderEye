@@ -38,4 +38,4 @@ jobs:
         name: Packages
         path: Publish/**
     - name: Publish NuGet
-      run: dotnet nuget push Publish\*.nupkg --no-symbols true --skip-duplicate -k ${{secrets.GITHUB_TOKEN}}
+      run: dotnet nuget push Publish\*.nupkg --no-symbols --skip-duplicate -k ${{secrets.GITHUB_TOKEN}}
