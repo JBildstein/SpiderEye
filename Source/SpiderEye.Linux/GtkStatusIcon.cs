@@ -50,6 +50,7 @@ namespace SpiderEye.Linux
             using GLibString id = $"com.{title}.app";
             using GLibString icon = DefaultIconName;
             Handle = AppIndicator.Create(id, icon, AppIndicatorCategory.ApplicationStatus);
+            AppIndicator.SetStatus(Handle, AppIndicatorStatus.Active);
             Title = title;
         }
 
