@@ -20,6 +20,15 @@ What's the name supposed to mean? Simple: what kind of view does a spiders eye h
 | libwebkit2gtk-4.0 | Webview | No |
 | libappindicator3 | Status icon | Yes |
 
+### Gnome-Shell StatusIcon
+
+On gnome-shell (e.g. with Ubuntu or Fedora) you also need `gnome-shell-extension-appindicator`.
+You can install it via the package manager and then enable it in the console with
+```
+gnome-extensions enable appindicatorsupport@rgcjonas.gmail.com
+```
+Or you can open a browser and install/enable it at [Gnome Extensions](https://extensions.gnome.org/extension/615/appindicator-support/) (you need to install the gnome browser extension for that to work)
+
 ### Edge Chromium/WebView2
 
 To use Edge Chromium/WebView2 you have to either install [the WebView2 runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/).
