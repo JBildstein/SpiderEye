@@ -10,15 +10,15 @@
       "request": "launch",
       "preLaunchTask": "build",
       "windows": {
-        "program": "${workspaceFolder}/MyApp.Windows/bin/Debug/net5.0/MyApp.dll",
+        "program": "${workspaceFolder}/MyApp.Windows/bin/Debug/net6.0/MyApp.dll",
         "cwd": "${workspaceFolder}/MyApp.Windows"
       },
       "linux": {
-        "program": "${workspaceFolder}/MyApp.Linux/bin/Debug/net5.0/MyApp.dll",
+        "program": "${workspaceFolder}/MyApp.Linux/bin/Debug/net6.0/MyApp.dll",
         "cwd": "${workspaceFolder}/MyApp.Linux"
       },
       "osx": {
-        "program": "${workspaceFolder}/MyApp.Mac/bin/Debug/net5.0/MyApp.dll",
+        "program": "${workspaceFolder}/MyApp.Mac/bin/Debug/net6.0/MyApp.dll",
         "cwd": "${workspaceFolder}/MyApp.Mac"
       },
       "args": [],

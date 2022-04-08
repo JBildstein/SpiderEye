@@ -2,7 +2,7 @@
   <Import Project="..\Shared\SpiderEye.Example.Simple.Shared.proj" />
 
   <PropertyGroup>
-    <TargetFramework>net5.0-windows</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <DefineConstants>$(DefineConstants);WIN</DefineConstants>
   </PropertyGroup>

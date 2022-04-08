@@ -53,7 +53,7 @@
       "type": "generated",
       "generator": "constant",
       "parameters": {
-        "value": "net5.0"
+        "value": "net6.0"
       },
       "replaces": "netframework-marker"
     }

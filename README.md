@@ -9,10 +9,10 @@ What's the name supposed to mean? Simple: what kind of view does a spiders eye h
 
 | OS | Version | Runtime (minimum) | Webview | Browser Engine |
 | ----- | ----- | ----- | ----- | ----- |
-| Windows | 7, 8.x, 10, 11 | .NET 5.0 | WinForms WebBrowser control | IE 9-11 (depending on OS and installed version) |
-| Windows | 7, 8.1, 10, 11 | .NET 5.0 | WebView2 | Edge Chromium |
-| Linux | any 64bit distro where .NET 5.0 runs | .NET 5.0 | WebKit2GTK | WebKit |
-| macOS | x64 10.13 or newer | .NET 5.0 | WKWebView | WebKit |
+| Windows | 7, 8.x, 10, 11 | .NET 6.0 | WinForms WebBrowser control | IE 9-11 (depending on OS and installed version) |
+| Windows | 7, 8.1, 10, 11 | .NET 6.0 | WebView2 | Edge Chromium |
+| Linux | any 64bit distro where .NET 6.0 runs | .NET 6.0 | WebKit2GTK | WebKit |
+| macOS | x64 10.13 or newer | .NET 6.0 | WKWebView | WebKit |
 
 | Linux Dependencies | Used for | Optional |
 | ----- | ----- | ----- |
@@ -199,7 +199,7 @@ In the Resources folder you put your application icon with the same name as you 
 
 ## Development
 
-To build the project you'll need an up-to-date version of Visual Studio 2019 or Visual Studio Code as well as the .NET Core SDK 5.0.
+To build the project you'll need an up-to-date version of Visual Studio 2022 or Visual Studio Code as well as the .NET Core SDK 6.0.
 To run/build the SpiderEye.Client project, the SPA example or the Playground project, you also need node.js/npm.
 
 Before running the Playground project, make sure that you have all client side packages installed and the Angular dev server running.
