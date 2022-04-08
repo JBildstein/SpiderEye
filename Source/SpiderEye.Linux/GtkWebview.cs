@@ -34,11 +34,13 @@ namespace SpiderEye.Linux
 
         public readonly IntPtr Handle;
 
+        private static readonly WebKitUriSchemeRequestDelegate UriSchemeCallbackDelegate;
+        private static readonly Uri CustomHost;
+
         private readonly WebviewBridge bridge;
         private readonly IntPtr manager;
         private readonly IntPtr settings;
         private readonly IntPtr inspector;
-        private readonly Uri customHost;
 
         private readonly ScriptDelegate scriptDelegate;
         private readonly PageLoadFailedDelegate loadFailedDelegate;
@@ -46,11 +48,23 @@ namespace SpiderEye.Linux
         private readonly ContextMenuRequestDelegate contextMenuDelegate;
         private readonly WebviewDelegate closeDelegate;
         private readonly WebviewDelegate titleChangeDelegate;
-        private readonly WebKitUriSchemeRequestDelegate uriSchemeCallback;
         private readonly GAsyncReadyDelegate scriptExecuteCallback;
 
         private bool loadEventHandled = false;
         private bool enableDevToolsField;
+
+        static GtkWebview()
+        {
+            // need to keep the delegate around or it will get garbage collected
+            UriSchemeCallbackDelegate = UriSchemeCallback;
+
+            const string scheme = "spidereye";
+            CustomHost = new Uri(UriTools.GetRandomResourceUrl(scheme));
+
+            IntPtr context = WebKit.Context.GetDefault();
+            using GLibString gscheme = scheme;
+            WebKit.Context.RegisterUriScheme(context, gscheme, UriSchemeCallbackDelegate, IntPtr.Zero, IntPtr.Zero);
+        }
 
         public GtkWebview(WebviewBridge bridge)
         {
@@ -63,7 +77,6 @@ namespace SpiderEye.Linux
             contextMenuDelegate = ContextMenuCallback;
             closeDelegate = CloseCallback;
             titleChangeDelegate = TitleChangeCallback;
-            uriSchemeCallback = UriSchemeCallback;
             scriptExecuteCallback = ScriptExecuteCallback;
 
             manager = WebKit.Manager.Create();
@@ -83,13 +96,6 @@ namespace SpiderEye.Linux
             GLib.ConnectSignal(Handle, "context-menu", contextMenuDelegate, IntPtr.Zero);
             GLib.ConnectSignal(Handle, "close", closeDelegate, IntPtr.Zero);
             GLib.ConnectSignal(Handle, "notify::title", titleChangeDelegate, IntPtr.Zero);
-
-            const string scheme = "spidereye";
-            customHost = new Uri(UriTools.GetRandomResourceUrl(scheme));
-
-            IntPtr context = WebKit.Context.Get(Handle);
-            using GLibString gscheme = scheme;
-            WebKit.Context.RegisterUriScheme(context, gscheme, uriSchemeCallback, IntPtr.Zero, IntPtr.Zero);
         }
 
         public void UpdateBackgroundColor(string? color)
@@ -112,7 +118,7 @@ namespace SpiderEye.Linux
         {
             if (uri == null) { throw new ArgumentNullException(nameof(uri)); }
 
-            if (!uri.IsAbsoluteUri) { uri = new Uri(customHost, uri); }
+            if (!uri.IsAbsoluteUri) { uri = new Uri(CustomHost, uri); }
 
             using GLibString gurl = uri.ToString();
             WebKit.LoadUri(Handle, gurl);
@@ -208,13 +214,13 @@ namespace SpiderEye.Linux
             }
         }
 
-        private async void UriSchemeCallback(IntPtr request, IntPtr userdata)
+        private static async void UriSchemeCallback(IntPtr request, IntPtr userdata)
         {
             try
             {
                 var uri = new Uri(GLibString.FromPointer(WebKit.UriScheme.GetRequestUri(request))!);
                 var host = new Uri(uri.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped));
-                if (host == customHost)
+                if (host == CustomHost)
                 {
                     using var contentStream = await Application.ContentProvider.GetStreamAsync(uri);
                     if (contentStream != null)
