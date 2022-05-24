@@ -35,6 +35,8 @@ namespace SpiderEye.Windows
             set { webview.CoreWebView2.Settings.AreDevToolsEnabled = value; }
         }
 
+        private static readonly IJsonConverter JsonConverter = new JsonNetJsonConverter();
+
         private readonly WebviewBridge bridge;
         private readonly WebView2 webview;
         private readonly Uri customHost;
@@ -59,7 +61,10 @@ namespace SpiderEye.Windows
 
         public async Task<string?> ExecuteScriptAsync(string script)
         {
-            return await webview.ExecuteScriptAsync(script);
+            // The result is double JSON encoded, once from the bridge script (every other webview needs it that way)
+            // and once by the Edgium webview. So it first needs to be decoded from a JSON string before returning.
+            string result = await webview.ExecuteScriptAsync(script);
+            return JsonConverter.Deserialize<string>(result);
         }
 
         public void LoadUri(Uri uri)
