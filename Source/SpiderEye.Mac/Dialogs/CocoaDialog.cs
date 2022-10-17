@@ -18,7 +18,7 @@ namespace SpiderEye.Mac
             var window = NativeCast.To<CocoaWindow>(parent);
             var dialog = CreateDialog();
 
-            ObjC.Call(dialog.Handle, "setTitle:", NSString.Create(Title));
+            ObjC.Call(dialog.Handle, "setTitle:", NSString.Create(Title ?? string.Empty));
             ObjC.Call(dialog.Handle, "setCanCreateDirectories:", true);
 
             int result = dialog.Run(window);
