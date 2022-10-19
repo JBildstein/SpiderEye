@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -105,10 +105,9 @@ namespace SpiderEye.Mac
             ObjC.Call(Handle, "loadRequest:", request);
         }
 
-        public Task<string?> ExecuteScriptAsync(string script)
+        public async Task<string?> ExecuteScriptAsync(string script)
         {
             var taskResult = new TaskCompletionSource<string?>();
-            NSBlock? block = null;
 
             ScriptEvalCallbackDelegate callback = (IntPtr self, IntPtr result, IntPtr error) =>
             {
@@ -126,17 +125,16 @@ namespace SpiderEye.Mac
                     }
                 }
                 catch (Exception ex) { taskResult.TrySetException(ex); }
-                finally { block!.Dispose(); }
             };
 
-            block = new NSBlock(callback);
+            using NSBlock block = new NSBlock(callback);
             ObjC.Call(
                 Handle,
                 "evaluateJavaScript:completionHandler:",
                 NSString.Create(script),
                 block.Handle);
 
-            return taskResult.Task;
+            return await taskResult.Task;
         }
 
         public void Dispose()
