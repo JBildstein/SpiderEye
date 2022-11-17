@@ -1,5 +1,5 @@
 ﻿using System;
-using SpiderEye.Mac.Native;
+using AppKit;
 
 namespace SpiderEye.Mac
 {
@@ -32,7 +32,7 @@ namespace SpiderEye.Mac
             var menu = new LabelMenuItem(nativeMenu);
             menuItems.Add(menu);
 
-            ObjC.Call(MacApplication.Handle, "setServicesMenu:", submenu.Handle);
+            NSApplication.SharedApplication.ServicesMenu = submenu;
 
             return menu;
         }

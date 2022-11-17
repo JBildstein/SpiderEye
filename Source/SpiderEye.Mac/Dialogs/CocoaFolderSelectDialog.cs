@@ -1,37 +1,57 @@
-﻿using SpiderEye.Mac.Interop;
-using SpiderEye.Mac.Native;
+﻿using System;
+using AppKit;
 
 namespace SpiderEye.Mac
 {
-    internal class CocoaFolderSelectDialog : CocoaDialog, IFolderSelectDialog
+    internal class CocoaFolderSelectDialog : IFolderSelectDialog
     {
+        public string? Title { get; set; }
         public string? SelectedPath { get; set; }
 
-        protected override NSDialog CreateDialog()
+        public DialogResult Show()
         {
-            var panel = NSDialog.CreateOpenPanel();
+            return Show(null);
+        }
 
-            ObjC.Call(panel.Handle, "setCanChooseFiles:", false);
-            ObjC.Call(panel.Handle, "setCanChooseDirectories:", true);
-            ObjC.Call(panel.Handle, "setAllowsMultipleSelection:", false);
+        public DialogResult Show(IWindow? parent)
+        {
+            using var panel = NSOpenPanel.OpenPanel;
+            panel.Title = Title ?? string.Empty;
+            panel.CanCreateDirectories = true;
+            panel.CanChooseFiles = false;
+            panel.CanChooseDirectories = true;
+            panel.AllowsMultipleSelection = false;
 
             if (!string.IsNullOrWhiteSpace(SelectedPath))
             {
-                var url = Foundation.Call("NSURL", "fileURLWithPath:", NSString.Create(SelectedPath));
-                ObjC.Call(panel.Handle, "setDirectoryURL:", url);
+                panel.DirectoryUrl = new Uri(SelectedPath);
             }
 
-            return panel;
+            nint result;
+            if (parent == null)
+            {
+                result = panel.RunModal();
+            }
+            else
+            {
+                panel.BeginSheet((CocoaWindow)parent, result => NSApplication.SharedApplication.StopModalWithCode(result));
+                result = NSApplication.SharedApplication.RunModalForWindow(panel);
+            }
+
+            var mappedResult = MapResult(result);
+            SelectedPath = mappedResult == DialogResult.Ok ? panel.Url.Path : null;
+
+            return mappedResult;
         }
 
-        protected override void BeforeReturn(NSDialog dialog, DialogResult result)
+        private static DialogResult MapResult(nint result)
         {
-            if (result == DialogResult.Ok)
+            return result switch
             {
-                var selection = ObjC.Call(dialog.Handle, "URL");
-                SelectedPath = NSString.GetString(ObjC.Call(selection, "path"));
-            }
-            else { SelectedPath = null; }
+                1 => DialogResult.Ok,
+                0 => DialogResult.Cancel,
+                _ => DialogResult.None,
+            };
         }
     }
 }

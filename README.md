@@ -12,7 +12,7 @@ What's the name supposed to mean? Simple: what kind of view does a spiders eye h
 | Windows | 7, 8.x, 10, 11 | .NET 6.0 | WinForms WebBrowser control | IE 9-11 (depending on OS and installed version) |
 | Windows | 7, 8.1, 10, 11 | .NET 6.0 | WebView2 | Edge Chromium |
 | Linux | any 64bit distro where .NET 6.0 runs | .NET 6.0 | WebKit2GTK | WebKit |
-| macOS | x64 10.13 or newer | .NET 6.0 | WKWebView | WebKit |
+| macOS | x64 10.14 or newer | .NET 6.0 | WKWebView | WebKit |
 
 | Linux Dependencies | Used for | Optional |
 | ----- | ----- | ----- |
@@ -170,7 +170,7 @@ First you need an `Info.plist` file like you'd have for any other macOS app. Her
     <key>CFBundleShortVersionString</key>
     <string>1.0.0</string>
     <key>LSMinimumSystemVersion</key>
-    <string>10.13</string>
+    <string>10.14</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundlePackageType</key>

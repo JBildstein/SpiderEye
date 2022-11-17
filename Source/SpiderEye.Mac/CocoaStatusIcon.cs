@@ -1,7 +1,5 @@
-using System;
-using SpiderEye.Mac.Interop;
-using SpiderEye.Mac.Native;
-using SpiderEye.Tools;
+using AppKit;
+using Foundation;
 
 namespace SpiderEye.Mac
 {
@@ -9,8 +7,11 @@ namespace SpiderEye.Mac
     {
         public string? Title
         {
-            get; // TODO: see if setting title is useful on macOS StatusBar
-            set;
+            get { return statusItem.Title; }
+            set
+            {
+                statusItem.Title = value ?? string.Empty;
+            }
         }
 
         public AppIcon? Icon
@@ -19,7 +20,16 @@ namespace SpiderEye.Mac
             set
             {
                 icon = value;
-                UpdateIcon(value);
+
+                NSImage? image = null;
+                if (value != null && value.Icons.Length > 0)
+                {
+                    byte[] data = value.GetIconData(value.DefaultIcon);
+                    using var nsData = NSData.FromArray(data);
+                    image = new NSImage(nsData);
+                }
+
+                statusItem.Button.Image = image;
             }
         }
 
@@ -29,59 +39,29 @@ namespace SpiderEye.Mac
             set
             {
                 menu = value;
-                UpdateMenu(value);
+                statusItem.Menu = (NSMenu?)value?.NativeMenu;
             }
         }
 
-        private readonly IntPtr statusItem;
-        private readonly IntPtr statusBarButton;
+        private readonly NSStatusItem statusItem;
 
         private AppIcon? icon;
         private Menu? menu;
 
         public CocoaStatusIcon(string title)
         {
-            var statusBar = AppKit.Call("NSStatusBar", "systemStatusBar");
-            statusItem = ObjC.Call(statusBar, "statusItemWithLength:", -2.0); // -1 = variable size; -2 = square size
-            ObjC.Call(statusItem, "setHighlightMode:", true);
-            statusBarButton = ObjC.Call(statusItem, "button");
-            ObjC.Call(statusBarButton, "setImageScaling:", new UIntPtr((uint)NSImageScaling.ProportionallyUpOrDown));
-            Title = title;
+            var statusBar = NSStatusBar.SystemStatusBar;
+
+            statusItem = statusBar.CreateStatusItem(NSStatusItemLength.Square);
+            statusItem.HighlightMode = true;
+            statusItem.Title = title;
+            statusItem.Button.ImageScaling = NSImageScale.ProportionallyUpOrDown;
         }
 
         public void Dispose()
         {
-            // don't think anything needs to be done here
-        }
-
-        private unsafe void UpdateIcon(AppIcon? icon)
-        {
-            var image = IntPtr.Zero;
-            if (icon != null && icon.Icons.Length > 0)
-            {
-                byte[] data = icon.GetIconData(icon.DefaultIcon);
-                fixed (byte* dataPtr = data)
-                {
-                    IntPtr nsData = Foundation.Call(
-                        "NSData",
-                        "dataWithBytesNoCopy:length:freeWhenDone:",
-                        (IntPtr)dataPtr,
-                        new IntPtr(data.Length),
-                        IntPtr.Zero);
-
-                    image = AppKit.Call("NSImage", "alloc");
-                    ObjC.Call(image, "initWithData:", nsData);
-                    ObjC.Call(statusBarButton, "setImage:", image);
-                }
-            }
-
-            ObjC.Call(statusBarButton, "setImage:", image);
-        }
-
-        private void UpdateMenu(Menu? menu)
-        {
-            var nativeMenu = NativeCast.To<CocoaMenu>(menu?.NativeMenu);
-            ObjC.Call(statusItem, "setMenu:", nativeMenu?.Handle ?? IntPtr.Zero);
+            statusItem.StatusBar.RemoveStatusItem(statusItem);
+            statusItem.Dispose();
         }
     }
 }

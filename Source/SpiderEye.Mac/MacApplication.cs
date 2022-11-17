@@ -1,7 +1,5 @@
-﻿using System;
-using System.Threading;
-using SpiderEye.Mac.Native;
-using SpiderEye.Tools;
+﻿using System.Threading;
+using AppKit;
 
 namespace SpiderEye.Mac
 {
@@ -19,13 +17,8 @@ namespace SpiderEye.Mac
             set
             {
                 appMenu = value;
-                SetAppMenu(value);
+                NSApplication.SharedApplication.MainMenu = (CocoaMenu?)value?.NativeMenu!;
             }
-        }
-
-        internal static IntPtr Handle
-        {
-            get { return app?.Handle ?? IntPtr.Zero; }
         }
 
         internal static SynchronizationContext SynchronizationContext
@@ -44,12 +37,6 @@ namespace SpiderEye.Mac
             app = new CocoaApplication();
             Application.Register(app, OperatingSystem.MacOS);
             AppMenu = CreateDefaultMenu();
-        }
-
-        private static void SetAppMenu(Menu? menu)
-        {
-            var nativeMenu = NativeCast.To<CocoaMenu>(menu?.NativeMenu);
-            ObjC.Call(Handle, "setMainMenu:", nativeMenu?.Handle ?? IntPtr.Zero);
         }
 
         private static Menu CreateDefaultMenu()

@@ -1,7 +1,4 @@
-﻿using System;
-using SpiderEye.Mac.Interop;
-using SpiderEye.Mac.Native;
-using SpiderEye.Tools;
+﻿using AppKit;
 
 namespace SpiderEye.Mac
 {
@@ -18,42 +15,37 @@ namespace SpiderEye.Mac
 
         public DialogResult Show(IWindow? parent)
         {
-            var window = NativeCast.To<CocoaWindow>(parent);
-            using var alert = NSDialog.CreateAlert();
-            ObjC.Call(alert.Handle, "setShowsHelp:", IntPtr.Zero);
-            ObjC.Call(alert.Handle, "setAlertStyle:", new UIntPtr((uint)NSAlertStyle.Informational));
-            ObjC.Call(alert.Handle, "setMessageText:", NSString.Create(Title ?? string.Empty));
-            ObjC.Call(alert.Handle, "setInformativeText:", NSString.Create(Message ?? string.Empty));
-            AddButtons(alert.Handle, Buttons);
+            using var alert = new NSAlert();
+            alert.ShowsHelp = false;
+            alert.AlertStyle = NSAlertStyle.Informational;
+            alert.MessageText = Title ?? string.Empty;
+            alert.InformativeText = Message ?? string.Empty;
 
-            return (DialogResult)alert.Run(window);
-        }
-
-        private static void AddButtons(IntPtr alert, MessageBoxButtons buttons)
-        {
-            switch (buttons)
+            var buttonDetails = Buttons switch
             {
-                case MessageBoxButtons.OkCancel:
-                    AddButton(alert, "Ok", DialogResult.Ok);
-                    AddButton(alert, "Cancel", DialogResult.Cancel);
-                    break;
+                MessageBoxButtons.OkCancel => new[] { ("Ok", DialogResult.Ok), ("Cancel", DialogResult.Cancel) },
+                MessageBoxButtons.YesNo => new[] { ("Yes", DialogResult.Yes), ("No", DialogResult.No) },
+                _ => new[] { ("Ok", DialogResult.Ok) },
+            };
 
-                case MessageBoxButtons.YesNo:
-                    AddButton(alert, "Yes", DialogResult.Yes);
-                    AddButton(alert, "No", DialogResult.No);
-                    break;
-
-                case MessageBoxButtons.Ok:
-                default:
-                    AddButton(alert, "Ok", DialogResult.Ok);
-                    break;
+            foreach (var (title, dialogResult) in buttonDetails)
+            {
+                using var button = alert.AddButton(title);
+                button.Tag = (int)dialogResult;
             }
-        }
 
-        private static void AddButton(IntPtr alert, string title, DialogResult result)
-        {
-            IntPtr button = ObjC.Call(alert, "addButtonWithTitle:", NSString.Create(title));
-            ObjC.Call(button, "setTag:", new IntPtr((int)result));
+            nint result;
+            if (parent == null)
+            {
+                result = alert.RunModal();
+            }
+            else
+            {
+                alert.BeginSheet((CocoaWindow)parent, response => NSApplication.SharedApplication.StopModalWithCode((nint)response));
+                result = NSApplication.SharedApplication.RunModalForWindow(alert.Window);
+            }
+
+            return (DialogResult)result;
         }
     }
 }
