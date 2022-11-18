@@ -59,7 +59,10 @@ namespace SpiderEye.Linux
             UriSchemeCallbackDelegate = UriSchemeCallback;
 
             const string scheme = "spidereye";
-            CustomHost = new Uri(UriTools.GetRandomResourceUrl(scheme));
+            CustomHost = new Uri(
+                Application.CustomHostDomain is string customHostDomain
+                    ? $"{scheme}://{customHostDomain}"
+                    : UriTools.GetRandomResourceUrl(scheme));
 
             IntPtr context = WebKit.Context.GetDefault();
             using GLibString gscheme = scheme;

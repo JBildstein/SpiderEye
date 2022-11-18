@@ -49,7 +49,10 @@ namespace SpiderEye.Windows
             this.bridge = bridge ?? throw new ArgumentNullException(nameof(bridge));
 
             const string scheme = "http";
-            customHost = new Uri(UriTools.GetRandomResourceUrl(scheme));
+            customHost = new Uri(
+                Application.CustomHostDomain is string customHostDomain
+                    ? $"{scheme}://{customHostDomain}"
+                    : UriTools.GetRandomResourceUrl(scheme));
 
             webview = new WebView2();
             webview.NavigationStarting += Webview_NavigationStarting;

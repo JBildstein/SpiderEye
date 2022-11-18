@@ -25,6 +25,11 @@ namespace SpiderEye
         public static WindowCollection OpenWindows { get; }
 
         /// <summary>
+        /// Gets or sets the domain to use as the custom host when loading webview files.
+        /// </summary>
+        public static string? CustomHostDomain { get; set; }
+
+        /// <summary>
         /// Gets or sets the content provider for loading webview files.
         /// </summary>
         public static IContentProvider ContentProvider
