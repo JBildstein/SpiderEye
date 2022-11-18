@@ -65,7 +65,10 @@ namespace SpiderEye.Mac
             schemeHandler = SchemeHandlerDefinition.CreateInstance(this);
 
             const string scheme = "spidereye";
-            customHost = new Uri(UriTools.GetRandomResourceUrl(scheme));
+            customHost = new Uri(
+                Application.CustomHostDomain is string customHostDomain
+                    ? $"{scheme}://{customHostDomain}"
+                    : UriTools.GetRandomResourceUrl(scheme));
             ObjC.Call(configuration, "setURLSchemeHandler:forURLScheme:", schemeHandler.Handle, NSString.Create(scheme));
 
             ObjC.Call(manager, "addScriptMessageHandler:name:", callbackClass.Handle, NSString.Create("external"));
