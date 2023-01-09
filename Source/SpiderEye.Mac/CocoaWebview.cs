@@ -139,6 +139,16 @@ namespace SpiderEye.Mac
                 var cocoaWebView = (CocoaWebview)webView;
                 cocoaWebView.PageLoaded?.Invoke(cocoaWebView, new PageLoadEventArgs(cocoaWebView.Uri, false));
             }
+
+            public override void DidFailProvisionalNavigation(WKWebView webView, WKNavigation navigation, NSError error)
+            {
+                if (error.UserInfo["NSErrorFailingURLKey"] is NSUrl url
+                    && url.Scheme == SCHEME)
+                {
+                    var cocoaWebView = (CocoaWebview)webView;
+                    cocoaWebView.LoadUri(url);
+                }
+            }
         }
 
         private class CocoaScriptMessageHandler : WKScriptMessageHandler
