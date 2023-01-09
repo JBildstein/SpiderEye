@@ -142,7 +142,14 @@ namespace SpiderEye.Mac
             StyleMask = GetWantedStyleMask(StyleMask, borderStyleField, canResizeField);
 
             webview = new CocoaWebview(bridge);
-            ContentView = webview;
+
+            // The dev tools view will be added as a subview of the content view. That leads to a warning at runtime
+            // when opening the dev tools if we don't set a parent view as the content view.
+            using var parentView = new NSView() { AutoresizingMask = NSViewResizingMask.WidthSizable | NSViewResizingMask.HeightSizable };
+            parentView.AddSubview(webview);
+            webview.AutoresizingMask = NSViewResizingMask.WidthSizable | NSViewResizingMask.HeightSizable;
+            ContentView = parentView;
+            MakeFirstResponder(webview);
 
             webview.TitleChanged += Webview_TitleChanged;
 
