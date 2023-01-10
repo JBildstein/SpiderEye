@@ -1,15 +1,14 @@
-﻿using System;
-using System.IO;
-using System.Runtime.InteropServices;
+using System;
 using System.Threading.Tasks;
+using CoreGraphics;
+using Foundation;
 using SpiderEye.Bridge;
-using SpiderEye.Mac.Interop;
-using SpiderEye.Mac.Native;
 using SpiderEye.Tools;
+using WebKit;
 
 namespace SpiderEye.Mac
 {
-    internal class CocoaWebview : IWebview
+    internal class CocoaWebview : WKWebView, IWebview
     {
         public event NavigatingEventHandler? Navigating;
         public event PageLoadEventHandler? PageLoaded;
@@ -20,78 +19,59 @@ namespace SpiderEye.Mac
         public bool UseBrowserTitle { get; set; }
         public bool EnableDevTools
         {
-            get { return enableDevToolsField; }
+            get
+            {
+                using var key = new NSString("developerExtrasEnabled");
+                using var value = (NSNumber)preferences.ValueForKey(key);
+                return value.BoolValue;
+            }
             set
             {
-                enableDevToolsField = value;
-                IntPtr boolValue = Foundation.Call("NSNumber", "numberWithBool:", value);
-                ObjC.Call(preferences, "setValue:forKey:", boolValue, NSString.Create("developerExtrasEnabled"));
+                using var boolValue = new NSNumber(value);
+                using var key = new NSString("developerExtrasEnabled");
+                preferences.SetValueForKey(boolValue, key);
             }
         }
 
         private Uri Uri
         {
-            get { return URL.GetAsUri(ObjC.Call(Handle, "URL"))!; }
+            get { return this.Url; }
         }
 
-        public readonly IntPtr Handle;
-
-        private static readonly NativeClassDefinition CallbackClassDefinition;
-        private static readonly NativeClassDefinition SchemeHandlerDefinition;
-
-        private readonly NativeClassInstance callbackClass;
-        private readonly NativeClassInstance schemeHandler;
-
+        private const string SCHEME = "spidereye";
         private readonly WebviewBridge bridge;
         private readonly Uri customHost;
-        private readonly IntPtr preferences;
-
-        private bool enableDevToolsField;
-
-        static CocoaWebview()
-        {
-            CallbackClassDefinition = CreateCallbackClass();
-            SchemeHandlerDefinition = CreateSchemeHandler();
-        }
+        private readonly WKPreferences preferences;
+        private readonly IDisposable titleObserver;
 
         public CocoaWebview(WebviewBridge bridge)
+            : base(CGRect.Empty, CreateConfiguration())
         {
             this.bridge = bridge ?? throw new ArgumentNullException(nameof(bridge));
 
-            IntPtr configuration = WebKit.Call("WKWebViewConfiguration", "new");
-            IntPtr manager = ObjC.Call(configuration, "userContentController");
+            customHost = new Uri(UriTools.GetRandomResourceUrl(SCHEME));
 
-            callbackClass = CallbackClassDefinition.CreateInstance(this);
-            schemeHandler = SchemeHandlerDefinition.CreateInstance(this);
+            WKUserContentController manager = Configuration.UserContentController;
+            manager.AddScriptMessageHandler(new CocoaScriptMessageHandler(this), "external");
+            using var initScriptSource = new NSString(Resources.GetInitScript("Mac"));
+            var script = new WKUserScript(initScriptSource, WKUserScriptInjectionTime.AtDocumentStart, false);
+            manager.AddUserScript(script);
 
-            const string scheme = "spidereye";
-            customHost = new Uri(UriTools.GetRandomResourceUrl(scheme));
-            ObjC.Call(configuration, "setURLSchemeHandler:forURLScheme:", schemeHandler.Handle, NSString.Create(scheme));
+            NavigationDelegate = new CocoaNavigationDelegate();
 
-            ObjC.Call(manager, "addScriptMessageHandler:name:", callbackClass.Handle, NSString.Create("external"));
-            IntPtr script = WebKit.Call("WKUserScript", "alloc");
-            ObjC.Call(
-                script,
-                "initWithSource:injectionTime:forMainFrameOnly:",
-                NSString.Create(Resources.GetInitScript("Mac")),
-                IntPtr.Zero,
-                IntPtr.Zero);
-            ObjC.Call(manager, "addUserScript:", script);
+            using var boolValue = NSNumber.FromBoolean(false);
+            using var key = new NSString("drawsBackground");
+            SetValueForKey(boolValue, key);
 
-            Handle = WebKit.Call("WKWebView", "alloc");
-            ObjC.Call(Handle, "initWithFrame:configuration:", CGRect.Zero, configuration);
-            ObjC.Call(Handle, "setNavigationDelegate:", callbackClass.Handle);
+            titleObserver = AddObserver("title", NSKeyValueObservingOptions.New, observedChange =>
+            {
+                if (UseBrowserTitle)
+                {
+                    TitleChanged?.Invoke(this, (NSString?)observedChange.NewValue ?? string.Empty);
+                }
+            });
 
-            IntPtr boolValue = Foundation.Call("NSNumber", "numberWithBool:", false);
-            ObjC.Call(Handle, "setValue:forKey:", boolValue, NSString.Create("drawsBackground"));
-            ObjC.Call(Handle, "addObserver:forKeyPath:options:context:", callbackClass.Handle, NSString.Create("title"), IntPtr.Zero, IntPtr.Zero);
-
-            preferences = ObjC.Call(configuration, "preferences");
-        }
-
-        public void UpdateBackgroundColor(IntPtr color)
-        {
-            ObjC.Call(Handle, "setBackgroundColor:", color);
+            preferences = Configuration.Preferences;
         }
 
         public void LoadUri(Uri uri)
@@ -100,256 +80,162 @@ namespace SpiderEye.Mac
 
             if (!uri.IsAbsoluteUri) { uri = new Uri(customHost, uri); }
 
-            IntPtr nsUrl = Foundation.Call("NSURL", "URLWithString:", NSString.Create(uri.ToString()));
-            IntPtr request = Foundation.Call("NSURLRequest", "requestWithURL:", nsUrl);
-            ObjC.Call(Handle, "loadRequest:", request);
+            using var request = NSUrlRequest.FromUrl(uri);
+            LoadRequest(request);
         }
 
         public Task<string?> ExecuteScriptAsync(string script)
         {
             var taskResult = new TaskCompletionSource<string?>();
-            NSBlock? block = null;
-
-            ScriptEvalCallbackDelegate callback = (IntPtr self, IntPtr result, IntPtr error) =>
+            EvaluateJavaScript(script, (result, error) =>
             {
-                try
+                if (error != null)
                 {
-                    if (error != IntPtr.Zero)
-                    {
-                        string? message = NSString.GetString(ObjC.Call(error, "localizedDescription"));
-                        taskResult.TrySetException(new ScriptException($"Script execution failed with: \"{message}\""));
-                    }
-                    else
-                    {
-                        string? content = NSString.GetString(result);
-                        taskResult.TrySetResult(content);
-                    }
+                    taskResult.SetException(new ScriptException("Script execution failed.", new NSErrorException(error)));
                 }
-                catch (Exception ex) { taskResult.TrySetException(ex); }
-                finally { block!.Dispose(); }
-            };
-
-            block = new NSBlock(callback);
-            ObjC.Call(
-                Handle,
-                "evaluateJavaScript:completionHandler:",
-                NSString.Create(script),
-                block.Handle);
-
+                else
+                {
+                    taskResult.SetResult((NSString)result);
+                }
+            });
             return taskResult.Task;
         }
 
-        public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            // webview will be released automatically
-            callbackClass.Dispose();
-            schemeHandler.Dispose();
-        }
-
-        private static NativeClassDefinition CreateCallbackClass()
-        {
-            // note: WKScriptMessageHandler is not available at runtime and returns null, it's kept for completeness
-            var definition = NativeClassDefinition.FromObject(
-                "SpiderEyeWebviewCallbacks",
-                WebKit.GetProtocol("WKNavigationDelegate"),
-                WebKit.GetProtocol("WKScriptMessageHandler"));
-
-            definition.AddMethod<NavigationDecideDelegate>(
-                "webView:decidePolicyForNavigationAction:decisionHandler:",
-                "v@:@@@",
-                (self, op, view, navigationAction, decisionHandler) =>
-                {
-                    var instance = definition.GetParent<CocoaWebview>(self);
-                    var args = new NavigatingEventArgs(instance.Uri);
-                    instance.Navigating?.Invoke(instance, args);
-
-                    var block = Marshal.PtrToStructure<NSBlock.BlockLiteral>(decisionHandler);
-                    var callback = Marshal.GetDelegateForFunctionPointer<NavigationDecisionDelegate>(block.Invoke);
-                    callback(decisionHandler, args.Cancel ? IntPtr.Zero : new IntPtr(1));
-                });
-
-            definition.AddMethod<LoadFinishedDelegate>(
-                "webView:didFinishNavigation:",
-                "v@:@@",
-                (self, op, view, navigation) =>
-                {
-                    var instance = definition.GetParent<CocoaWebview>(self);
-                    instance.PageLoaded?.Invoke(instance, new PageLoadEventArgs(instance.Uri, true));
-                });
-
-            definition.AddMethod<LoadFailedDelegate>(
-                "webView:didFailNavigation:withError:",
-                "v@:@@@",
-                (self, op, view, navigation, error) =>
-                {
-                    var instance = definition.GetParent<CocoaWebview>(self);
-                    instance.PageLoaded?.Invoke(instance, new PageLoadEventArgs(instance.Uri, false));
-                });
-
-            definition.AddMethod<ObserveValueDelegate>(
-                "observeValueForKeyPath:ofObject:change:context:",
-                "v@:@@@@",
-                (self, op, keyPath, obj, change, context) =>
-                {
-                    var instance = definition.GetParent<CocoaWebview>(self);
-                    ObservedValueChanged(instance, keyPath);
-                });
-
-            definition.AddMethod<ScriptCallbackDelegate>(
-                "userContentController:didReceiveScriptMessage:",
-                "v@:@@",
-                (self, op, notification, message) =>
-                {
-                    var instance = definition.GetParent<CocoaWebview>(self);
-                    ScriptCallback(instance, message);
-                });
-
-            definition.FinishDeclaration();
-
-            return definition;
-        }
-
-        private static NativeClassDefinition CreateSchemeHandler()
-        {
-            // note: WKURLSchemeHandler is not available at runtime and returns null, it's kept for completeness
-            var definition = NativeClassDefinition.FromObject(
-                "SpiderEyeSchemeHandler",
-                WebKit.GetProtocol("WKURLSchemeHandler"));
-
-            definition.AddMethod<SchemeHandlerDelegate>(
-                "webView:startURLSchemeTask:",
-                "v@:@@",
-                (self, op, view, schemeTask) =>
-                {
-                    var instance = definition.GetParent<CocoaWebview>(self);
-                    UriSchemeStartCallback(instance, schemeTask);
-                });
-
-            definition.AddMethod<SchemeHandlerDelegate>(
-                "webView:stopURLSchemeTask:",
-                "v@:@@",
-                (self, op, view, schemeTask) => { /* don't think anything needs to be done here */ });
-
-            definition.FinishDeclaration();
-
-            return definition;
-        }
-
-        private static void ObservedValueChanged(CocoaWebview instance, IntPtr keyPath)
-        {
-            string? key = NSString.GetString(keyPath);
-            if (key == "title" && instance.UseBrowserTitle)
+            if (disposing)
             {
-                string? title = NSString.GetString(ObjC.Call(instance.Handle, "title"));
-                instance.TitleChanged?.Invoke(instance, title ?? string.Empty);
+                titleObserver.Dispose();
             }
+
+            base.Dispose(disposing);
         }
 
-        private static async void ScriptCallback(CocoaWebview instance, IntPtr message)
+        private static WKWebViewConfiguration CreateConfiguration()
         {
-            if (instance.EnableScriptInterface)
+            var configuration = new WKWebViewConfiguration();
+            configuration.SetUrlSchemeHandler(new CocoaUrlSchemeHandler(), SCHEME);
+            return configuration;
+        }
+
+        private class CocoaNavigationDelegate : WKNavigationDelegate
+        {
+            public override void DecidePolicy(WKWebView webView, WKNavigationAction navigationAction, Action<WKNavigationActionPolicy> decisionHandler)
             {
-                IntPtr body = ObjC.Call(message, "body");
-                IntPtr isString = ObjC.Call(body, "isKindOfClass:", Foundation.GetClass("NSString"));
-                if (isString != IntPtr.Zero)
+                var cocoaWebView = (CocoaWebview)webView;
+                var args = new NavigatingEventArgs(cocoaWebView.Uri);
+                cocoaWebView.Navigating?.Invoke(cocoaWebView, args);
+                decisionHandler.Invoke(args.Cancel ? WKNavigationActionPolicy.Cancel : WKNavigationActionPolicy.Allow);
+            }
+
+            public override void DidFinishNavigation(WKWebView webView, WKNavigation navigation)
+            {
+                var cocoaWebView = (CocoaWebview)webView;
+                cocoaWebView.PageLoaded?.Invoke(cocoaWebView, new PageLoadEventArgs(cocoaWebView.Uri, true));
+            }
+
+            public override void DidFailNavigation(WKWebView webView, WKNavigation navigation, NSError error)
+            {
+                var cocoaWebView = (CocoaWebview)webView;
+                cocoaWebView.PageLoaded?.Invoke(cocoaWebView, new PageLoadEventArgs(cocoaWebView.Uri, false));
+            }
+
+            public override void DidFailProvisionalNavigation(WKWebView webView, WKNavigation navigation, NSError error)
+            {
+                // `WKWebView` doesn't allow redirects from HTTP(S) to non-HTTP(S) schemes. That's because it's
+                // disallowed in the Fetch standard. See https://developer.apple.com/forums/thread/681530 for more
+                // information. Additionally, WebKit doesn't offer any API to handle the redirect properly ourselves.
+                // Instead, the page breaks - the document's location points to the redirect URL even though that page
+                // wasn't loaded. And worst of all, the `WKUrlSchemeHandler` isn't called. See
+                // https://bugs.webkit.org/show_bug.cgi?id=173730, especially comment 21.
+                if (error.LocalizedDescription.Equals("Redirection to URL with a scheme that is not HTTP(S)", StringComparison.OrdinalIgnoreCase)
+                    && error.UserInfo["NSErrorFailingURLKey"] is NSUrl url
+                    && url.Scheme == SCHEME)
                 {
-                    string data = NSString.GetString(body)!;
-                    await instance.bridge.HandleScriptCall(data);
+                    // Simply loading the URL works - sometimes. Sometimes, the web view updates the document location
+                    // but doesn't load the content, never calling the `WKUrlSchemeHandler`. To work around that issue,
+                    // we first switch to another page (`about:blank`), then back to the URL we wanted to get to.
+                    var cocoaWebView = (CocoaWebview)webView;
+
+                    // Ensure the window title doesn't change to a blank string (for `about:blank`) for a split second,
+                    // then back to the actual page's title.
+                    var usedBrowserTitle = cocoaWebView.UseBrowserTitle;
+                    cocoaWebView.UseBrowserTitle = false;
+
+                    webView.EvaluateJavaScript(
+                        "window.location.href=\"about:blank\"",
+                        (_, _) =>
+                            // Since loading is async, we need to load the actual URL afterward, which would require
+                            // state management to keep track of when to do that. So instead, we can request the loading
+                            // of that URL after kicking off the other page load, simply via `Task.Run`.
+                            Task.Run(() =>
+                            {
+                                cocoaWebView.UseBrowserTitle = usedBrowserTitle;
+                                cocoaWebView.LoadUri(url);
+                            }));
                 }
             }
         }
 
-        private static void UriSchemeStartCallback(CocoaWebview instance, IntPtr schemeTask)
+        private class CocoaScriptMessageHandler : WKScriptMessageHandler
         {
-            try
+            private readonly CocoaWebview cocoaWebView;
+
+            public CocoaScriptMessageHandler(CocoaWebview cocoaWebView)
             {
-                IntPtr request = ObjC.Call(schemeTask, "request");
-                IntPtr url = ObjC.Call(request, "URL");
+                this.cocoaWebView = cocoaWebView;
+            }
 
-                var uri = URL.GetAsUri(url)!;
-                var host = new Uri(uri.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped));
-                if (host == instance.customHost)
+            public override async void DidReceiveScriptMessage(WKUserContentController userContentController, WKScriptMessage message)
+            {
+                if (cocoaWebView.EnableScriptInterface && message.Body is NSString body)
                 {
-                    using var contentStream = Application.ContentProvider.GetStreamAsync(uri).GetAwaiter().GetResult();
-                    if (contentStream != null)
-                    {
-                        if (contentStream is UnmanagedMemoryStream unmanagedMemoryStream)
-                        {
-                            unsafe
-                            {
-                                long length = unmanagedMemoryStream.Length - unmanagedMemoryStream.Position;
-                                var data = (IntPtr)unmanagedMemoryStream.PositionPointer;
-                                FinishUriSchemeCallback(url, schemeTask, data, length, uri);
-                                return;
-                            }
-                        }
-                        else
-                        {
-                            byte[] data;
-                            long length;
-                            if (contentStream is MemoryStream memoryStream)
-                            {
-                                data = memoryStream.GetBuffer();
-                                length = memoryStream.Length;
-                            }
-                            else
-                            {
-                                using var copyStream = new MemoryStream();
-                                contentStream.CopyTo(copyStream);
-                                data = copyStream.GetBuffer();
-                                length = copyStream.Length;
-                            }
+                    await cocoaWebView.bridge.HandleScriptCall(body);
+                }
+            }
+        }
 
-                            unsafe
-                            {
-                                fixed (byte* dataPtr = data)
-                                {
-                                    FinishUriSchemeCallback(url, schemeTask, (IntPtr)dataPtr, length, uri);
-                                    return;
-                                }
-                            }
+        private class CocoaUrlSchemeHandler : NSObject, IWKUrlSchemeHandler
+        {
+            public void StartUrlSchemeTask(WKWebView webView, IWKUrlSchemeTask urlSchemeTask)
+            {
+                try
+                {
+                    var cocoaWebView = (CocoaWebview)webView;
+                    var request = urlSchemeTask.Request;
+                    Uri uri = request.Url;
+
+                    var host = new Uri(uri.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped));
+                    if (host == cocoaWebView.customHost)
+                    {
+                        using var contentStream = Application.ContentProvider.GetStreamAsync(uri).GetAwaiter().GetResult();
+                        if (contentStream != null)
+                        {
+                            using var data = NSData.FromStream(contentStream)!;
+                            using var response = new NSUrlResponse(uri, MimeTypes.FindForUri(uri), (nint)contentStream.Length, null);
+                            urlSchemeTask.DidReceiveResponse(response);
+                            urlSchemeTask.DidReceiveData(data);
+                            urlSchemeTask.DidFinish();
+                            return;
                         }
                     }
+
+                    FinishUriSchemeCallbackWithError(urlSchemeTask, 404);
                 }
-
-                FinishUriSchemeCallbackWithError(schemeTask, 404);
+                catch { FinishUriSchemeCallbackWithError(urlSchemeTask, 500); }
             }
-            catch { FinishUriSchemeCallbackWithError(schemeTask, 500); }
-        }
 
-        private static void FinishUriSchemeCallback(IntPtr url, IntPtr schemeTask, IntPtr data, long contentLength, Uri uri)
-        {
-            IntPtr response = Foundation.Call("NSURLResponse", "alloc");
-            ObjC.Call(
-                response,
-                "initWithURL:MIMEType:expectedContentLength:textEncodingName:",
-                url,
-                NSString.Create(MimeTypes.FindForUri(uri)),
-                new IntPtr(contentLength),
-                IntPtr.Zero);
+            public void StopUrlSchemeTask(WKWebView webView, IWKUrlSchemeTask urlSchemeTask)
+            {
+                // don't think anything needs to be done here
+            }
 
-            ObjC.Call(schemeTask, "didReceiveResponse:", response);
-
-            IntPtr nsData = Foundation.Call(
-                "NSData",
-                "dataWithBytesNoCopy:length:freeWhenDone:",
-                data,
-                new IntPtr(contentLength),
-                IntPtr.Zero);
-            ObjC.Call(schemeTask, "didReceiveData:", nsData);
-
-            ObjC.Call(schemeTask, "didFinish");
-        }
-
-        private static void FinishUriSchemeCallbackWithError(IntPtr schemeTask, int errorCode)
-        {
-            var error = Foundation.Call(
-                "NSError",
-                "errorWithDomain:code:userInfo:",
-                NSString.Create("com.bildstein.spidereye"),
-                new IntPtr(errorCode),
-                IntPtr.Zero);
-            ObjC.Call(schemeTask, "didFailWithError:", error);
+            private static void FinishUriSchemeCallbackWithError(IWKUrlSchemeTask urlSchemeTask, int errorCode)
+            {
+                using var domain = new NSString("com.bildstein.spidereye");
+                using var error = new NSError(domain, errorCode);
+                urlSchemeTask.DidFailWithError(error);
+            }
         }
     }
 }

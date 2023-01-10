@@ -2,7 +2,7 @@
   <Import Project="..\Shared\SpiderEye.Playground.Shared.proj" />
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net6.0-macos</TargetFramework>
     <DefineConstants>$(DefineConstants);MAC</DefineConstants>
   </PropertyGroup>
 

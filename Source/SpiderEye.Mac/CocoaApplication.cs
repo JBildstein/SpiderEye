@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
-using SpiderEye.Mac.Interop;
-using SpiderEye.Mac.Native;
+using AppKit;
+using Foundation;
 
 namespace SpiderEye.Mac
 {
@@ -11,65 +11,38 @@ namespace SpiderEye.Mac
 
         public SynchronizationContext SynchronizationContext { get; }
 
-        public IntPtr Handle { get; }
-
-        private static readonly NativeClassDefinition AppDelegateDefinition;
-        private readonly NativeClassInstance appDelegate;
-
-        static CocoaApplication()
-        {
-            AppDelegateDefinition = CreateAppDelegate();
-        }
-
         public CocoaApplication()
         {
+            NSApplication.Init();
+
             Factory = new CocoaUiFactory();
-            SynchronizationContext = new CocoaSynchronizationContext();
+            SynchronizationContext = SynchronizationContext.Current!;
 
-            Handle = AppKit.Call("NSApplication", "sharedApplication");
-            appDelegate = AppDelegateDefinition.CreateInstance(this);
-
-            ObjC.Call(Handle, "setActivationPolicy:", IntPtr.Zero);
-            ObjC.Call(Handle, "setDelegate:", appDelegate.Handle);
+            NSApplication.SharedApplication.Delegate = new CocoaAppDelegate();
+            NSApplication.SharedApplication.ActivationPolicy = NSApplicationActivationPolicy.Regular;
         }
 
         public void Run()
         {
-            ObjC.Call(Handle, "run");
+            NSApplication.SharedApplication.Run();
         }
 
         public void Exit()
         {
-            ObjC.Call(Handle, "terminate:", Handle);
-            appDelegate.Dispose();
+            NSApplication.SharedApplication.Terminate(NSApplication.SharedApplication);
         }
 
-        private static NativeClassDefinition CreateAppDelegate()
+        private class CocoaAppDelegate : NSApplicationDelegate
         {
-            // note: NSApplicationDelegate is not available at runtime and returns null, it's kept for completeness
-            var definition = NativeClassDefinition.FromClass(
-                "SpiderEyeAppDelegate",
-                AppKit.GetClass("NSResponder"),
-                AppKit.GetProtocol("NSApplicationDelegate"),
-                AppKit.GetProtocol("NSTouchBarProvider"));
+            public override void DidFinishLaunching(NSNotification notification)
+            {
+                NSApplication.SharedApplication.ActivateIgnoringOtherApps(true);
+            }
 
-            definition.AddMethod<ShouldTerminateDelegate>(
-                "applicationShouldTerminateAfterLastWindowClosed:",
-                "c@:@",
-                (self, op, notification) => (byte)(Application.ExitWithLastWindow ? 1 : 0));
-
-            definition.AddMethod<NotificationDelegate>(
-                "applicationDidFinishLaunching:",
-                "v@:@",
-                (self, op, notification) =>
-                {
-                    var instance = definition.GetParent<CocoaApplication>(self);
-                    ObjC.Call(instance.Handle, "activateIgnoringOtherApps:", true);
-                });
-
-            definition.FinishDeclaration();
-
-            return definition;
+            public override bool ApplicationShouldTerminateAfterLastWindowClosed(NSApplication sender)
+            {
+                return Application.ExitWithLastWindow;
+            }
         }
     }
 }

@@ -1,12 +1,17 @@
-using SpiderEye.Mac.Native;
+using AppKit;
 
 namespace SpiderEye.Mac
 {
-    internal class CocoaSeparatorMenuItem : CocoaMenuItem
+    internal class CocoaSeparatorMenuItem : NSMenuItem, IMenuItem
     {
         public CocoaSeparatorMenuItem()
-            : base(AppKit.Call("NSMenuItem", "separatorItem"))
+            : base(NSMenuItem.SeparatorItem.Handle)
         {
+        }
+
+        public IMenu CreateSubMenu()
+        {
+            return new CocoaSubMenu(this);
         }
     }
 }

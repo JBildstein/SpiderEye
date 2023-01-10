@@ -1,61 +1,61 @@
-﻿using System;
-using System.Runtime.InteropServices;
+using System;
+using AppKit;
+using CoreGraphics;
+using Foundation;
 using SpiderEye.Bridge;
-using SpiderEye.Mac.Interop;
-using SpiderEye.Mac.Native;
+using SpiderEye.Tools;
 
 namespace SpiderEye.Mac
 {
-    internal class CocoaWindow : IWindow
+    internal class CocoaWindow : NSWindow, IWindow
     {
         public event CancelableEventHandler? Closing;
         public event EventHandler? Closed;
         public event EventHandler? Shown;
 
-        public string? Title
+        string? IWindow.Title
         {
-            get { return NSString.GetString(ObjC.Call(Handle, "title")); }
-            set { ObjC.Call(Handle, "setTitle:", NSString.Create(value ?? string.Empty)); }
+            get { return this.Title; }
+            set { this.Title = value ?? string.Empty; }
         }
 
         public Size Size
         {
             get
             {
-                var frame = Marshal.PtrToStructure<CGRect>(ObjC.Call(Handle, "frame"));
+                var frame = this.Frame;
                 return new Size((int)frame.Size.Width, (int)frame.Size.Height);
             }
             set
             {
-                ObjC.Call(Handle, "setContentSize:", new CGSize(value.Width, value.Height));
+                this.SetContentSize(new CGSize(value.Width, value.Height));
             }
         }
 
-        public Size MinSize
+        Size IWindow.MinSize
         {
             get
             {
-                var size = Marshal.PtrToStructure<CGSize>(ObjC.Call(Handle, "contentMinSize"));
+                var size = this.ContentMinSize;
                 return new Size(size.Width, size.Height);
             }
             set
             {
-                ObjC.Call(Handle, "setContentMinSize:", new CGSize(value.Width, value.Height));
+                this.ContentMinSize = new CGSize(value.Width, value.Height);
             }
         }
 
-        public Size MaxSize
+        Size IWindow.MaxSize
         {
             get
             {
-                var size = Marshal.PtrToStructure<CGSize>(ObjC.Call(Handle, "contentMaxSize"));
+                var size = this.ContentMaxSize;
                 return new Size(size.Width, size.Height);
             }
             set
             {
                 if (value == Size.Zero) { value = new Size(float.MaxValue, float.MaxValue); }
-
-                ObjC.Call(Handle, "setContentMaxSize:", new CGSize(value.Width, value.Height));
+                this.ContentMaxSize = new CGSize(value.Width, value.Height);
             }
         }
 
@@ -65,7 +65,7 @@ namespace SpiderEye.Mac
             set
             {
                 canResizeField = value;
-                StyleMask = GetWantedStyleMask();
+                StyleMask = GetWantedStyleMask(StyleMask, borderStyleField, value);
             }
         }
 
@@ -79,20 +79,24 @@ namespace SpiderEye.Mac
                 // the title gets reset when setting it to borderless
                 // so we just store the title, set the border and set the title back again
                 string? title = Title;
-                StyleMask = GetWantedStyleMask();
+                StyleMask = GetWantedStyleMask(StyleMask, value, canResizeField);
                 Title = title;
             }
         }
 
-        public string? BackgroundColor
+        string? IWindow.BackgroundColor
         {
             get { return backgroundColorField; }
             set
             {
                 backgroundColorField = value;
-                IntPtr bgColor = NSColor.FromHex(value);
-                ObjC.Call(Handle, "setBackgroundColor:", bgColor);
-                webview.UpdateBackgroundColor(bgColor);
+
+                ColorTools.ParseHex(value, out byte r, out byte g, out byte b);
+                using var color = NSColor.FromRgba(r, g, b, (byte)255);
+                BackgroundColor = color;
+
+                using var key = new NSString("backgroundColor");
+                webview.SetValueForKey(color, key);
             }
         }
 
@@ -122,157 +126,117 @@ namespace SpiderEye.Mac
             get { return webview; }
         }
 
-        private NSWindowStyleMask StyleMask
-        {
-            get { return (NSWindowStyleMask)ObjC.Call(Handle, "styleMask"); }
-            set { ObjC.Call(Handle, "setStyleMask:", new IntPtr((int)value)); }
-        }
-
-        public readonly IntPtr Handle;
-
-        private static readonly NativeClassDefinition WindowDelegateDefinition;
-
-        private readonly NativeClassInstance windowDelegate;
         private readonly CocoaWebview webview;
 
         private bool canResizeField;
         private WindowBorderStyle borderStyleField;
         private string? backgroundColorField;
 
-        static CocoaWindow()
-        {
-            WindowDelegateDefinition = CreateWindowDelegate();
-        }
-
         public CocoaWindow(WindowConfiguration config, WebviewBridge bridge)
+            : base(new CGRect(0, 0, config.Size.Width, config.Size.Height), GetWantedStyleMask(0ul, WindowBorderStyle.Default, config.CanResize), NSBackingStore.Buffered, false)
         {
             if (config == null) { throw new ArgumentNullException(nameof(config)); }
             if (bridge == null) { throw new ArgumentNullException(nameof(bridge)); }
 
-            Handle = AppKit.Call("NSWindow", "alloc");
-
             canResizeField = config.CanResize;
-            var style = GetWantedStyleMask();
-            ObjC.SendMessage(
-                Handle,
-                ObjC.RegisterName("initWithContentRect:styleMask:backing:defer:"),
-                new CGRect(0, 0, config.Size.Width, config.Size.Height),
-                new UIntPtr((uint)style),
-                new UIntPtr(2),
-                false);
+            StyleMask = GetWantedStyleMask(StyleMask, borderStyleField, canResizeField);
 
             webview = new CocoaWebview(bridge);
-            ObjC.Call(Handle, "setContentView:", webview.Handle);
+
+            // The dev tools view will be added as a subview of the content view. That leads to a warning at runtime
+            // when opening the dev tools if we don't set a parent view as the content view.
+            using var parentView = new NSView() { AutoresizingMask = NSViewResizingMask.WidthSizable | NSViewResizingMask.HeightSizable };
+            parentView.AddSubview(webview);
+            webview.AutoresizingMask = NSViewResizingMask.WidthSizable | NSViewResizingMask.HeightSizable;
+            ContentView = parentView;
+            MakeFirstResponder(webview);
 
             webview.TitleChanged += Webview_TitleChanged;
 
-            windowDelegate = WindowDelegateDefinition.CreateInstance(this);
-            ObjC.Call(Handle, "setDelegate:", windowDelegate.Handle);
+            Delegate = new CocoaWindowDelegate(this);
         }
 
         public void Show()
         {
-            ObjC.Call(Handle, "center");
-            ObjC.Call(Handle, "makeKeyAndOrderFront:", IntPtr.Zero);
+            Center();
+            MakeKeyAndOrderFront(null);
 
             MacApplication.SynchronizationContext.Post(s => Shown?.Invoke(this, EventArgs.Empty), null);
         }
 
-        public void Close()
-        {
-            ObjC.Call(Handle, "close", IntPtr.Zero);
-        }
-
         public void EnterFullscreen()
         {
-            if (!StyleMask.HasFlag(NSWindowStyleMask.FullScreen))
+            if (!StyleMask.HasFlag(NSWindowStyle.FullScreenWindow))
             {
-                ObjC.Call(Handle, "toggleFullScreen:", Handle);
+                ToggleFullScreen(this);
             }
         }
 
         public void ExitFullscreen()
         {
-            if (StyleMask.HasFlag(NSWindowStyleMask.FullScreen))
+            if (StyleMask.HasFlag(NSWindowStyle.FullScreenWindow))
             {
-                ObjC.Call(Handle, "toggleFullScreen:", Handle);
+                ToggleFullScreen(this);
             }
         }
 
         public void Maximize()
         {
-            if (ObjC.Call(Handle, "isZoomed") == IntPtr.Zero) { ObjC.Call(Handle, "zoom:", Handle); }
+            if (!IsZoomed)
+            {
+                Zoom(this);
+            }
         }
 
         public void Unmaximize()
         {
-            if (ObjC.Call(Handle, "isZoomed") != IntPtr.Zero) { ObjC.Call(Handle, "zoom:", Handle); }
+            if (IsZoomed)
+            {
+                Zoom(this);
+            }
         }
 
         public void Minimize()
         {
-            ObjC.Call(Handle, "miniaturize:", IntPtr.Zero);
+            Miniaturize(null);
         }
 
         public void Unminimize()
         {
-            ObjC.Call(Handle, "deminiaturize:", IntPtr.Zero);
+            Deminiaturize(null);
         }
 
-        public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            // window will be released automatically
-            webview.Dispose();
-            windowDelegate.Dispose();
-        }
-
-        private static NativeClassDefinition CreateWindowDelegate()
-        {
-            var definition = NativeClassDefinition.FromObject(
-                "SpiderEyeWindowDelegate",
-                AppKit.GetProtocol("NSWindowDelegate"));
-
-            definition.AddMethod<WindowShouldCloseDelegate>(
-                "windowShouldClose:",
-                "c@:@",
-                (self, op, window) =>
-                {
-                    var instance = definition.GetParent<CocoaWindow>(self);
-                    var args = new CancelableEventArgs();
-                    instance.Closing?.Invoke(instance, args);
-
-                    return args.Cancel ? (byte)0 : (byte)1;
-                });
-
-            definition.AddMethod<NotificationDelegate>(
-                "windowWillClose:",
-                "v@:@",
-                (self, op, notification) =>
-                {
-                    var instance = definition.GetParent<CocoaWindow>(self);
-                    instance.webview.TitleChanged -= instance.Webview_TitleChanged;
-                    instance.Closed?.Invoke(instance, EventArgs.Empty);
-                });
-
-            definition.FinishDeclaration();
-
-            return definition;
-        }
-
-        private NSWindowStyleMask GetWantedStyleMask()
-        {
-            bool isFullscreen = StyleMask.HasFlag(NSWindowStyleMask.FullScreen);
-            NSWindowStyleMask style = NSWindowStyleMask.Closable | NSWindowStyleMask.Miniaturizable;
-            style |= borderStyleField switch
+            if (disposing)
             {
-                WindowBorderStyle.Default => NSWindowStyleMask.Titled,
-                WindowBorderStyle.None => NSWindowStyleMask.Borderless,
-                _ => throw new ArgumentException($"Invalid border style value of {borderStyleField}", nameof(BorderStyle)),
-            };
-            if (canResizeField) { style |= NSWindowStyleMask.Resizable; }
-            if (isFullscreen) { style |= NSWindowStyleMask.FullScreen; }
+                webview.Dispose();
+            }
 
-            return style;
+            base.Dispose(disposing);
+        }
+
+        private class CocoaWindowDelegate : NSWindowDelegate
+        {
+            private readonly CocoaWindow cocoaWindow;
+
+            public CocoaWindowDelegate(CocoaWindow cocoaWindow)
+            {
+                this.cocoaWindow = cocoaWindow;
+            }
+
+            public override bool WindowShouldClose(NSObject sender)
+            {
+                var args = new CancelableEventArgs();
+                cocoaWindow.Closing?.Invoke(cocoaWindow, args);
+                return !args.Cancel;
+            }
+
+            public override void WillClose(NSNotification notification)
+            {
+                cocoaWindow.webview.TitleChanged -= cocoaWindow.Webview_TitleChanged;
+                cocoaWindow.Closed?.Invoke(cocoaWindow, EventArgs.Empty);
+            }
         }
 
         private void Webview_TitleChanged(object? sender, string title)
@@ -281,6 +245,22 @@ namespace SpiderEye.Mac
             {
                 Application.Invoke(() => Title = title ?? string.Empty);
             }
+        }
+
+        private static NSWindowStyle GetWantedStyleMask(NSWindowStyle styleMask, WindowBorderStyle borderStyle, bool canResize)
+        {
+            bool isFullscreen = styleMask.HasFlag(NSWindowStyle.FullScreenWindow);
+            NSWindowStyle style = NSWindowStyle.Closable | NSWindowStyle.Miniaturizable;
+            style |= borderStyle switch
+            {
+                WindowBorderStyle.Default => NSWindowStyle.Titled,
+                WindowBorderStyle.None => NSWindowStyle.Borderless,
+                _ => throw new ArgumentException($"Invalid border style value of {borderStyle}", nameof(BorderStyle)),
+            };
+            if (canResize) { style |= NSWindowStyle.Resizable; }
+            if (isFullscreen) { style |= NSWindowStyle.FullScreenWindow; }
+
+            return style;
         }
     }
 }
