@@ -142,11 +142,37 @@ namespace SpiderEye.Mac
 
             public override void DidFailProvisionalNavigation(WKWebView webView, WKNavigation navigation, NSError error)
             {
-                if (error.UserInfo["NSErrorFailingURLKey"] is NSUrl url
+                // `WKWebView` doesn't allow redirects from HTTP(S) to non-HTTP(S) schemes. That's because it's
+                // disallowed in the Fetch standard. See https://developer.apple.com/forums/thread/681530 for more
+                // information. Additionally, WebKit doesn't offer any API to handle the redirect properly ourselves.
+                // Instead, the page breaks - the document's location points to the redirect URL even though that page
+                // wasn't loaded. And worst of all, the `WKUrlSchemeHandler` isn't called. See
+                // https://bugs.webkit.org/show_bug.cgi?id=173730, especially comment 21.
+                if (error.LocalizedDescription.Equals("Redirection to URL with a scheme that is not HTTP(S)", StringComparison.OrdinalIgnoreCase)
+                    && error.UserInfo["NSErrorFailingURLKey"] is NSUrl url
                     && url.Scheme == SCHEME)
                 {
+                    // Simply loading the URL works - sometimes. Sometimes, the web view updates the document location
+                    // but doesn't load the content, never calling the `WKUrlSchemeHandler`. To work around that issue,
+                    // we first switch to another page (`about:blank`), then back to the URL we wanted to get to.
                     var cocoaWebView = (CocoaWebview)webView;
-                    cocoaWebView.LoadUri(url);
+
+                    // Ensure the window title doesn't change to a blank string (for `about:blank`) for a split second,
+                    // then back to the actual page's title.
+                    var usedBrowserTitle = cocoaWebView.UseBrowserTitle;
+                    cocoaWebView.UseBrowserTitle = false;
+
+                    webView.EvaluateJavaScript(
+                        "window.location.href=\"about:blank\"",
+                        (_, _) =>
+                            // Since loading is async, we need to load the actual URL afterward, which would require
+                            // state management to keep track of when to do that. So instead, we can request the loading
+                            // of that URL after kicking off the other page load, simply via `Task.Run`.
+                            Task.Run(() =>
+                            {
+                                cocoaWebView.UseBrowserTitle = usedBrowserTitle;
+                                cocoaWebView.LoadUri(url);
+                            }));
                 }
             }
         }
